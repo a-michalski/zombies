@@ -112,3 +112,11 @@ export function getProjectileImage(): any {
 export function hasProjectileImage(): boolean {
   return !!PROJECTILE_IMAGES.arrow;
 }
+
+export function hasMapImages(): boolean {
+  return !!(
+    MAP_IMAGES.groundTile &&
+    MAP_IMAGES.pathTexture &&
+    MAP_IMAGES.background
+  );
+}

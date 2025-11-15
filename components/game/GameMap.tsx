@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, ImageBackground, StyleSheet, TouchableOpacity, View } from "react-native";
 import Svg, { Circle, Line, Polygon } from "react-native-svg";
 
 import { EnemyRenderer } from "./EnemyRenderer";
@@ -9,6 +9,7 @@ import { VisualEffects } from "./VisualEffects";
 
 import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
+import { MAP_IMAGES, hasMapImages } from "@/utils/imageAssets";
 
 export function GameMap() {
   const { gameState, selectSpot } = useGame();
@@ -16,40 +17,42 @@ export function GameMap() {
   const mapWidth = MAP_CONFIG.WIDTH * tileSize;
   const mapHeight = MAP_CONFIG.HEIGHT * tileSize;
 
-  return (
-    <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>
-      <View style={styles.layerContainer}>
-        {CONSTRUCTION_SPOTS.map((spot) => {
-          const isOccupied = gameState.towers.some((t) => t.spotId === spot.id);
-          if (isOccupied) return null;
+  const hasMapGraphics = hasMapImages();
+  const mapBackground = MAP_IMAGES.background;
 
-          const x = spot.x * tileSize;
-          const y = spot.y * tileSize;
-          const size = tileSize * 0.8;
+  const MapContent = () => (
+    <View style={styles.layerContainer}>
+      {CONSTRUCTION_SPOTS.map((spot) => {
+        const isOccupied = gameState.towers.some((t) => t.spotId === spot.id);
+        if (isOccupied) return null;
 
-          return (
-            <TouchableOpacity
-              key={`touch-${spot.id}`}
-              style={[
-                styles.constructionSpotTouch,
-                {
-                  left: x - size / 2,
-                  top: y - size / 2,
-                  width: size,
-                  height: size,
-                },
-              ]}
-              onPress={() => selectSpot(spot.id)}
-              activeOpacity={0.7}
-            />
-          );
-        })}
-        <Svg
-          width={MAP_CONFIG.WIDTH * tileSize}
-          height={MAP_CONFIG.HEIGHT * tileSize}
-          style={styles.svg}
-          pointerEvents="none"
-        >
+        const x = spot.x * tileSize;
+        const y = spot.y * tileSize;
+        const size = tileSize * 0.8;
+
+        return (
+          <TouchableOpacity
+            key={`touch-${spot.id}`}
+            style={[
+              styles.constructionSpotTouch,
+              {
+                left: x - size / 2,
+                top: y - size / 2,
+                width: size,
+                height: size,
+              },
+            ]}
+            onPress={() => selectSpot(spot.id)}
+            activeOpacity={0.7}
+          />
+        );
+      })}
+      <Svg
+        width={MAP_CONFIG.WIDTH * tileSize}
+        height={MAP_CONFIG.HEIGHT * tileSize}
+        style={styles.svg}
+        pointerEvents="none"
+      >
         {WAYPOINTS.map((waypoint, index) => {
           if (index === WAYPOINTS.length - 1) return null;
           const next = WAYPOINTS[index + 1];
@@ -107,12 +110,27 @@ export function GameMap() {
             </React.Fragment>
           );
         })}
-        </Svg>
-        <TowerRenderer />
-        <EnemyRenderer />
-        <ProjectileRenderer />
-        <VisualEffects />
-      </View>
+      </Svg>
+      <TowerRenderer />
+      <EnemyRenderer />
+      <ProjectileRenderer />
+      <VisualEffects />
+    </View>
+  );
+
+  return (
+    <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>
+      {hasMapGraphics && mapBackground ? (
+        <ImageBackground
+          source={mapBackground}
+          style={[styles.mapBackground, { width: mapWidth, height: mapHeight }]}
+          resizeMode="cover"
+        >
+          <MapContent />
+        </ImageBackground>
+      ) : (
+        <MapContent />
+      )}
     </View>
   );
 }
@@ -127,7 +145,11 @@ const styles = StyleSheet.create({
     position: "relative" as const,
   },
   svg: {
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "transparent",
+  },
+  mapBackground: {
+    width: "100%",
+    height: "100%",
   },
   constructionSpotTouch: {
     position: "absolute" as const,
