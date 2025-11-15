@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Skull } from "lucide-react-native";
+import { Settings, Skull, Trophy } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,6 +25,26 @@ export default function MainMenu() {
           >
             <Text style={styles.startButtonText}>START GAME</Text>
           </TouchableOpacity>
+
+          <View style={styles.menuButtons}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => router.push("/stats" as any)}
+              activeOpacity={0.7}
+            >
+              <Trophy size={20} color="#FFD700" />
+              <Text style={styles.menuButtonText}>Statistics</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => router.push("/settings" as any)}
+              activeOpacity={0.7}
+            >
+              <Settings size={20} color="#FFFFFF" />
+              <Text style={styles.menuButtonText}>Settings</Text>
+            </TouchableOpacity>
+          </View>
 
           <Text style={styles.version}>v2.0 MVP</Text>
         </View>
@@ -82,6 +102,28 @@ const styles = StyleSheet.create({
     fontWeight: "800" as const,
     color: "#FFFFFF",
     letterSpacing: 2,
+  },
+  menuButtons: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 24,
+    marginBottom: 16,
+  },
+  menuButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#222222",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#333333",
+  },
+  menuButtonText: {
+    fontSize: 14,
+    fontWeight: "700" as const,
+    color: "#FFFFFF",
   },
   version: {
     position: "absolute",

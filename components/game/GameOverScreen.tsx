@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { Home, RotateCcw, Trophy, Skull } from "lucide-react-native";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Modal,
   StyleSheet,
@@ -10,9 +10,29 @@ import {
 } from "react-native";
 
 import { useGame } from "@/contexts/GameContext";
+import { updateStatsFromGame } from "@/utils/storage";
 
 export function GameOverScreen() {
   const { gameState, resetGame } = useGame();
+  const statsSavedRef = useRef(false);
+
+  useEffect(() => {
+    if (
+      (gameState.phase === "victory" || gameState.phase === "defeat") &&
+      !statsSavedRef.current
+    ) {
+      const wavesSurvived = gameState.phase === "victory" 
+        ? gameState.currentWave 
+        : gameState.currentWave - 1;
+      
+      updateStatsFromGame(
+        gameState.currentWave,
+        gameState.stats.zombiesKilled,
+        wavesSurvived
+      );
+      statsSavedRef.current = true;
+    }
+  }, [gameState.phase, gameState.currentWave, gameState.stats.zombiesKilled]);
 
   if (gameState.phase !== "victory" && gameState.phase !== "defeat") {
     return null;
@@ -64,7 +84,10 @@ export function GameOverScreen() {
           <View style={styles.actions}>
             <TouchableOpacity
               style={[styles.button, styles.playAgainButton]}
-              onPress={() => resetGame()}
+              onPress={() => {
+                statsSavedRef.current = false;
+                resetGame();
+              }}
               activeOpacity={0.8}
             >
               <RotateCcw size={20} color="#FFFFFF" />

@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BuildMenu } from "@/components/game/BuildMenu";
 import { GameMap } from "@/components/game/GameMap";
 import { GameOverScreen } from "@/components/game/GameOverScreen";
+import { PauseMenu } from "@/components/game/PauseMenu";
 import { UpgradeMenu } from "@/components/game/UpgradeMenu";
 import { MAP_CONFIG } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
@@ -134,6 +135,7 @@ export default function GameScreen() {
 
       <BuildMenu />
       <UpgradeMenu />
+      <PauseMenu />
       <GameOverScreen />
     </View>
   );
