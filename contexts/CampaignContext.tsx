@@ -12,11 +12,16 @@
  */
 
 import createContextHook from "@nkzw/create-context-hook";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 import { PlayerProgress, LevelProgress, CampaignSaveData } from "@/types/progression";
 import { LevelConfig } from "@/types/levels";
 import { ALL_LEVELS } from "@/data/maps";
+import {
+  loadCampaignProgress,
+  saveCampaignProgress,
+  createInitialCampaignData,
+} from "@/utils/storage";
 
 /**
  * Statistics provided when a level is completed
@@ -59,6 +64,53 @@ const initialPlayerProgress: PlayerProgress = {
 export const [CampaignProvider, useCampaignContext] = createContextHook(() => {
   const [playerProgress, setPlayerProgress] = useState<PlayerProgress>(initialPlayerProgress);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  /**
+   * Load saved campaign progress on mount
+   * If no save data exists, initialize with default state
+   */
+  useEffect(() => {
+    const loadSavedProgress = async () => {
+      setIsLoading(true);
+      try {
+        const savedData = await loadCampaignProgress();
+        if (savedData) {
+          setPlayerProgress(savedData.playerProgress);
+        } else {
+          // First launch - use initial state
+          const initialData = createInitialCampaignData();
+          setPlayerProgress(initialData.playerProgress);
+        }
+      } catch (error) {
+        console.error('Failed to load campaign progress:', error);
+        // Fallback to initial state on error
+        const initialData = createInitialCampaignData();
+        setPlayerProgress(initialData.playerProgress);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSavedProgress();
+  }, []); // Run only once on mount
+
+  /**
+   * Auto-save campaign progress whenever it changes
+   */
+  useEffect(() => {
+    // Skip saving on initial mount (handled by load effect)
+    if (isLoading) return;
+
+    const saveData: CampaignSaveData = {
+      playerProgress,
+      version: 1,
+      lastUpdated: Date.now(),
+    };
+
+    saveCampaignProgress(saveData).catch((error) => {
+      console.error('Failed to auto-save campaign progress:', error);
+    });
+  }, [playerProgress, isLoading]);
 
   /**
    * Check if a level is unlocked
