@@ -1,4 +1,5 @@
 import { EnemyType } from "@/constants/enemies";
+import { LevelConfig } from './levels';
 
 export interface Position {
   x: number;
@@ -54,6 +55,18 @@ export interface Particle {
 
 export type GamePhase = "menu" | "playing" | "between_waves" | "victory" | "defeat";
 
+/**
+ * Game session configuration
+ * Determines whether playing campaign mode or classic/freeplay mode
+ */
+export interface GameSessionConfig {
+  /** Optional: Level being played (null for classic/freeplay mode) */
+  currentLevel: LevelConfig | null;
+
+  /** Whether this is campaign mode or classic mode */
+  mode: 'campaign' | 'classic';
+}
+
 export interface GameState {
   phase: GamePhase;
   currentWave: number;
@@ -62,18 +75,21 @@ export interface GameState {
   isPaused: boolean;
   gameSpeed: 1 | 2;
   waveCountdown: number;
-  
+
   enemies: Enemy[];
   towers: Tower[];
   projectiles: Projectile[];
   floatingTexts: FloatingText[];
   particles: Particle[];
-  
+
   selectedSpotId: string | null;
   selectedTowerId: string | null;
-  
+
   stats: {
     zombiesKilled: number;
     totalDamageDealt: number;
   };
+
+  /** Current session configuration (campaign vs classic mode) */
+  sessionConfig?: GameSessionConfig;
 }
