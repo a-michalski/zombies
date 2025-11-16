@@ -30,10 +30,12 @@ import { LevelCard } from '@/components/campaign/LevelCard';
 import { ProgressBar } from '@/components/campaign/ProgressBar';
 import { THEME } from '@/constants/ui/theme';
 import { useCampaignContext } from '@/contexts/CampaignContext';
+import { useGame } from '@/contexts/GameContext';
 import { LevelConfig } from '@/types/levels';
 
 export default function LevelsScreen() {
   const router = useRouter();
+  const { startCampaignLevel } = useGame();
   const {
     playerProgress,
     availableLevels,
@@ -59,10 +61,20 @@ export default function LevelsScreen() {
     return firstIncomplete || null;
   }, [availableLevels, playerProgress]);
 
-  // Navigate to game with selected level
+  /**
+   * Navigate to game with selected level
+   * Starts campaign level and navigates to game screen
+   */
   const handleLevelPress = (level: LevelConfig) => {
-    // Store selected level (we'll handle this in game integration)
-    // For now, just navigate to game
+    // Check if level is locked
+    if (!isLevelUnlocked(level.id)) {
+      return; // Don't navigate if locked
+    }
+
+    // Start campaign level
+    startCampaignLevel(level);
+
+    // Navigate to game
     router.push('/game');
   };
 

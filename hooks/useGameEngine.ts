@@ -5,15 +5,49 @@ import { GAME_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { LOOKOUT_POST, PROJECTILE_CONFIG } from "@/constants/towers";
 import { WAVE_CONFIGS } from "@/constants/waves";
 import { useGame } from "@/contexts/GameContext";
-import { Enemy, Projectile } from "@/types/game";
+import { Enemy, Position, Projectile } from "@/types/game";
 import { calculatePathProgress, getDistance, moveAlongPath } from "@/utils/pathfinding";
 
 export function useGameEngine() {
-  const { setGameState, addFloatingText, addParticles } = useGame();
-  
+  const { gameState: currentGameState, setGameState, addFloatingText, addParticles } = useGame();
+
   const spawnTimerRef = useRef<number>(0);
   const enemyQueueRef = useRef<{ type: string; spawnTime: number }[]>([]);
   const lastUpdateRef = useRef<number>(Date.now());
+
+  /**
+   * Get wave configuration based on current game mode
+   * Campaign mode uses level's waves, classic mode uses hardcoded waves
+   */
+  const getWaveConfig = (waveNumber: number, gameState: any) => {
+    // If campaign mode, use level's waves
+    if (gameState.sessionConfig?.mode === 'campaign' && gameState.sessionConfig?.currentLevel) {
+      return gameState.sessionConfig.currentLevel.mapConfig.waves.find((w: any) => w.wave === waveNumber);
+    }
+
+    // Otherwise use classic mode (hardcoded waves)
+    return WAVE_CONFIGS.find(w => w.wave === waveNumber);
+  };
+
+  /**
+   * Get total number of waves based on current game mode
+   */
+  const getTotalWaves = (gameState: any) => {
+    if (gameState.sessionConfig?.mode === 'campaign' && gameState.sessionConfig?.currentLevel) {
+      return gameState.sessionConfig.currentLevel.mapConfig.waves.length;
+    }
+    return GAME_CONFIG.TOTAL_WAVES; // Classic mode: 10 waves
+  };
+
+  /**
+   * Get waypoints based on current game mode
+   */
+  const getWaypoints = (gameState: any): readonly Position[] => {
+    if (gameState.sessionConfig?.mode === 'campaign' && gameState.sessionConfig?.currentLevel) {
+      return gameState.sessionConfig.currentLevel.mapConfig.waypoints;
+    }
+    return WAYPOINTS; // Classic mode: hardcoded waypoints
+  };
 
   useEffect(() => {
     const gameLoop = () => {
@@ -30,7 +64,13 @@ export function useGameEngine() {
         let newState = { ...prev };
 
         if (newState.phase === "playing") {
-          const waveConfig = WAVE_CONFIGS[newState.currentWave - 1];
+          const waveConfig = getWaveConfig(newState.currentWave, newState);
+
+          if (!waveConfig) {
+            // No more waves - victory
+            newState.phase = "victory";
+            return newState;
+          }
 
           if (enemyQueueRef.current.length === 0 && newState.enemies.length === 0) {
             const allEnemies: { type: string; spawnTime: number }[] = [];
@@ -59,12 +99,13 @@ export function useGameEngine() {
             const enemyToSpawn = enemyQueueRef.current.shift()!;
             const enemyConfig = ENEMY_CONFIGS[enemyToSpawn.type as keyof typeof ENEMY_CONFIGS];
 
+            const waypoints = getWaypoints(newState);
             const newEnemy: Enemy = {
               id: `enemy_${now}_${Math.random()}`,
               type: enemyToSpawn.type as any,
               health: enemyConfig.health,
               maxHealth: enemyConfig.health,
-              position: { x: WAYPOINTS[0].x, y: WAYPOINTS[0].y },
+              position: { x: waypoints[0].x, y: waypoints[0].y },
               pathProgress: 0,
               waypointIndex: 0,
             };
@@ -72,13 +113,15 @@ export function useGameEngine() {
             newState.enemies.push(newEnemy);
           }
 
+          const waypoints = getWaypoints(newState);
           newState.enemies = newState.enemies.map((enemy: Enemy) => {
             const enemyConfig = ENEMY_CONFIGS[enemy.type];
             const moveResult = moveAlongPath(
               enemy.position,
               enemy.waypointIndex,
               enemyConfig.speed,
-              dt
+              dt,
+              waypoints
             );
 
             if (moveResult.reachedEnd) {
@@ -96,7 +139,8 @@ export function useGameEngine() {
 
             const pathProgress = calculatePathProgress(
               moveResult.newWaypointIndex,
-              moveResult.newPosition
+              moveResult.newPosition,
+              waypoints
             );
 
             return {
@@ -109,7 +153,7 @@ export function useGameEngine() {
 
           if (enemyQueueRef.current.length === 0 && newState.enemies.length === 0) {
             newState.scrap += GAME_CONFIG.WAVE_COMPLETION_BONUS;
-            
+
             addFloatingText(
               `+${GAME_CONFIG.WAVE_COMPLETION_BONUS}`,
               10,
@@ -117,7 +161,8 @@ export function useGameEngine() {
               "#FFD700"
             );
 
-            if (newState.currentWave >= GAME_CONFIG.TOTAL_WAVES) {
+            const totalWaves = getTotalWaves(newState);
+            if (newState.currentWave >= totalWaves) {
               newState.phase = "victory";
             } else {
               newState.currentWave += 1;
