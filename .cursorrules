@@ -204,6 +204,46 @@ Example:
 
 - Add new files to Git
 
+## AI Prompts for Graphics
+
+### Technical Requirements in Prompts
+
+- **ALWAYS include technical requirements** in AI prompts for graphics generation
+
+- When creating prompts for image generation, include ALL technical details that affect the final result:
+
+  - Exact dimensions (width x height in pixels)
+
+  - Format requirements (PNG with transparency, tileable, etc.)
+
+  - Color specifications (hex codes, color palette)
+
+  - Perspective/view angle (top-down, side view, isometric)
+
+  - Style requirements (realistic, cartoonish, post-apocalyptic)
+
+  - Technical constraints (seamless/tileable, transparent background, etc.)
+
+  - Use case context (how the image will be used in the game)
+
+- **Never create incomplete prompts** - every prompt must be ready to copy-paste directly into AI tools
+
+- If you notice technical requirements that should be in a prompt but aren't, add them immediately
+
+- Examples of technical details to include:
+
+  - Tileable/seamless requirements for textures
+
+  - Transparency needs (alpha channel)
+
+  - Rotation/orientation requirements
+
+  - Size constraints for game performance
+
+  - Color consistency with game palette
+
+  - Animation frame requirements (if sprite sheet)
+
 ## Security
 
 - NEVER modify security implementations without explicit user request

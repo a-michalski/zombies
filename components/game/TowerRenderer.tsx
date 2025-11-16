@@ -7,6 +7,9 @@ import { LOOKOUT_POST } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
 import { getTowerImage, hasTowerImages } from "@/utils/imageAssets";
 
+// Calculate once outside component
+const HAS_TOWER_IMAGES = hasTowerImages();
+
 export function TowerRenderer() {
   const { gameState, selectTower } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
@@ -54,7 +57,7 @@ export function TowerRenderer() {
                 />
               </Svg>
             )}
-            {hasTowerImages() ? (
+            {HAS_TOWER_IMAGES ? (
               <View
                 style={[
                   styles.towerImageContainer,
@@ -71,6 +74,16 @@ export function TowerRenderer() {
                   source={getTowerImage(LOOKOUT_POST.id, tower.level)}
                   style={[styles.towerImage, { width: size, height: size }]}
                   resizeMode="contain"
+                  onError={(error) => {
+                    if (__DEV__) {
+                      console.error("Tower image load error:", error.nativeEvent.error);
+                    }
+                  }}
+                  onLoad={() => {
+                    if (__DEV__) {
+                      console.log("Tower image loaded successfully for level:", tower.level);
+                    }
+                  }}
                 />
                 <View style={[styles.levelBadge, { left: x, top: y + size / 2 + 8 }]}>
                   <Svg width={16} height={16} style={styles.levelBadgeSvg}>

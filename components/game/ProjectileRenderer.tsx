@@ -7,6 +7,9 @@ import { PROJECTILE_CONFIG } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
 import { getProjectileImage, hasProjectileImage } from "@/utils/imageAssets";
 
+// Calculate once outside component
+const HAS_PROJECTILE_IMAGE = hasProjectileImage();
+
 export function ProjectileRenderer() {
   const { gameState } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
@@ -25,7 +28,7 @@ export function ProjectileRenderer() {
 
         return (
           <React.Fragment key={projectile.id}>
-            {hasProjectileImage() ? (
+            {HAS_PROJECTILE_IMAGE ? (
               <View
                 style={[
                   styles.projectileContainer,

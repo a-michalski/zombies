@@ -13,96 +13,148 @@
  * If images don't exist, the code will fallback to SVG rendering.
  */
 
-// Helper to safely require images (returns null if doesn't exist)
-function safeRequire(path: string): any {
-  try {
-    return require(path);
-  } catch {
-    return null;
-  }
-}
-
 // Tower images
 export const TOWER_IMAGES = {
   lookoutPost: {
-    level1: safeRequire("@/assets/images/towers/lookout-post-level-1.png"),
-    level2: safeRequire("@/assets/images/towers/lookout-post-level-2.png"),
-    level3: safeRequire("@/assets/images/towers/lookout-post-level-3.png"),
+    level1: require("@/assets/images/towers/lookout-post-level-1.png"),
+    level2: require("@/assets/images/towers/lookout-post-level-2.png"),
+    level3: require("@/assets/images/towers/lookout-post-level-3.png"),
   },
 } as const;
 
 // Enemy images
 export const ENEMY_IMAGES = {
-  shambler: safeRequire("@/assets/images/enemies/shambler.png"),
-  runner: safeRequire("@/assets/images/enemies/runner.png"),
-  brute: safeRequire("@/assets/images/enemies/brute.png"),
+  shambler: require("@/assets/images/enemies/shambler.png"),
+  runner: require("@/assets/images/enemies/runner.png"),
+  brute: require("@/assets/images/enemies/brute.png"),
 } as const;
 
 // Projectile images
 export const PROJECTILE_IMAGES = {
-  arrow: safeRequire("@/assets/images/projectiles/arrow.png"),
+  arrow: require("@/assets/images/projectiles/arrow.png"),
 } as const;
 
 // Map images
 export const MAP_IMAGES = {
-  groundTile: safeRequire("@/assets/images/map/ground-tile.png"),
-  pathTexture: safeRequire("@/assets/images/map/path-texture.png"),
-  background: safeRequire("@/assets/images/map/background.png"),
+  groundTile: require("@/assets/images/map/ground-tile.png"),
+  pathTexture: require("@/assets/images/map/path-texture.png"),
+  background: require("@/assets/images/map/background.png"),
+  constructionSpot: require("@/assets/images/map/construction-spot.png"),
+  startWaypoint: require("@/assets/images/map/start-waypoint.png"),
+  endWaypoint: require("@/assets/images/map/end-waypoint.png"),
 } as const;
 
 // UI images
 export const UI_IMAGES = {
-  buttonBg: safeRequire("@/assets/images/ui/button-bg.png"),
-  panelBg: safeRequire("@/assets/images/ui/panel-bg.png"),
-  scrapIcon: safeRequire("@/assets/images/ui/scrap-icon.png"),
+  buttonBg: require("@/assets/images/ui/button-bg.png"),
+  panelBg: require("@/assets/images/ui/panel-bg.png"),
+  scrapIcon: require("@/assets/images/ui/scrap-icon.png"),
 } as const;
 
 // Effect images (optional)
 export const EFFECT_IMAGES = {
-  explosion: safeRequire("@/assets/images/effects/explosion-sprite-sheet.png"),
-  hitEffect: safeRequire("@/assets/images/effects/hit-effect.png"),
+  explosion: require("@/assets/images/effects/explosion-sprite-sheet.png"),
+  hitEffect: require("@/assets/images/effects/hit-effect.png"),
 } as const;
 
 // Helper functions
 export function getTowerImage(towerType: string, level: number): any {
+  if (__DEV__) {
+    console.log("getTowerImage called:", { towerType, level });
+  }
   if (towerType === "tower_lookout_post") {
     switch (level) {
       case 1:
-        return TOWER_IMAGES.lookoutPost.level1;
+        const img1 = TOWER_IMAGES.lookoutPost.level1;
+        if (__DEV__) {
+          console.log("Returning level1 image:", img1);
+        }
+        return img1;
       case 2:
-        return TOWER_IMAGES.lookoutPost.level2;
+        const img2 = TOWER_IMAGES.lookoutPost.level2;
+        if (__DEV__) {
+          console.log("Returning level2 image:", img2);
+        }
+        return img2;
       case 3:
-        return TOWER_IMAGES.lookoutPost.level3;
+        const img3 = TOWER_IMAGES.lookoutPost.level3;
+        if (__DEV__) {
+          console.log("Returning level3 image:", img3);
+        }
+        return img3;
       default:
-        return TOWER_IMAGES.lookoutPost.level1;
+        const imgDefault = TOWER_IMAGES.lookoutPost.level1;
+        if (__DEV__) {
+          console.log("Returning default level1 image:", imgDefault);
+        }
+        return imgDefault;
     }
   }
-  return TOWER_IMAGES.lookoutPost.level1;
+  const imgFallback = TOWER_IMAGES.lookoutPost.level1;
+  if (__DEV__) {
+    console.log("Returning fallback level1 image:", imgFallback);
+  }
+  return imgFallback;
 }
 
 export function hasTowerImages(): boolean {
-  return !!(
+  const hasAll = !!(
     TOWER_IMAGES.lookoutPost.level1 &&
     TOWER_IMAGES.lookoutPost.level2 &&
     TOWER_IMAGES.lookoutPost.level3
   );
+  if (__DEV__) {
+    console.log("hasTowerImages:", hasAll, {
+      level1: !!TOWER_IMAGES.lookoutPost.level1,
+      level2: !!TOWER_IMAGES.lookoutPost.level2,
+      level3: !!TOWER_IMAGES.lookoutPost.level3,
+    });
+  }
+  return hasAll;
 }
 
 export function getEnemyImage(enemyType: string): any {
+  if (__DEV__) {
+    console.log("getEnemyImage called:", { enemyType });
+  }
   switch (enemyType) {
     case "shambler":
-      return ENEMY_IMAGES.shambler;
+      const shamblerImg = ENEMY_IMAGES.shambler;
+      if (__DEV__) {
+        console.log("Returning shambler image:", shamblerImg);
+      }
+      return shamblerImg;
     case "runner":
-      return ENEMY_IMAGES.runner;
+      const runnerImg = ENEMY_IMAGES.runner;
+      if (__DEV__) {
+        console.log("Returning runner image:", runnerImg);
+      }
+      return runnerImg;
     case "brute":
-      return ENEMY_IMAGES.brute;
+      const bruteImg = ENEMY_IMAGES.brute;
+      if (__DEV__) {
+        console.log("Returning brute image:", bruteImg);
+      }
+      return bruteImg;
     default:
-      return ENEMY_IMAGES.shambler;
+      const defaultImg = ENEMY_IMAGES.shambler;
+      if (__DEV__) {
+        console.log("Returning default shambler image:", defaultImg);
+      }
+      return defaultImg;
   }
 }
 
 export function hasEnemyImages(): boolean {
-  return !!(ENEMY_IMAGES.shambler && ENEMY_IMAGES.runner && ENEMY_IMAGES.brute);
+  const hasAll = !!(ENEMY_IMAGES.shambler && ENEMY_IMAGES.runner && ENEMY_IMAGES.brute);
+  if (__DEV__) {
+    console.log("hasEnemyImages:", hasAll, {
+      shambler: !!ENEMY_IMAGES.shambler,
+      runner: !!ENEMY_IMAGES.runner,
+      brute: !!ENEMY_IMAGES.brute,
+    });
+  }
+  return hasAll;
 }
 
 export function getProjectileImage(): any {
@@ -119,4 +171,12 @@ export function hasMapImages(): boolean {
     MAP_IMAGES.pathTexture &&
     MAP_IMAGES.background
   );
+}
+
+export function hasConstructionSpotImage(): boolean {
+  return !!MAP_IMAGES.constructionSpot;
+}
+
+export function hasWaypointImages(): boolean {
+  return !!(MAP_IMAGES.startWaypoint && MAP_IMAGES.endWaypoint);
 }

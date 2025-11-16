@@ -90,7 +90,12 @@ export function BuildMenu() {
               ]}
               onPress={() => {
                 if (canAfford && gameState.selectedSpotId) {
-                  buildTower(gameState.selectedSpotId);
+                  const spotId = gameState.selectedSpotId;
+                  buildTower(spotId);
+                  selectSpot(null); // Close menu after building
+                  if (__DEV__) {
+                    console.log("Building tower at spot:", spotId);
+                  }
                 }
               }}
               disabled={!canAfford}

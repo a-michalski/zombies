@@ -3,9 +3,12 @@ import { Image, StyleSheet, View } from "react-native";
 import Svg, { Circle, Rect } from "react-native-svg";
 
 import { ENEMY_CONFIGS } from "@/constants/enemies";
-import { MAP_CONFIG } from "@/constants/gameConfig";
+import { MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
 import { getEnemyImage, hasEnemyImages } from "@/utils/imageAssets";
+
+// Calculate once outside component
+const HAS_ENEMY_IMAGES = hasEnemyImages();
 
 export function EnemyRenderer() {
   const { gameState } = useGame();
@@ -13,17 +16,30 @@ export function EnemyRenderer() {
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {gameState.enemies.map((enemy) => {
-        const config = ENEMY_CONFIGS[enemy.type];
-        const x = enemy.position.x * tileSize;
-        const y = enemy.position.y * tileSize;
-        const size = config.size;
-        const healthPercent = enemy.health / enemy.maxHealth;
+      {HAS_ENEMY_IMAGES ? (
+        <>
+          {gameState.enemies.map((enemy) => {
+            const config = ENEMY_CONFIGS[enemy.type];
+            const x = enemy.position.x * tileSize;
+            const y = enemy.position.y * tileSize;
+            const size = config.size;
+            const healthPercent = enemy.health / enemy.maxHealth;
 
-        return (
-          <React.Fragment key={enemy.id}>
-            {hasEnemyImages() ? (
+            // Calculate rotation angle based on movement direction
+            let rotation = -90; // Default: rotate 90 degrees left (facing right)
+            if (enemy.waypointIndex < WAYPOINTS.length - 1) {
+              const currentWaypoint = WAYPOINTS[enemy.waypointIndex];
+              const nextWaypoint = WAYPOINTS[enemy.waypointIndex + 1];
+              const dx = nextWaypoint.x - currentWaypoint.x;
+              const dy = nextWaypoint.y - currentWaypoint.y;
+              // Calculate angle in degrees, then rotate 90 degrees left
+              const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+              rotation = angle - 90; // Rotate left by 90 degrees
+            }
+
+            return (
               <View
+                key={enemy.id}
                 style={[
                   styles.enemyContainer,
                   {
@@ -31,6 +47,7 @@ export function EnemyRenderer() {
                     top: y - size / 2,
                     width: size,
                     height: size,
+                    transform: [{ rotate: `${rotation}deg` }],
                   },
                 ]}
               >
@@ -38,14 +55,22 @@ export function EnemyRenderer() {
                   source={getEnemyImage(enemy.type)}
                   style={[styles.enemyImage, { width: size, height: size }]}
                   resizeMode="contain"
+                  onError={(error) => {
+                    if (__DEV__) {
+                      console.error("Enemy image load error:", enemy.type, error.nativeEvent.error);
+                    }
+                  }}
+                  onLoad={() => {
+                    if (__DEV__) {
+                      console.log("Enemy image loaded successfully for type:", enemy.type);
+                    }
+                  }}
                 />
                 {/* Health bar */}
                 <View
                   style={[
                     styles.healthBarContainer,
                     {
-                      left: x - size / 2,
-                      top: y - size / 2 - 8,
                       width: size,
                     },
                   ]}
@@ -67,13 +92,25 @@ export function EnemyRenderer() {
                   />
                 </View>
               </View>
-            ) : (
-              <Svg
-                width={MAP_CONFIG.WIDTH * tileSize}
-                height={MAP_CONFIG.HEIGHT * tileSize}
-                style={StyleSheet.absoluteFill}
-                pointerEvents="none"
-              >
+            );
+          })}
+        </>
+      ) : (
+        <Svg
+          width={MAP_CONFIG.WIDTH * tileSize}
+          height={MAP_CONFIG.HEIGHT * tileSize}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        >
+          {gameState.enemies.map((enemy) => {
+            const config = ENEMY_CONFIGS[enemy.type];
+            const x = enemy.position.x * tileSize;
+            const y = enemy.position.y * tileSize;
+            const size = config.size;
+            const healthPercent = enemy.health / enemy.maxHealth;
+
+            return (
+              <React.Fragment key={enemy.id}>
                 <Circle
                   cx={x}
                   cy={y}
@@ -104,11 +141,11 @@ export function EnemyRenderer() {
                   }
                   rx={2}
                 />
-              </Svg>
-            )}
-          </React.Fragment>
-        );
-      })}
+              </React.Fragment>
+            );
+          })}
+        </Svg>
+      )}
     </View>
   );
 }
@@ -123,6 +160,8 @@ const styles = StyleSheet.create({
   },
   healthBarContainer: {
     position: "absolute" as const,
+    top: -8,
+    left: 0,
     height: 4,
   },
   healthBarBg: {

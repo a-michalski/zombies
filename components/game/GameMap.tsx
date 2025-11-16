@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Image, ImageBackground, StyleSheet, TouchableOpacity, View } from "react-native";
 import Svg, { Circle, Line, Polygon } from "react-native-svg";
 
@@ -9,7 +9,18 @@ import { VisualEffects } from "./VisualEffects";
 
 import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
-import { MAP_IMAGES, hasMapImages } from "@/utils/imageAssets";
+import {
+  MAP_IMAGES,
+  hasConstructionSpotImage,
+  hasMapImages,
+  hasWaypointImages,
+} from "@/utils/imageAssets";
+
+// Calculate these once outside component
+const HAS_MAP_GRAPHICS = hasMapImages();
+const HAS_PATH_TEXTURE = !!MAP_IMAGES.pathTexture;
+const HAS_WAYPOINT_SPRITES = hasWaypointImages();
+const HAS_CONSTRUCTION_SPOT_SPRITE = hasConstructionSpotImage();
 
 export function GameMap() {
   const { gameState, selectSpot } = useGame();
@@ -17,42 +28,21 @@ export function GameMap() {
   const mapWidth = MAP_CONFIG.WIDTH * tileSize;
   const mapHeight = MAP_CONFIG.HEIGHT * tileSize;
 
-  const hasMapGraphics = hasMapImages();
-  const mapBackground = MAP_IMAGES.background;
+  // Memoize occupied spots to avoid recalculating on every render
+  const occupiedSpotIds = useMemo(() => {
+    return new Set(gameState.towers.map((t) => t.spotId));
+  }, [gameState.towers]);
 
-  const MapContent = () => (
-    <View style={styles.layerContainer}>
-      {CONSTRUCTION_SPOTS.map((spot) => {
-        const isOccupied = gameState.towers.some((t) => t.spotId === spot.id);
-        if (isOccupied) return null;
-
-        const x = spot.x * tileSize;
-        const y = spot.y * tileSize;
-        const size = tileSize * 0.8;
-
-        return (
-          <TouchableOpacity
-            key={`touch-${spot.id}`}
-            style={[
-              styles.constructionSpotTouch,
-              {
-                left: x - size / 2,
-                top: y - size / 2,
-                width: size,
-                height: size,
-              },
-            ]}
-            onPress={() => selectSpot(spot.id)}
-            activeOpacity={0.7}
-          />
-        );
-      })}
-      <Svg
-        width={MAP_CONFIG.WIDTH * tileSize}
-        height={MAP_CONFIG.HEIGHT * tileSize}
-        style={styles.svg}
-        pointerEvents="none"
-      >
+  // Memoize MapContent to prevent recreation on every render
+  const mapContent = useMemo(() => (
+    <View style={styles.layerContainer} pointerEvents="box-none">
+        <Svg
+          width={MAP_CONFIG.WIDTH * tileSize}
+          height={MAP_CONFIG.HEIGHT * tileSize}
+          style={styles.svg}
+          pointerEvents="none"
+        >
+        {/* Path lines - use path texture if available, otherwise gray line */}
         {WAYPOINTS.map((waypoint, index) => {
           if (index === WAYPOINTS.length - 1) return null;
           const next = WAYPOINTS[index + 1];
@@ -64,14 +54,15 @@ export function GameMap() {
               y1={waypoint.y * tileSize}
               x2={next.x * tileSize}
               y2={next.y * tileSize}
-              stroke="#555555"
+              stroke={HAS_PATH_TEXTURE ? "transparent" : "#555555"}
               strokeWidth={tileSize * 1.5}
               strokeLinecap="round"
             />
           );
         })}
 
-        {WAYPOINTS.map((waypoint, index) => (
+        {/* Waypoints - use sprites if available, otherwise colored circles */}
+        {!HAS_WAYPOINT_SPRITES && WAYPOINTS.map((waypoint, index) => (
           <Circle
             key={`waypoint-${index}`}
             cx={waypoint.x * tileSize}
@@ -81,8 +72,9 @@ export function GameMap() {
           />
         ))}
 
-        {CONSTRUCTION_SPOTS.map((spot) => {
-          const isOccupied = gameState.towers.some((t) => t.spotId === spot.id);
+        {/* Construction spots - use SVG if no sprite available */}
+        {!HAS_CONSTRUCTION_SPOT_SPRITE && CONSTRUCTION_SPOTS.map((spot) => {
+          const isOccupied = occupiedSpotIds.has(spot.id);
           const isSelected = gameState.selectedSpotId === spot.id;
           
           if (isOccupied) return null;
@@ -110,26 +102,165 @@ export function GameMap() {
             </React.Fragment>
           );
         })}
-      </Svg>
-      <TowerRenderer />
-      <EnemyRenderer />
-      <ProjectileRenderer />
-      <VisualEffects />
-    </View>
-  );
+        </Svg>
+        
+        {/* Path texture overlay */}
+        {HAS_PATH_TEXTURE && (
+          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            {WAYPOINTS.map((waypoint, index) => {
+              if (index === WAYPOINTS.length - 1) return null;
+              const next = WAYPOINTS[index + 1];
+              
+              const dx = next.x - waypoint.x;
+              const dy = next.y - waypoint.y;
+              const length = Math.sqrt(dx * dx + dy * dy);
+              const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+              
+              const centerX = ((waypoint.x + next.x) / 2) * tileSize;
+              const centerY = ((waypoint.y + next.y) / 2) * tileSize;
+              
+              return (
+                <ImageBackground
+                  key={`path-texture-${index}`}
+                  source={MAP_IMAGES.pathTexture}
+                  style={[
+                    styles.pathTextureSegment,
+                    {
+                      left: centerX - (length * tileSize) / 2,
+                      top: centerY - (tileSize * 1.5) / 2,
+                      width: length * tileSize,
+                      height: tileSize * 1.5,
+                      transform: [{ rotate: `${angle}deg` }],
+                    },
+                  ]}
+                  resizeMode="cover"
+                />
+              );
+            })}
+          </View>
+        )}
+        
+        {/* Waypoint sprites */}
+        {HAS_WAYPOINT_SPRITES && (
+          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            {WAYPOINTS.map((waypoint, index) => {
+              const x = waypoint.x * tileSize;
+              const y = waypoint.y * tileSize;
+              const size = tileSize * 1.5;
+              
+              let waypointImage = null;
+              if (index === 0) {
+                waypointImage = MAP_IMAGES.startWaypoint;
+              } else if (index === WAYPOINTS.length - 1) {
+                waypointImage = MAP_IMAGES.endWaypoint;
+              }
+              
+              if (!waypointImage) return null;
+              
+              return (
+                <Image
+                  key={`waypoint-sprite-${index}`}
+                  source={waypointImage}
+                  style={[
+                    styles.waypointSprite,
+                    {
+                      left: x - size / 2,
+                      top: y - size / 2,
+                      width: size,
+                      height: size,
+                    },
+                  ]}
+                  resizeMode="contain"
+                />
+              );
+            })}
+          </View>
+        )}
+        
+        {/* Construction spot sprites */}
+        {HAS_CONSTRUCTION_SPOT_SPRITE && (
+          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            {CONSTRUCTION_SPOTS.map((spot) => {
+              const isOccupied = occupiedSpotIds.has(spot.id);
+              const isSelected = gameState.selectedSpotId === spot.id;
+              
+              if (isOccupied) return null;
+
+              const x = spot.x * tileSize;
+              const y = spot.y * tileSize;
+              const size = tileSize * 0.8;
+
+              return (
+                <Image
+                  key={`construction-spot-sprite-${spot.id}`}
+                  source={MAP_IMAGES.constructionSpot}
+                  style={[
+                    styles.constructionSpotSprite,
+                    {
+                      left: x - size / 2,
+                      top: y - size / 2,
+                      width: size,
+                      height: size,
+                      opacity: isSelected ? 1 : 0.7,
+                    },
+                  ]}
+                  resizeMode="contain"
+                />
+              );
+            })}
+          </View>
+        )}
+        <TowerRenderer />
+        <EnemyRenderer />
+        <ProjectileRenderer />
+        <VisualEffects />
+      {/* Construction spots rendered last to be on top */}
+      {CONSTRUCTION_SPOTS.map((spot) => {
+        const isOccupied = occupiedSpotIds.has(spot.id);
+        if (isOccupied) return null;
+
+        const x = spot.x * tileSize;
+        const y = spot.y * tileSize;
+        const size = tileSize * 0.8;
+
+        return (
+          <TouchableOpacity
+            key={`touch-${spot.id}`}
+            style={[
+              styles.constructionSpotTouch,
+              {
+                left: x - size / 2,
+                top: y - size / 2,
+                width: size,
+                height: size,
+              },
+            ]}
+            onPress={() => {
+              if (__DEV__) {
+                console.log("Construction spot clicked:", spot.id);
+              }
+              selectSpot(spot.id);
+            }}
+            activeOpacity={0.7}
+          />
+        );
+      })}
+      </View>
+  ), [tileSize, gameState.selectedSpotId, occupiedSpotIds]);
 
   return (
     <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>
-      {hasMapGraphics && mapBackground ? (
+      {HAS_MAP_GRAPHICS && MAP_IMAGES.background ? (
         <ImageBackground
-          source={mapBackground}
+          source={MAP_IMAGES.background}
           style={[styles.mapBackground, { width: mapWidth, height: mapHeight }]}
           resizeMode="cover"
+          pointerEvents="box-none"
         >
-          <MapContent />
+          {mapContent}
         </ImageBackground>
       ) : (
-        <MapContent />
+        mapContent
       )}
     </View>
   );
@@ -139,10 +270,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#2a2a2a",
     borderRadius: 8,
-    overflow: "hidden",
+    overflow: "visible" as const, // Changed from "hidden" to allow touch events
   },
   layerContainer: {
     position: "relative" as const,
+    width: "100%",
+    height: "100%",
   },
   svg: {
     backgroundColor: "transparent",
@@ -151,8 +284,17 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  pathTextureSegment: {
+    position: "absolute" as const,
+  },
+  waypointSprite: {
+    position: "absolute" as const,
+  },
+  constructionSpotSprite: {
+    position: "absolute" as const,
+  },
   constructionSpotTouch: {
     position: "absolute" as const,
-    zIndex: 10,
+    zIndex: 30, // Higher than towers to ensure clicks work
   },
 });
