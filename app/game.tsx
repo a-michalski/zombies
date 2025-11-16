@@ -114,19 +114,14 @@ export default function GameScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         {gameState.phase === "between_waves" && (
-          <>
-            <Text style={styles.footerText}>
-              Auto-start in {Math.ceil(gameState.waveCountdown)}s
-            </Text>
-            <TouchableOpacity
-              style={styles.startButton}
-              onPress={() => startWave(true)}
-              activeOpacity={0.8}
-            >
-              <Play size={20} color="#FFFFFF" fill="#FFFFFF" />
-              <Text style={styles.startButtonText}>Start Wave (+15 🔩)</Text>
-            </TouchableOpacity>
-          </>
+          <TouchableOpacity
+            style={styles.startButton}
+            onPress={() => startWave(true)}
+            activeOpacity={0.8}
+          >
+            <Play size={20} color="#FFFFFF" fill="#FFFFFF" />
+            <Text style={styles.startButtonText}>Start Wave (+15 🔩)</Text>
+          </TouchableOpacity>
         )}
         {gameState.phase === "playing" && (
           <Text style={styles.footerText}>Wave {gameState.currentWave} in progress...</Text>

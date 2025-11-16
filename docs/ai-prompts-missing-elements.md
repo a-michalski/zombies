@@ -132,17 +132,68 @@ Top-down view (bird's eye view, directly from above, 90 degrees vertical) game m
 
 ---
 
-## 6. TEKSTURA DROGI (Path Texture) - POPRAWIONA DLA NOWEGO TŁA
+## 6. TEKSTURY DROGI (Path Textures) - WIELOWARSTWOWE TEKSTURY
+
+**WAŻNE**: Potrzebujemy **6 różnych tekstur** dla różnych części ścieżki, aby droga nie wyglądała "pocięta":
+1. `path-straight-horizontal.png` - prosta pozioma (64x64px, tileable)
+2. `path-straight-vertical.png` - prosta pionowa (64x64px, tileable)
+3. `path-corner-top-left.png` - zakręt góra-lewo (90°)
+4. `path-corner-top-right.png` - zakręt góra-prawo (90°)
+5. `path-corner-bottom-left.png` - zakręt dół-lewo (90°)
+6. `path-corner-bottom-right.png` - zakręt dół-prawo (90°)
+
+**Wszystkie**: 64x64px, PNG, tileable/seamless
+
+---
+
+### 6a. TEKSTURA PROSTA POZIOMA (path-straight-horizontal.png)
+
+**Plik docelowy**: `assets/images/map/path-straight-horizontal.png`  
+**Rozmiar**: 64x64px (tileable horizontalnie)  
+**Format**: PNG  
+**Opis**: Prosta pozioma ścieżka, która naturalnie wkomponowuje się w trasę przez las, polanę i plażę.
+
+### DALL-E 3 / ChatGPT:
+```
+Top-down tileable HORIZONTAL path texture for winter post-apocalyptic game map. Natural trail/path running HORIZONTALLY (left to right) that transitions through different terrains: forest floor with snow patches, dirt path through clearing, and sandy trail on beach. The path should look like a natural walking trail, not a road - visible footprints, trampled snow, dirt tracks, sand marks. Seamless pattern, tileable HORIZONTALLY without visible edges (left edge connects to right edge). Color palette: medium browns (#8B6F47, #7A5F36) for dirt sections, light brown/tan (#A68B5F) for forest floor, beige (#C4A882) for sandy sections, with white/gray patches (#D0D0D0, #E0E0E0) for snow. The path should be slightly darker than the surrounding lighter background but still visible and natural-looking. Realistic detailed texture, winter post-apocalyptic style, natural trail appearance. 64x64 pixels, seamless horizontal tile, PNG format, game path texture, tileable pattern, realistic natural trail texture, HORIZONTAL path running left to right
+```
+
+---
+
+### 6b. TEKSTURA PROSTA PIONOWA (path-straight-vertical.png)
+
+**Plik docelowy**: `assets/images/map/path-straight-vertical.png`  
+**Rozmiar**: 64x64px (tileable pionowo)  
+**Format**: PNG  
+**Opis**: Prosta pionowa ścieżka.
+
+### DALL-E 3 / ChatGPT:
+```
+Top-down tileable VERTICAL path texture for winter post-apocalyptic game map. Natural trail/path running VERTICALLY (top to bottom) that transitions through different terrains: forest floor with snow patches, dirt path through clearing, and sandy trail on beach. The path should look like a natural walking trail, not a road - visible footprints, trampled snow, dirt tracks, sand marks. Seamless pattern, tileable VERTICALLY without visible edges (top edge connects to bottom edge). Color palette: medium browns (#8B6F47, #7A5F36) for dirt sections, light brown/tan (#A68B5F) for forest floor, beige (#C4A882) for sandy sections, with white/gray patches (#D0D0D0, #E0E0E0) for snow. The path should be slightly darker than the surrounding lighter background but still visible and natural-looking. Realistic detailed texture, winter post-apocalyptic style, natural trail appearance. 64x64 pixels, seamless vertical tile, PNG format, game path texture, tileable pattern, realistic natural trail texture, VERTICAL path running top to bottom
+```
+
+---
+
+### 6c. TEKSTURY ZAKRĘTÓW (path-corner-*.png)
+
+**Plik docelowy**: `assets/images/map/path-corner-top-left.png`, `path-corner-top-right.png`, `path-corner-bottom-left.png`, `path-corner-bottom-right.png`  
+**Rozmiar**: 64x64px każda  
+**Format**: PNG  
+**Opis**: Zakręty 90° dla naturalnego łączenia prostych segmentów.
+
+### DALL-E 3 / ChatGPT (dla każdego typu zakrętu):
+```
+Top-down tileable 90-degree CORNER path texture for winter post-apocalyptic game map. Natural trail/path making a 90-degree turn: [TOP-LEFT: path comes from TOP and turns LEFT / TOP-RIGHT: path comes from TOP and turns RIGHT / BOTTOM-LEFT: path comes from BOTTOM and turns LEFT / BOTTOM-RIGHT: path comes from BOTTOM and turns RIGHT]. The path should look like a natural walking trail, not a road - visible footprints, trampled snow, dirt tracks, sand marks at the corner. Seamless pattern that connects naturally with straight path textures (horizontal and vertical). Color palette: medium browns (#8B6F47, #7A5F36) for dirt sections, light brown/tan (#A68B5F) for forest floor, beige (#C4A882) for sandy sections, with white/gray patches (#D0D0D0, #E0E0E0) for snow. The path should be slightly darker than the surrounding lighter background but still visible and natural-looking. Realistic detailed texture, winter post-apocalyptic style, natural trail appearance. 64x64 pixels, seamless corner tile, PNG format, game path texture, tileable pattern, realistic natural trail texture, 90-degree corner path
+```
+
+---
+
+### 6d. TEKSTURA DROGI (path-texture.png) - STARA WERSJA (dla kompatybilności wstecznej)
 
 **Plik docelowy**: `assets/images/map/path-texture.png`  
 **Rozmiar**: 64x64px (tileable)  
 **Format**: PNG  
-**Opis**: Tekstura ścieżki, która naturalnie wkomponowuje się w trasę przez las, polanę i plażę. Powinna wyglądać jak naturalna ścieżka/ścieżka, która pasuje do zimowego krajobrazu - może być ścieżka przez śnieg, ziemię, piasek.
-
-### DALL-E 3 / ChatGPT:
-```
-Top-down tileable path texture for winter post-apocalyptic game map. Natural trail/path that transitions through different terrains: forest floor with snow patches, dirt path through clearing, and sandy trail on beach. The path should look like a natural walking trail, not a road - visible footprints, trampled snow, dirt tracks, sand marks. Seamless pattern, tileable without visible edges. Color palette: medium browns (#8B6F47, #7A5F36) for dirt sections, light brown/tan (#A68B5F) for forest floor, beige (#C4A882) for sandy sections, with white/gray patches (#D0D0D0, #E0E0E0) for snow. The path should be slightly darker than the surrounding lighter background but still visible and natural-looking. Realistic detailed texture, winter post-apocalyptic style, natural trail appearance. 64x64 pixels, seamless tile, PNG format, game path texture, tileable pattern, realistic natural trail texture
-```
+**Opis**: Ogólna tekstura ścieżki (używana jako fallback, jeśli brakuje specjalistycznych tekstur).
 
 ### Midjourney:
 ```
@@ -152,6 +203,37 @@ Top-down tileable path texture for winter post-apocalyptic game map. Natural tra
 ### Stable Diffusion:
 ```
 Top-down tileable path texture for winter post-apocalyptic game map. Natural trail/path that transitions through different terrains: forest floor with snow patches, dirt path through clearing, and sandy trail on beach. The path should look like a natural walking trail, not a road - visible footprints, trampled snow, dirt tracks, sand marks. Seamless pattern, tileable without visible edges. Color palette: medium browns (#8B6F47, #7A5F36) for dirt sections, light brown/tan (#A68B5F) for forest floor, beige (#C4A882) for sandy sections, with white/gray patches (#D0D0D0, #E0E0E0) for snow. The path should be slightly darker than the surrounding lighter background but still visible and natural-looking. Realistic detailed texture, winter post-apocalyptic style, natural trail appearance. 64x64 pixels, seamless tile, PNG format, game path texture, tileable pattern, realistic natural trail texture, seamless texture, tileable, game sprite, tower defense, detailed, 2D illustration
+```
+
+---
+
+## 7. TŁO EKRANU GŁÓWNEGO (Main Menu Background)
+
+**Plik docelowy**: `assets/images/ui/main-menu-background.png`  
+**Rozmiar**: 1080x1920px (lub większy, będzie skalowane)  
+**Format**: PNG  
+**Opis**: Atmosferyczne tło ekranu głównego z ciemnym statkiem bojowym, falami, księżycem i zombie w wodzie. Styl post-apokaliptyczny, mroczny, z zielono-żółtymi akcentami.
+
+**WAŻNE - WYMAGANIA TECHNICZNE:**
+- **Perspektywa**: Side view lub lekko ukośna (NIE top-down) - widok z boku jak na obrazku referencyjnym
+- **Styl**: Realistyczny game art, post-apokaliptyczny horror
+- **Kompozycja**: Duży ciemny statek bojowy na środku, fale na morzu, księżyc w tle, zombie w wodzie
+- **Kolory**: Dominują zielone i czarne, z żółtymi akcentami (księżyc, światła)
+- **Atmosfera**: Mroczna, post-apokaliptyczna, horror
+
+### DALL-E 3 / ChatGPT:
+```
+Post-apocalyptic game main menu background, dark horror atmosphere. Large dark battleship in the center, slightly angled, with another battleship partially visible in the distance. Turbulent dark green sea with large waves. Dark cloudy sky with a large glowing yellow full moon in the upper center casting ominous light. Several spiky spherical sea mines scattered in the sky and water around the battleships. In the foreground, emerging from the dark choppy water, several zombie-like figures with decaying features and glowing red eyes. Color palette: dark greens (#1a3a1a, #2a4a2a), blacks (#0a0a0a, #1a1a1a), glowing yellow (#FFD700, #FFA500) for moon and lights, red (#FF0000) for zombie eyes. Realistic detailed game art style, post-apocalyptic horror atmosphere, dark and atmospheric. 1080x1920 pixels, game background asset, high detail 2D game art, horror style, NOT watercolor NOT illustration
+```
+
+### Midjourney:
+```
+Post-apocalyptic game main menu background, dark horror atmosphere. Large dark battleship in the center, slightly angled, with another battleship partially visible in the distance. Turbulent dark green sea with large waves. Dark cloudy sky with a large glowing yellow full moon in the upper center casting ominous light. Several spiky spherical sea mines scattered in the sky and water around the battleships. In the foreground, emerging from the dark choppy water, several zombie-like figures with decaying features and glowing red eyes. Color palette: dark greens (#1a3a1a, #2a4a2a), blacks (#0a0a0a, #1a1a1a), glowing yellow (#FFD700, #FFA500) for moon and lights, red (#FF0000) for zombie eyes. Realistic detailed game art style, post-apocalyptic horror atmosphere, dark and atmospheric. 1080x1920 pixels, game background asset, high detail 2D game art, horror style, NOT watercolor NOT illustration --ar 9:16 --style raw --v 6
+```
+
+### Stable Diffusion:
+```
+Post-apocalyptic game main menu background, dark horror atmosphere. Large dark battleship in the center, slightly angled, with another battleship partially visible in the distance. Turbulent dark green sea with large waves. Dark cloudy sky with a large glowing yellow full moon in the upper center casting ominous light. Several spiky spherical sea mines scattered in the sky and water around the battleships. In the foreground, emerging from the dark choppy water, several zombie-like figures with decaying features and glowing red eyes. Color palette: dark greens (#1a3a1a, #2a4a2a), blacks (#0a0a0a, #1a1a1a), glowing yellow (#FFD700, #FFA500) for moon and lights, red (#FF0000) for zombie eyes. Realistic detailed game art style, post-apocalyptic horror atmosphere, dark and atmospheric. 1080x1920 pixels, game background asset, high detail 2D game art, horror style, NOT watercolor NOT illustration, game sprite, tower defense, detailed, 2D game art, game background
 ```
 
 ---

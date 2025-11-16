@@ -10,6 +10,20 @@ import { getEnemyImage, hasEnemyImages } from "@/utils/imageAssets";
 // Calculate once outside component
 const HAS_ENEMY_IMAGES = hasEnemyImages();
 
+// Pre-calculate rotations for waypoints to avoid recalculating on every render
+const WAYPOINT_ROTATIONS: number[] = (() => {
+  const rotations: number[] = [];
+  for (let i = 0; i < WAYPOINTS.length - 1; i++) {
+    const currentWaypoint = WAYPOINTS[i];
+    const nextWaypoint = WAYPOINTS[i + 1];
+    const dx = nextWaypoint.x - currentWaypoint.x;
+    const dy = nextWaypoint.y - currentWaypoint.y;
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    rotations.push(angle - 90); // Rotate left by 90 degrees
+  }
+  return rotations;
+})();
+
 export function EnemyRenderer() {
   const { gameState } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
@@ -25,17 +39,10 @@ export function EnemyRenderer() {
             const size = config.size;
             const healthPercent = enemy.health / enemy.maxHealth;
 
-            // Calculate rotation angle based on movement direction
-            let rotation = -90; // Default: rotate 90 degrees left (facing right)
-            if (enemy.waypointIndex < WAYPOINTS.length - 1) {
-              const currentWaypoint = WAYPOINTS[enemy.waypointIndex];
-              const nextWaypoint = WAYPOINTS[enemy.waypointIndex + 1];
-              const dx = nextWaypoint.x - currentWaypoint.x;
-              const dy = nextWaypoint.y - currentWaypoint.y;
-              // Calculate angle in degrees, then rotate 90 degrees left
-              const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-              rotation = angle - 90; // Rotate left by 90 degrees
-            }
+            // Use pre-calculated rotation or default
+            const rotation = enemy.waypointIndex < WAYPOINT_ROTATIONS.length
+              ? WAYPOINT_ROTATIONS[enemy.waypointIndex]
+              : -90; // Default: rotate 90 degrees left (facing right)
 
             return (
               <View

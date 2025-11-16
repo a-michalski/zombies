@@ -37,7 +37,13 @@ export const PROJECTILE_IMAGES = {
 // Map images
 export const MAP_IMAGES = {
   groundTile: require("@/assets/images/map/ground-tile.png"),
-  pathTexture: require("@/assets/images/map/path-texture.png"),
+  pathTexture: require("@/assets/images/map/path-texture.png"), // Fallback
+  pathStraightHorizontal: require("@/assets/images/map/path-straight-horizontal.png"),
+  pathStraightVertical: require("@/assets/images/map/path-straight-vertical.png"),
+  pathCornerTopLeft: require("@/assets/images/map/path-corner-top-left.png"),
+  pathCornerTopRight: require("@/assets/images/map/path-corner-top-right.png"),
+  pathCornerBottomLeft: require("@/assets/images/map/path-corner-bottom-left.png"),
+  pathCornerBottomRight: require("@/assets/images/map/path-corner-bottom-right.png"),
   background: require("@/assets/images/map/background.png"),
   constructionSpot: require("@/assets/images/map/construction-spot.png"),
   startWaypoint: require("@/assets/images/map/start-waypoint.png"),
@@ -49,6 +55,7 @@ export const UI_IMAGES = {
   buttonBg: require("@/assets/images/ui/button-bg.png"),
   panelBg: require("@/assets/images/ui/panel-bg.png"),
   scrapIcon: require("@/assets/images/ui/scrap-icon.png"),
+  mainMenuBackground: require("@/assets/images/ui/main-menu-background.png"),
 } as const;
 
 // Effect images (optional)
@@ -59,102 +66,44 @@ export const EFFECT_IMAGES = {
 
 // Helper functions
 export function getTowerImage(towerType: string, level: number): any {
-  if (__DEV__) {
-    console.log("getTowerImage called:", { towerType, level });
-  }
   if (towerType === "tower_lookout_post") {
     switch (level) {
       case 1:
-        const img1 = TOWER_IMAGES.lookoutPost.level1;
-        if (__DEV__) {
-          console.log("Returning level1 image:", img1);
-        }
-        return img1;
+        return TOWER_IMAGES.lookoutPost.level1;
       case 2:
-        const img2 = TOWER_IMAGES.lookoutPost.level2;
-        if (__DEV__) {
-          console.log("Returning level2 image:", img2);
-        }
-        return img2;
+        return TOWER_IMAGES.lookoutPost.level2;
       case 3:
-        const img3 = TOWER_IMAGES.lookoutPost.level3;
-        if (__DEV__) {
-          console.log("Returning level3 image:", img3);
-        }
-        return img3;
+        return TOWER_IMAGES.lookoutPost.level3;
       default:
-        const imgDefault = TOWER_IMAGES.lookoutPost.level1;
-        if (__DEV__) {
-          console.log("Returning default level1 image:", imgDefault);
-        }
-        return imgDefault;
+        return TOWER_IMAGES.lookoutPost.level1;
     }
   }
-  const imgFallback = TOWER_IMAGES.lookoutPost.level1;
-  if (__DEV__) {
-    console.log("Returning fallback level1 image:", imgFallback);
-  }
-  return imgFallback;
+  return TOWER_IMAGES.lookoutPost.level1;
 }
 
 export function hasTowerImages(): boolean {
-  const hasAll = !!(
+  return !!(
     TOWER_IMAGES.lookoutPost.level1 &&
     TOWER_IMAGES.lookoutPost.level2 &&
     TOWER_IMAGES.lookoutPost.level3
   );
-  if (__DEV__) {
-    console.log("hasTowerImages:", hasAll, {
-      level1: !!TOWER_IMAGES.lookoutPost.level1,
-      level2: !!TOWER_IMAGES.lookoutPost.level2,
-      level3: !!TOWER_IMAGES.lookoutPost.level3,
-    });
-  }
-  return hasAll;
 }
 
 export function getEnemyImage(enemyType: string): any {
-  if (__DEV__) {
-    console.log("getEnemyImage called:", { enemyType });
-  }
   switch (enemyType) {
     case "shambler":
-      const shamblerImg = ENEMY_IMAGES.shambler;
-      if (__DEV__) {
-        console.log("Returning shambler image:", shamblerImg);
-      }
-      return shamblerImg;
+      return ENEMY_IMAGES.shambler;
     case "runner":
-      const runnerImg = ENEMY_IMAGES.runner;
-      if (__DEV__) {
-        console.log("Returning runner image:", runnerImg);
-      }
-      return runnerImg;
+      return ENEMY_IMAGES.runner;
     case "brute":
-      const bruteImg = ENEMY_IMAGES.brute;
-      if (__DEV__) {
-        console.log("Returning brute image:", bruteImg);
-      }
-      return bruteImg;
+      return ENEMY_IMAGES.brute;
     default:
-      const defaultImg = ENEMY_IMAGES.shambler;
-      if (__DEV__) {
-        console.log("Returning default shambler image:", defaultImg);
-      }
-      return defaultImg;
+      return ENEMY_IMAGES.shambler;
   }
 }
 
 export function hasEnemyImages(): boolean {
-  const hasAll = !!(ENEMY_IMAGES.shambler && ENEMY_IMAGES.runner && ENEMY_IMAGES.brute);
-  if (__DEV__) {
-    console.log("hasEnemyImages:", hasAll, {
-      shambler: !!ENEMY_IMAGES.shambler,
-      runner: !!ENEMY_IMAGES.runner,
-      brute: !!ENEMY_IMAGES.brute,
-    });
-  }
-  return hasAll;
+  return !!(ENEMY_IMAGES.shambler && ENEMY_IMAGES.runner && ENEMY_IMAGES.brute);
 }
 
 export function getProjectileImage(): any {
@@ -179,4 +128,97 @@ export function hasConstructionSpotImage(): boolean {
 
 export function hasWaypointImages(): boolean {
   return !!(MAP_IMAGES.startWaypoint && MAP_IMAGES.endWaypoint);
+}
+
+export function hasPathTextures(): boolean {
+  return !!(
+    MAP_IMAGES.pathStraightHorizontal &&
+    MAP_IMAGES.pathStraightVertical &&
+    MAP_IMAGES.pathCornerTopLeft &&
+    MAP_IMAGES.pathCornerTopRight &&
+    MAP_IMAGES.pathCornerBottomLeft &&
+    MAP_IMAGES.pathCornerBottomRight
+  );
+}
+
+export function getPathTexture(
+  prevWaypoint: { x: number; y: number } | null,
+  currentWaypoint: { x: number; y: number },
+  nextWaypoint: { x: number; y: number } | null
+): any {
+  // If we don't have specialized textures, use fallback
+  if (!hasPathTextures()) {
+    return MAP_IMAGES.pathTexture;
+  }
+
+  // If no previous or next waypoint, use straight texture
+  if (!prevWaypoint || !nextWaypoint) {
+    const dx = nextWaypoint ? nextWaypoint.x - currentWaypoint.x : (prevWaypoint ? currentWaypoint.x - prevWaypoint.x : 0);
+    const dy = nextWaypoint ? nextWaypoint.y - currentWaypoint.y : (prevWaypoint ? currentWaypoint.y - prevWaypoint.y : 0);
+    
+    // Determine if horizontal or vertical
+    if (Math.abs(dx) > Math.abs(dy)) {
+      return MAP_IMAGES.pathStraightHorizontal;
+    } else {
+      return MAP_IMAGES.pathStraightVertical;
+    }
+  }
+
+  // Calculate directions
+  const prevDx = currentWaypoint.x - prevWaypoint.x;
+  const prevDy = currentWaypoint.y - prevWaypoint.y;
+  const nextDx = nextWaypoint.x - currentWaypoint.x;
+  const nextDy = nextWaypoint.y - currentWaypoint.y;
+
+  // Check if it's a corner (change in direction)
+  // Improved logic: check if previous movement was purely horizontal/vertical and next is purely vertical/horizontal
+  const isPrevHorizontal = Math.abs(prevDx) > Math.abs(prevDy);
+  const isNextHorizontal = Math.abs(nextDx) > Math.abs(nextDy);
+  const isCorner = isPrevHorizontal !== isNextHorizontal;
+
+  if (!isCorner) {
+    // Straight segment - determine horizontal or vertical
+    if (Math.abs(nextDx) > Math.abs(nextDy)) {
+      return MAP_IMAGES.pathStraightHorizontal;
+    } else {
+      return MAP_IMAGES.pathStraightVertical;
+    }
+  }
+
+  // It's a corner - determine which type
+  // Previous direction: up (dy < 0), down (dy > 0), left (dx < 0), right (dx > 0)
+  // Next direction: up (dy < 0), down (dy > 0), left (dx < 0), right (dx > 0)
+  
+  if (prevDy < 0 && nextDx < 0) {
+    // Coming from top, turning left
+    return MAP_IMAGES.pathCornerTopLeft;
+  } else if (prevDy < 0 && nextDx > 0) {
+    // Coming from top, turning right
+    return MAP_IMAGES.pathCornerTopRight;
+  } else if (prevDy > 0 && nextDx < 0) {
+    // Coming from bottom, turning left
+    return MAP_IMAGES.pathCornerBottomLeft;
+  } else if (prevDy > 0 && nextDx > 0) {
+    // Coming from bottom, turning right
+    return MAP_IMAGES.pathCornerBottomRight;
+  } else if (prevDx < 0 && nextDy < 0) {
+    // Coming from left, turning up
+    return MAP_IMAGES.pathCornerTopLeft;
+  } else if (prevDx < 0 && nextDy > 0) {
+    // Coming from left, turning down
+    return MAP_IMAGES.pathCornerBottomLeft;
+  } else if (prevDx > 0 && nextDy < 0) {
+    // Coming from right, turning up
+    return MAP_IMAGES.pathCornerTopRight;
+  } else if (prevDx > 0 && nextDy > 0) {
+    // Coming from right, turning down
+    return MAP_IMAGES.pathCornerBottomRight;
+  }
+
+  // Fallback to straight horizontal
+  return MAP_IMAGES.pathStraightHorizontal;
+}
+
+export function hasMainMenuBackground(): boolean {
+  return !!UI_IMAGES.mainMenuBackground;
 }

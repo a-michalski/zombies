@@ -11,14 +11,17 @@ import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfi
 import { useGame } from "@/contexts/GameContext";
 import {
   MAP_IMAGES,
+  getPathTexture,
   hasConstructionSpotImage,
   hasMapImages,
+  hasPathTextures,
   hasWaypointImages,
 } from "@/utils/imageAssets";
 
 // Calculate these once outside component
 const HAS_MAP_GRAPHICS = hasMapImages();
 const HAS_PATH_TEXTURE = !!MAP_IMAGES.pathTexture;
+const HAS_SPECIALIZED_PATH_TEXTURES = hasPathTextures();
 const HAS_WAYPOINT_SPRITES = hasWaypointImages();
 const HAS_CONSTRUCTION_SPOT_SPRITE = hasConstructionSpotImage();
 
@@ -54,7 +57,7 @@ export function GameMap() {
               y1={waypoint.y * tileSize}
               x2={next.x * tileSize}
               y2={next.y * tileSize}
-              stroke={HAS_PATH_TEXTURE ? "transparent" : "#555555"}
+              stroke={(HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) ? "transparent" : "#555555"}
               strokeWidth={tileSize * 1.5}
               strokeLinecap="round"
             />
@@ -105,36 +108,75 @@ export function GameMap() {
         </Svg>
         
         {/* Path texture overlay */}
-        {HAS_PATH_TEXTURE && (
+        {(HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             {WAYPOINTS.map((waypoint, index) => {
               if (index === WAYPOINTS.length - 1) return null;
               const next = WAYPOINTS[index + 1];
+              const prev = index > 0 ? WAYPOINTS[index - 1] : null;
               
               const dx = next.x - waypoint.x;
               const dy = next.y - waypoint.y;
               const length = Math.sqrt(dx * dx + dy * dy);
               const angle = Math.atan2(dy, dx) * (180 / Math.PI);
               
-              const centerX = ((waypoint.x + next.x) / 2) * tileSize;
-              const centerY = ((waypoint.y + next.y) / 2) * tileSize;
+              // Get appropriate texture for this segment
+              const pathTexture = HAS_SPECIALIZED_PATH_TEXTURES
+                ? getPathTexture(prev, waypoint, next)
+                : (MAP_IMAGES.pathTexture || MAP_IMAGES.pathStraightHorizontal);
               
+              // For corners, we need to render at the corner position
+              // A corner occurs when direction changes (one axis becomes 0 while the other was 0 before)
+              // Improved logic: check if previous movement was purely horizontal/vertical and next is purely vertical/horizontal
+              const prevDx = prev ? waypoint.x - prev.x : 0;
+              const prevDy = prev ? waypoint.y - prev.y : 0;
+              const isPrevHorizontal = Math.abs(prevDx) > Math.abs(prevDy);
+              const isNextHorizontal = Math.abs(dx) > Math.abs(dy);
+              const isCorner = prev !== null && isPrevHorizontal !== isNextHorizontal;
+              
+              let centerX, centerY;
+              if (isCorner && HAS_SPECIALIZED_PATH_TEXTURES) {
+                // Render corner at the waypoint position
+                centerX = waypoint.x * tileSize;
+                centerY = waypoint.y * tileSize;
+              } else {
+                // Render straight segment at center
+                centerX = ((waypoint.x + next.x) / 2) * tileSize;
+                centerY = ((waypoint.y + next.y) / 2) * tileSize;
+              }
+              
+              const segmentWidth = isCorner && HAS_SPECIALIZED_PATH_TEXTURES
+                ? tileSize * 1.5
+                : length * tileSize;
+              const segmentHeight = tileSize * 1.5;
+              const segmentLeft = isCorner && HAS_SPECIALIZED_PATH_TEXTURES
+                ? centerX - (tileSize * 1.5) / 2
+                : centerX - (length * tileSize) / 2;
+              const segmentTop = isCorner && HAS_SPECIALIZED_PATH_TEXTURES
+                ? centerY - (tileSize * 1.5) / 2
+                : centerY - (tileSize * 1.5) / 2;
+
+              const segmentStyle = {
+                left: segmentLeft,
+                top: segmentTop,
+                width: segmentWidth,
+                height: segmentHeight,
+                opacity: 1,
+                transform: isCorner && HAS_SPECIALIZED_PATH_TEXTURES
+                  ? [] // No rotation for corners
+                  : [{ rotate: `${angle}deg` }],
+              };
+
               return (
                 <ImageBackground
                   key={`path-texture-${index}`}
-                  source={MAP_IMAGES.pathTexture}
-                  style={[
-                    styles.pathTextureSegment,
-                    {
-                      left: centerX - (length * tileSize) / 2,
-                      top: centerY - (tileSize * 1.5) / 2,
-                      width: length * tileSize,
-                      height: tileSize * 1.5,
-                      transform: [{ rotate: `${angle}deg` }],
-                    },
-                  ]}
+                  source={pathTexture}
+                  style={[styles.pathTextureSegment, segmentStyle]}
                   resizeMode="cover"
-                />
+                  imageStyle={{ opacity: 1 }}
+                >
+                  <View style={{ width: 1, height: 1 }} />
+                </ImageBackground>
               );
             })}
           </View>
@@ -253,9 +295,8 @@ export function GameMap() {
       {HAS_MAP_GRAPHICS && MAP_IMAGES.background ? (
         <ImageBackground
           source={MAP_IMAGES.background}
-          style={[styles.mapBackground, { width: mapWidth, height: mapHeight }]}
+          style={[styles.mapBackground, { width: mapWidth, height: mapHeight, pointerEvents: "box-none" as const }]}
           resizeMode="cover"
-          pointerEvents="box-none"
         >
           {mapContent}
         </ImageBackground>
@@ -286,6 +327,7 @@ const styles = StyleSheet.create({
   },
   pathTextureSegment: {
     position: "absolute" as const,
+    zIndex: 1,
   },
   waypointSprite: {
     position: "absolute" as const,

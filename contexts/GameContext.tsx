@@ -217,13 +217,14 @@ export const [GameProvider, useGame] = createContextHook(() => {
         const dt = deltaTime * prev.gameSpeed;
         let newState = { ...prev };
 
-        if (newState.phase === "between_waves") {
-          newState.waveCountdown = Math.max(0, newState.waveCountdown - dt);
-          
-          if (newState.waveCountdown <= 0) {
-            newState.phase = "playing";
-          }
-        }
+        // Auto-start disabled - waves must be started manually
+        // if (newState.phase === "between_waves") {
+        //   newState.waveCountdown = Math.max(0, newState.waveCountdown - dt);
+        //   
+        //   if (newState.waveCountdown <= 0) {
+        //     newState.phase = "playing";
+        //   }
+        // }
 
         newState.floatingTexts = newState.floatingTexts.filter(
           (ft) => now - ft.spawnTime < 1000

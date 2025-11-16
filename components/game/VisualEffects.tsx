@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { MAP_CONFIG } from "@/constants/gameConfig";
@@ -7,6 +7,24 @@ import { useGame } from "@/contexts/GameContext";
 export function VisualEffects() {
   const { gameState } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  const animationFrameRef = useRef<number | null>(null);
+
+  // Update time using requestAnimationFrame instead of Date.now() in render
+  useEffect(() => {
+    const updateTime = () => {
+      setCurrentTime(Date.now());
+      animationFrameRef.current = requestAnimationFrame(updateTime);
+    };
+    
+    animationFrameRef.current = requestAnimationFrame(updateTime);
+    
+    return () => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
 
   return (
     <View
@@ -20,8 +38,7 @@ export function VisualEffects() {
       pointerEvents="none"
     >
       {gameState.floatingTexts.map((ft) => {
-        const now = Date.now();
-        const age = (now - ft.spawnTime) / 1000;
+        const age = (currentTime - ft.spawnTime) / 1000;
         const opacity = Math.max(0, 1 - age);
         const yOffset = age * 30;
 
@@ -44,8 +61,7 @@ export function VisualEffects() {
       })}
 
       {gameState.particles.map((particle) => {
-        const now = Date.now();
-        const age = (now - particle.spawnTime) / 1000;
+        const age = (currentTime - particle.spawnTime) / 1000;
         const opacity = Math.max(0, 1 - age / particle.lifetime);
         
         const x = particle.position.x + particle.velocity.x * age;
