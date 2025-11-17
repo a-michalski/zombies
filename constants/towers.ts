@@ -41,7 +41,7 @@ export const LOOKOUT_POST: TowerConfig = {
       damage: 25,
       range: 3.5,
       fireRate: 1.5,
-      upgradeCost: 150,
+      upgradeCost: 175,
     },
   ],
 } as const;
