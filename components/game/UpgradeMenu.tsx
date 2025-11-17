@@ -22,6 +22,9 @@ export function UpgradeMenu() {
   const nextStats = tower.level < 3 ? LOOKOUT_POST.levels[tower.level] : null;
   const canUpgrade = nextStats && gameState.scrap >= (nextStats.upgradeCost || 0);
 
+  const currentDps = (currentStats.damage * currentStats.fireRate).toFixed(1);
+  const nextDps = nextStats ? (nextStats.damage * nextStats.fireRate).toFixed(1) : null;
+
   let invested = LOOKOUT_POST.buildCost;
   for (let i = 1; i < tower.level; i++) {
     const levelCost = LOOKOUT_POST.levels[i].upgradeCost;
@@ -73,6 +76,10 @@ export function UpgradeMenu() {
                 <Text style={styles.statLabel}>Fire Rate:</Text>
                 <Text style={styles.statValue}>{currentStats.fireRate.toFixed(1)}/s</Text>
               </View>
+              <View style={styles.statRow}>
+                <Text style={styles.statLabel}>DPS:</Text>
+                <Text style={styles.statValue}>{currentDps}</Text>
+              </View>
             </View>
 
             {nextStats && (
@@ -95,6 +102,12 @@ export function UpgradeMenu() {
                     <Text style={styles.statLabel}>Fire Rate:</Text>
                     <Text style={styles.upgradeValue}>
                       {currentStats.fireRate.toFixed(1)} → {nextStats.fireRate.toFixed(1)}/s
+                    </Text>
+                  </View>
+                  <View style={styles.statRow}>
+                    <Text style={styles.statLabel}>DPS:</Text>
+                    <Text style={styles.upgradeValue}>
+                      {currentDps} → {nextDps}
                     </Text>
                   </View>
                 </View>

@@ -18,6 +18,7 @@ export function BuildMenu() {
 
   const canAfford = gameState.scrap >= LOOKOUT_POST.buildCost;
   const level1Stats = LOOKOUT_POST.levels[0];
+  const dps = (level1Stats.damage * level1Stats.fireRate).toFixed(1);
 
   return (
     <Modal
@@ -62,6 +63,10 @@ export function BuildMenu() {
               <View style={styles.statRow}>
                 <Text style={styles.statLabel}>Fire Rate:</Text>
                 <Text style={styles.statValue}>{level1Stats.fireRate.toFixed(1)}/s</Text>
+              </View>
+              <View style={styles.statRow}>
+                <Text style={styles.statLabel}>DPS:</Text>
+                <Text style={styles.statValue}>{dps}</Text>
               </View>
             </View>
 

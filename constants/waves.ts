@@ -29,7 +29,10 @@ export const WAVE_CONFIGS: WaveConfig[] = [
   },
   {
     wave: 4,
-    enemies: [{ type: "shambler", count: 15 }],
+    enemies: [
+      { type: "shambler", count: 12 },
+      { type: "runner", count: 3 },
+    ],
     spawnDelay: 1.2,
   },
   {
@@ -73,9 +76,8 @@ export const WAVE_CONFIGS: WaveConfig[] = [
   {
     wave: 10,
     enemies: [
-      { type: "brute", count: 1 },
+      { type: "brute", count: 2 },
       { type: "runner", count: 15 },
-      { type: "brute", count: 1 },
       { type: "shambler", count: 20 },
     ],
     spawnDelay: 0.6,

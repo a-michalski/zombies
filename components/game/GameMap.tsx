@@ -8,6 +8,7 @@ import { TowerRenderer } from "./TowerRenderer";
 import { VisualEffects } from "./VisualEffects";
 
 import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
+import { LOOKOUT_POST } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
 import { Position } from "@/types/game";
 import { ConstructionSpotConfig } from "@/types/map";
@@ -61,6 +62,19 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
     return new Set(gameState.towers.map((t) => t.spotId));
   }, [gameState.towers]);
 
+  // Find selected tower for range visualization
+  const selectedTower = useMemo(() => {
+    if (!gameState.selectedTowerId) return null;
+    return gameState.towers.find((t) => t.id === gameState.selectedTowerId);
+  }, [gameState.selectedTowerId, gameState.towers]);
+
+  // Calculate selected tower range
+  const selectedTowerRange = useMemo(() => {
+    if (!selectedTower) return null;
+    const towerStats = LOOKOUT_POST.levels[selectedTower.level - 1];
+    return towerStats.range * tileSize;
+  }, [selectedTower, tileSize]);
+
   // Memoize MapContent to prevent recreation on every render
   const mapContent = useMemo(() => (
     <View style={styles.layerContainer} pointerEvents="box-none">
@@ -104,7 +118,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         {!HAS_CONSTRUCTION_SPOT_SPRITE && actualSpots.map((spot) => {
           const isOccupied = occupiedSpotIds.has(spot.id);
           const isSelected = gameState.selectedSpotId === spot.id;
-          
+
           if (isOccupied) return null;
 
           const x = spot.x * tileSize;
@@ -117,19 +131,41 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
                 points={`${x},${y - size / 2} ${x + size / 2},${y} ${x},${y + size / 2} ${x - size / 2},${y}`}
                 fill="none"
                 stroke={isSelected ? "#FFD700" : "#FFA500"}
-                strokeWidth={3}
-                opacity={0.8}
+                strokeWidth={isSelected ? 4 : 3}
+                opacity={isSelected ? 1 : 0.7}
               />
               <Circle
                 cx={x}
                 cy={y}
                 r={size * 0.3}
-                fill="#FFA500"
-                opacity={0.5}
+                fill={isSelected ? "#FFD700" : "#FFA500"}
+                opacity={isSelected ? 0.7 : 0.5}
               />
             </React.Fragment>
           );
         })}
+
+        {/* Tower Range Visualization */}
+        {selectedTower && selectedTowerRange && (() => {
+          const spot = actualSpots.find((s) => s.id === selectedTower.spotId);
+          if (!spot) return null;
+
+          const x = spot.x * tileSize;
+          const y = spot.y * tileSize;
+
+          return (
+            <React.Fragment key={`range-${selectedTower.id}`}>
+              <Circle
+                cx={x}
+                cy={y}
+                r={selectedTowerRange}
+                fill="rgba(74, 144, 226, 0.15)"
+                stroke="rgba(74, 144, 226, 0.5)"
+                strokeWidth={2}
+              />
+            </React.Fragment>
+          );
+        })()}
         </Svg>
         
         {/* Path texture overlay */}
@@ -250,7 +286,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
             {actualSpots.map((spot) => {
               const isOccupied = occupiedSpotIds.has(spot.id);
               const isSelected = gameState.selectedSpotId === spot.id;
-              
+
               if (isOccupied) return null;
 
               const x = spot.x * tileSize;
@@ -258,9 +294,8 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
               const size = tileSize * 0.8;
 
               return (
-                <Image
+                <View
                   key={`construction-spot-sprite-${spot.id}`}
-                  source={MAP_IMAGES.constructionSpot}
                   style={[
                     styles.constructionSpotSprite,
                     {
@@ -268,11 +303,36 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
                       top: y - size / 2,
                       width: size,
                       height: size,
-                      opacity: isSelected ? 1 : 0.7,
                     },
                   ]}
-                  resizeMode="contain"
-                />
+                >
+                  <Image
+                    source={MAP_IMAGES.constructionSpot}
+                    style={[
+                      styles.constructionSpotImage,
+                      {
+                        width: size,
+                        height: size,
+                        opacity: isSelected ? 1 : 0.7,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                  {isSelected && (
+                    <View
+                      style={[
+                        styles.selectedHighlight,
+                        {
+                          left: -4,
+                          top: -4,
+                          width: size + 8,
+                          height: size + 8,
+                          borderRadius: size / 2,
+                        },
+                      ]}
+                    />
+                  )}
+                </View>
               );
             })}
           </View>
@@ -313,7 +373,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         );
       })}
       </View>
-  ), [tileSize, gameState.selectedSpotId, occupiedSpotIds, actualWaypoints, actualSpots, selectSpot]);
+  ), [tileSize, gameState.selectedSpotId, gameState.selectedTowerId, occupiedSpotIds, actualWaypoints, actualSpots, selectSpot, selectedTower, selectedTowerRange]);
 
   return (
     <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>
@@ -359,6 +419,16 @@ const styles = StyleSheet.create({
   },
   constructionSpotSprite: {
     position: "absolute" as const,
+  },
+  constructionSpotImage: {
+    width: "100%",
+    height: "100%",
+  },
+  selectedHighlight: {
+    position: "absolute" as const,
+    borderWidth: 3,
+    borderColor: "#FFD700",
+    backgroundColor: "transparent",
   },
   constructionSpotTouch: {
     position: "absolute" as const,

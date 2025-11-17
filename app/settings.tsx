@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { ArrowLeft, Music, Settings as SettingsIcon, Volume2 } from "lucide-react-native";
+import { ArrowLeft, Music, Settings as SettingsIcon, Volume2, ChevronRight, Shield, FileText, Info, Trash2 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ScrollView,
@@ -8,10 +8,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { getSettings, saveSettings, type GameSettings } from "@/utils/storage";
+import { getSettings, saveSettings, type GameSettings, resetCampaignProgress, saveStats, DEFAULT_STATS } from "@/utils/storage";
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -51,6 +52,47 @@ export default function SettingsScreen() {
     value: GameSettings[K]
   ) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleResetProgress = () => {
+    Alert.alert(
+      "Reset Progress",
+      "Are you sure you want to reset all your game progress? This will delete:\n\n• Campaign progress\n• Statistics (best wave, zombies killed)\n• All game data\n\nThis action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Reset All Data",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await resetCampaignProgress();
+              const defaultStats = {
+                bestWave: 0,
+                totalZombiesKilled: 0,
+                totalWavesSurvived: 0,
+                gamesPlayed: 0,
+              };
+              await saveStats(defaultStats);
+              Alert.alert(
+                "Success",
+                "All game data has been reset. Your settings have been preserved.",
+                [{ text: "OK" }]
+              );
+            } catch (error) {
+              console.error("Error resetting progress:", error);
+              Alert.alert(
+                "Error",
+                "Failed to reset progress. Please try again.",
+                [{ text: "OK" }]
+              );
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (loading) {
@@ -151,6 +193,62 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             </View>
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Legal & Support</Text>
+
+          <TouchableOpacity
+            style={styles.settingRow}
+            onPress={() => router.push("/privacy")}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingInfo}>
+              <Shield size={20} color="#AAAAAA" />
+              <Text style={styles.settingLabel}>Privacy Policy</Text>
+            </View>
+            <ChevronRight size={20} color="#AAAAAA" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.settingRow}
+            onPress={() => router.push("/terms")}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingInfo}>
+              <FileText size={20} color="#AAAAAA" />
+              <Text style={styles.settingLabel}>Terms of Service</Text>
+            </View>
+            <ChevronRight size={20} color="#AAAAAA" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.settingRow}
+            onPress={() => router.push("/about")}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingInfo}>
+              <Info size={20} color="#AAAAAA" />
+              <Text style={styles.settingLabel}>About & Contact</Text>
+            </View>
+            <ChevronRight size={20} color="#AAAAAA" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Data Management</Text>
+
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={handleResetProgress}
+            activeOpacity={0.8}
+          >
+            <Trash2 size={20} color="#FF4444" />
+            <Text style={styles.resetButtonText}>Reset All Progress</Text>
+          </TouchableOpacity>
+          <Text style={styles.resetWarning}>
+            This will delete all your game progress and statistics. Settings will be preserved.
+          </Text>
         </View>
       </ScrollView>
 
@@ -274,6 +372,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     marginTop: 20,
+  },
+  resetButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#2a1a1a",
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#FF4444",
+  },
+  resetButtonText: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: "#FF4444",
+  },
+  resetWarning: {
+    fontSize: 12,
+    color: "#AAAAAA",
+    marginTop: 8,
+    textAlign: "center",
+    lineHeight: 18,
   },
 });
 
