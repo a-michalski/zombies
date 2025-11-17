@@ -4,6 +4,7 @@ import path from 'path';
 const config: StorybookConfig = {
   stories: [
     '../components/**/*.stories.@(js|jsx|ts|tsx)',
+    '../.storybook/foundations/**/*.stories.@(js|jsx|ts|tsx)',
   ],
 
   addons: [
