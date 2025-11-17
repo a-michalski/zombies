@@ -16,8 +16,9 @@ import { GameMap } from "@/components/game/GameMap";
 import { GameOverScreen } from "@/components/game/GameOverScreen";
 import { PauseMenu } from "@/components/game/PauseMenu";
 import { UpgradeMenu } from "@/components/game/UpgradeMenu";
-import { MAP_CONFIG } from "@/constants/gameConfig";
+import { MAP_CONFIG, WAYPOINTS, CONSTRUCTION_SPOTS } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
+import { useCampaignContext } from "@/contexts/CampaignContext";
 import { useGameEngine } from "@/hooks/useGameEngine";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -25,7 +26,8 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 
 export default function GameScreen() {
   const insets = useSafeAreaInsets();
-  const { gameState, resetGame, startWave, togglePause, toggleSpeed } = useGame();
+  const { gameState, currentLevel, resetGame, startWave, togglePause, toggleSpeed } = useGame();
+  const { completeLevel } = useCampaignContext();
 
   useGameEngine();
 
@@ -33,13 +35,54 @@ export default function GameScreen() {
     resetGame();
   }, [resetGame]);
 
+  /**
+   * Handle victory - complete level in campaign context and calculate stars
+   */
+  useEffect(() => {
+    if (gameState.phase === 'victory' && currentLevel) {
+      // Calculate stars based on hull integrity
+      const hullPercent = (gameState.hullIntegrity / currentLevel.mapConfig.startingResources.hullIntegrity) * 100;
+
+      let stars = 1; // Default: completed
+
+      // Check 2-star requirement
+      const twoStarReq = currentLevel.starRequirements.twoStars;
+      if (twoStarReq.type === 'hull_remaining' && hullPercent >= twoStarReq.minHullPercent) {
+        stars = 2;
+      }
+
+      // Check 3-star requirement
+      const threeStarReq = currentLevel.starRequirements.threeStars;
+      if (threeStarReq.type === 'hull_remaining' && hullPercent >= threeStarReq.minHullPercent) {
+        stars = 3;
+      } else if (threeStarReq.type === 'perfect' && gameState.hullIntegrity === currentLevel.mapConfig.startingResources.hullIntegrity) {
+        stars = 3;
+      }
+
+      // Complete level in campaign context
+      completeLevel(currentLevel.id, stars, {
+        zombiesKilled: gameState.stats.zombiesKilled,
+        wavesCompleted: gameState.currentWave,
+        finalHullIntegrity: gameState.hullIntegrity,
+        timeTaken: 0, // TODO: Add timer
+        scrapEarned: gameState.scrap,
+      });
+    }
+  }, [gameState.phase, currentLevel, gameState.hullIntegrity, gameState.stats.zombiesKilled, gameState.currentWave, gameState.scrap, completeLevel]);
+
   const mapWidth = MAP_CONFIG.WIDTH * MAP_CONFIG.TILE_SIZE;
   const mapHeight = MAP_CONFIG.HEIGHT * MAP_CONFIG.TILE_SIZE;
-  
+
   const scale = Math.min(
     (SCREEN_WIDTH - 32) / mapWidth,
     (SCREEN_HEIGHT - 200 - insets.top - insets.bottom) / mapHeight
   );
+
+  // Get dynamic data from level or use defaults
+  const waypoints = currentLevel?.mapConfig.waypoints || WAYPOINTS;
+  const constructionSpots = currentLevel?.mapConfig.constructionSpots;
+  const maxHullIntegrity = currentLevel?.mapConfig.startingResources.hullIntegrity || 20;
+  const totalWaves = currentLevel?.mapConfig.waves.length || 10;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -53,16 +96,20 @@ export default function GameScreen() {
         </TouchableOpacity>
 
         <View style={styles.statsContainer}>
+          {currentLevel && (
+            <Text style={styles.levelName}>{currentLevel.name}</Text>
+          )}
+
           <View style={styles.stat}>
             <Heart size={18} color="#FF4444" fill="#FF4444" />
             <Text style={styles.statText}>
-              {gameState.hullIntegrity}/{20}
+              {gameState.hullIntegrity}/{maxHullIntegrity}
             </Text>
           </View>
 
           <View style={styles.stat}>
             <Text style={styles.waveText}>
-              Wave {gameState.currentWave}/10
+              Wave {gameState.currentWave}/{totalWaves}
             </Text>
           </View>
 
@@ -108,7 +155,10 @@ export default function GameScreen() {
             },
           ]}
         >
-          <GameMap />
+          <GameMap
+            waypoints={waypoints}
+            constructionSpots={constructionSpots}
+          />
         </View>
       </ScrollView>
 
@@ -159,6 +209,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
     alignItems: "center",
+    flexWrap: "wrap" as const,
+  },
+  levelName: {
+    color: "#FFD700",
+    fontSize: 12,
+    fontWeight: "700" as const,
+    marginRight: 8,
   },
   stat: {
     flexDirection: "row",

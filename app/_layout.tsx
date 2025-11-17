@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { CampaignProvider } from "@/contexts/CampaignContext";
 import { GameProvider } from "@/contexts/GameContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -16,6 +17,7 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="game" options={{ headerShown: false }} />
+      <Stack.Screen name="levels" options={{ headerShown: false }} />
     </Stack>
   );
 }
@@ -27,11 +29,13 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GameProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <RootLayoutNav />
-        </GestureHandlerRootView>
-      </GameProvider>
+      <CampaignProvider>
+        <GameProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <RootLayoutNav />
+          </GestureHandlerRootView>
+        </GameProvider>
+      </CampaignProvider>
     </QueryClientProvider>
   );
 }

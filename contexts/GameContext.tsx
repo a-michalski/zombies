@@ -6,9 +6,11 @@ import { LOOKOUT_POST } from "@/constants/towers";
 import {
   FloatingText,
   GameState,
+  GameSessionConfig,
   Particle,
   Tower,
 } from "@/types/game";
+import { LevelConfig } from "@/types/levels";
 
 const INITIAL_STATE: GameState = {
   phase: "between_waves",
@@ -36,11 +38,47 @@ const INITIAL_STATE: GameState = {
 
 export const [GameProvider, useGame] = createContextHook(() => {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);
+  const [currentLevel, setCurrentLevel] = useState<LevelConfig | null>(null);
   const gameLoopRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastUpdateRef = useRef<number>(Date.now());
 
   const resetGame = useCallback(() => {
     setGameState(INITIAL_STATE);
+    lastUpdateRef.current = Date.now();
+  }, []);
+
+  /**
+   * Start a campaign level with dynamic configuration
+   * @param level - The level configuration to load
+   */
+  const startCampaignLevel = useCallback((level: LevelConfig) => {
+    setCurrentLevel(level);
+
+    // Initialize game with level's config
+    setGameState({
+      phase: 'between_waves',
+      currentWave: 1,
+      scrap: level.mapConfig.startingResources.scrap,
+      hullIntegrity: level.mapConfig.startingResources.hullIntegrity,
+      isPaused: false,
+      gameSpeed: 1,
+      waveCountdown: GAME_CONFIG.AUTO_START_DELAY,
+      enemies: [],
+      towers: [],
+      projectiles: [],
+      floatingTexts: [],
+      particles: [],
+      selectedSpotId: null,
+      selectedTowerId: null,
+      stats: {
+        zombiesKilled: 0,
+        totalDamageDealt: 0,
+      },
+      sessionConfig: {
+        currentLevel: level,
+        mode: 'campaign',
+      },
+    });
     lastUpdateRef.current = Date.now();
   }, []);
 
@@ -250,7 +288,9 @@ export const [GameProvider, useGame] = createContextHook(() => {
   return {
     gameState,
     setGameState,
+    currentLevel,
     resetGame,
+    startCampaignLevel,
     buildTower,
     upgradeTower,
     sellTower,

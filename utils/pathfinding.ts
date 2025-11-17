@@ -1,13 +1,23 @@
 import { WAYPOINTS } from "@/constants/gameConfig";
 import { Position } from "@/types/game";
 
-export function calculatePathProgress(waypointIndex: number, position: Position): number {
-  if (waypointIndex >= WAYPOINTS.length - 1) {
+/**
+ * Calculate overall progress along the path (0.0 to 1.0)
+ * @param waypointIndex - Current waypoint index
+ * @param position - Current position
+ * @param waypoints - Optional waypoints array (defaults to WAYPOINTS constant)
+ */
+export function calculatePathProgress(
+  waypointIndex: number,
+  position: Position,
+  waypoints: readonly Position[] = WAYPOINTS
+): number {
+  if (waypointIndex >= waypoints.length - 1) {
     return 1.0;
   }
 
-  const currentWaypoint = WAYPOINTS[waypointIndex];
-  const nextWaypoint = WAYPOINTS[waypointIndex + 1];
+  const currentWaypoint = waypoints[waypointIndex];
+  const nextWaypoint = waypoints[waypointIndex + 1];
 
   const segmentStartX = currentWaypoint.x;
   const segmentStartY = currentWaypoint.y;
@@ -25,9 +35,9 @@ export function calculatePathProgress(waypointIndex: number, position: Position)
   const segmentProgress = Math.min(distanceInSegment / segmentLength, 1.0);
 
   let totalPathLength = 0;
-  for (let i = 0; i < WAYPOINTS.length - 1; i++) {
-    const wp1 = WAYPOINTS[i];
-    const wp2 = WAYPOINTS[i + 1];
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const wp1 = waypoints[i];
+    const wp2 = waypoints[i + 1];
     totalPathLength += Math.sqrt(
       Math.pow(wp2.x - wp1.x, 2) + Math.pow(wp2.y - wp1.y, 2)
     );
@@ -35,8 +45,8 @@ export function calculatePathProgress(waypointIndex: number, position: Position)
 
   let distanceTraveled = 0;
   for (let i = 0; i < waypointIndex; i++) {
-    const wp1 = WAYPOINTS[i];
-    const wp2 = WAYPOINTS[i + 1];
+    const wp1 = waypoints[i];
+    const wp2 = waypoints[i + 1];
     distanceTraveled += Math.sqrt(
       Math.pow(wp2.x - wp1.x, 2) + Math.pow(wp2.y - wp1.y, 2)
     );
@@ -47,13 +57,22 @@ export function calculatePathProgress(waypointIndex: number, position: Position)
   return distanceTraveled / totalPathLength;
 }
 
+/**
+ * Move an entity along the path
+ * @param currentPosition - Current position
+ * @param waypointIndex - Current waypoint index
+ * @param speed - Movement speed
+ * @param deltaTime - Time delta
+ * @param waypoints - Optional waypoints array (defaults to WAYPOINTS constant)
+ */
 export function moveAlongPath(
   currentPosition: Position,
   waypointIndex: number,
   speed: number,
-  deltaTime: number
+  deltaTime: number,
+  waypoints: readonly Position[] = WAYPOINTS
 ): { newPosition: Position; newWaypointIndex: number; reachedEnd: boolean } {
-  if (waypointIndex >= WAYPOINTS.length - 1) {
+  if (waypointIndex >= waypoints.length - 1) {
     return {
       newPosition: currentPosition,
       newWaypointIndex: waypointIndex,
@@ -61,7 +80,7 @@ export function moveAlongPath(
     };
   }
 
-  const targetWaypoint = WAYPOINTS[waypointIndex + 1];
+  const targetWaypoint = waypoints[waypointIndex + 1];
   const dx = targetWaypoint.x - currentPosition.x;
   const dy = targetWaypoint.y - currentPosition.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
@@ -72,7 +91,7 @@ export function moveAlongPath(
     const remainingDistance = moveDistance - distance;
     const nextWaypointIndex = waypointIndex + 1;
 
-    if (nextWaypointIndex >= WAYPOINTS.length - 1) {
+    if (nextWaypointIndex >= waypoints.length - 1) {
       return {
         newPosition: { x: targetWaypoint.x, y: targetWaypoint.y },
         newWaypointIndex: nextWaypointIndex,
@@ -80,7 +99,7 @@ export function moveAlongPath(
       };
     }
 
-    const nextTarget = WAYPOINTS[nextWaypointIndex + 1];
+    const nextTarget = waypoints[nextWaypointIndex + 1];
     const nextDx = nextTarget.x - targetWaypoint.x;
     const nextDy = nextTarget.y - targetWaypoint.y;
     const nextDistance = Math.sqrt(nextDx * nextDx + nextDy * nextDy);

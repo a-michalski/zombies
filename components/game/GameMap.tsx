@@ -9,6 +9,8 @@ import { VisualEffects } from "./VisualEffects";
 
 import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
+import { Position } from "@/types/game";
+import { ConstructionSpotConfig } from "@/types/map";
 import {
   MAP_IMAGES,
   getPathTexture,
@@ -25,11 +27,34 @@ const HAS_SPECIALIZED_PATH_TEXTURES = hasPathTextures();
 const HAS_WAYPOINT_SPRITES = hasWaypointImages();
 const HAS_CONSTRUCTION_SPOT_SPRITE = hasConstructionSpotImage();
 
-export function GameMap() {
+interface GameMapProps {
+  /** Optional waypoints array - falls back to WAYPOINTS constant if not provided */
+  waypoints?: Position[];
+  /** Optional construction spots - falls back to CONSTRUCTION_SPOTS constant if not provided */
+  constructionSpots?: ConstructionSpotConfig[];
+}
+
+export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
   const { gameState, selectSpot } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
   const mapWidth = MAP_CONFIG.WIDTH * tileSize;
   const mapHeight = MAP_CONFIG.HEIGHT * tileSize;
+
+  // Use provided waypoints or fall back to constants
+  const actualWaypoints = waypoints || WAYPOINTS;
+
+  // Use provided construction spots or fall back to constants
+  // Convert ConstructionSpotConfig to old format if needed
+  const actualSpots = useMemo(() => {
+    if (constructionSpots) {
+      return constructionSpots.map(spot => ({
+        id: spot.id,
+        x: spot.position.x,
+        y: spot.position.y,
+      }));
+    }
+    return CONSTRUCTION_SPOTS as any;
+  }, [constructionSpots]);
 
   // Memoize occupied spots to avoid recalculating on every render
   const occupiedSpotIds = useMemo(() => {
@@ -46,9 +71,9 @@ export function GameMap() {
           pointerEvents="none"
         >
         {/* Path lines - use path texture if available, otherwise gray line */}
-        {WAYPOINTS.map((waypoint, index) => {
-          if (index === WAYPOINTS.length - 1) return null;
-          const next = WAYPOINTS[index + 1];
+        {actualWaypoints.map((waypoint, index) => {
+          if (index === actualWaypoints.length - 1) return null;
+          const next = actualWaypoints[index + 1];
           
           return (
             <Line
@@ -65,18 +90,18 @@ export function GameMap() {
         })}
 
         {/* Waypoints - use sprites if available, otherwise colored circles */}
-        {!HAS_WAYPOINT_SPRITES && WAYPOINTS.map((waypoint, index) => (
+        {!HAS_WAYPOINT_SPRITES && actualWaypoints.map((waypoint, index) => (
           <Circle
             key={`waypoint-${index}`}
             cx={waypoint.x * tileSize}
             cy={waypoint.y * tileSize}
             r={tileSize * 0.3}
-            fill={index === 0 ? "#FF4444" : index === WAYPOINTS.length - 1 ? "#4444FF" : "#666666"}
+            fill={index === 0 ? "#FF4444" : index === actualWaypoints.length - 1 ? "#4444FF" : "#666666"}
           />
         ))}
 
         {/* Construction spots - use SVG if no sprite available */}
-        {!HAS_CONSTRUCTION_SPOT_SPRITE && CONSTRUCTION_SPOTS.map((spot) => {
+        {!HAS_CONSTRUCTION_SPOT_SPRITE && actualSpots.map((spot) => {
           const isOccupied = occupiedSpotIds.has(spot.id);
           const isSelected = gameState.selectedSpotId === spot.id;
           
@@ -110,10 +135,10 @@ export function GameMap() {
         {/* Path texture overlay */}
         {(HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {WAYPOINTS.map((waypoint, index) => {
-              if (index === WAYPOINTS.length - 1) return null;
-              const next = WAYPOINTS[index + 1];
-              const prev = index > 0 ? WAYPOINTS[index - 1] : null;
+            {actualWaypoints.map((waypoint, index) => {
+              if (index === actualWaypoints.length - 1) return null;
+              const next = actualWaypoints[index + 1];
+              const prev = index > 0 ? actualWaypoints[index - 1] : null;
               
               const dx = next.x - waypoint.x;
               const dy = next.y - waypoint.y;
@@ -185,15 +210,15 @@ export function GameMap() {
         {/* Waypoint sprites */}
         {HAS_WAYPOINT_SPRITES && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {WAYPOINTS.map((waypoint, index) => {
+            {actualWaypoints.map((waypoint, index) => {
               const x = waypoint.x * tileSize;
               const y = waypoint.y * tileSize;
               const size = tileSize * 1.5;
-              
+
               let waypointImage = null;
               if (index === 0) {
                 waypointImage = MAP_IMAGES.startWaypoint;
-              } else if (index === WAYPOINTS.length - 1) {
+              } else if (index === actualWaypoints.length - 1) {
                 waypointImage = MAP_IMAGES.endWaypoint;
               }
               
@@ -222,7 +247,7 @@ export function GameMap() {
         {/* Construction spot sprites */}
         {HAS_CONSTRUCTION_SPOT_SPRITE && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {CONSTRUCTION_SPOTS.map((spot) => {
+            {actualSpots.map((spot) => {
               const isOccupied = occupiedSpotIds.has(spot.id);
               const isSelected = gameState.selectedSpotId === spot.id;
               
@@ -257,7 +282,7 @@ export function GameMap() {
         <ProjectileRenderer />
         <VisualEffects />
       {/* Construction spots rendered last to be on top */}
-      {CONSTRUCTION_SPOTS.map((spot) => {
+      {actualSpots.map((spot) => {
         const isOccupied = occupiedSpotIds.has(spot.id);
         if (isOccupied) return null;
 
@@ -288,7 +313,7 @@ export function GameMap() {
         );
       })}
       </View>
-  ), [tileSize, gameState.selectedSpotId, occupiedSpotIds]);
+  ), [tileSize, gameState.selectedSpotId, occupiedSpotIds, actualWaypoints, actualSpots, selectSpot]);
 
   return (
     <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>
