@@ -153,6 +153,15 @@ export default function LevelCard({
           {level.name}
         </Text>
 
+        {/* Level description */}
+        <Text
+          style={[styles.levelDescription, locked && styles.levelDescriptionLocked]}
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
+          {level.description}
+        </Text>
+
         {/* Star Rating (if completed) or Lock Icon (if locked) */}
         {isCompleted && !locked ? (
           <View style={styles.starsContainer}>
@@ -267,6 +276,16 @@ const styles = StyleSheet.create({
     marginBottom: THEME.spacing.xs,
   },
   levelNameLocked: {
+    color: THEME.colors.text.disabled,
+  },
+  levelDescription: {
+    fontSize: THEME.typography.fontSize.xs,
+    fontWeight: THEME.typography.fontWeight.normal,
+    color: THEME.colors.text.tertiary,
+    lineHeight: 16,
+    marginBottom: THEME.spacing.xs,
+  },
+  levelDescriptionLocked: {
     color: THEME.colors.text.disabled,
   },
 

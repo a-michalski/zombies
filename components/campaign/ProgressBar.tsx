@@ -18,6 +18,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, ViewStyle } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { THEME } from '@/constants/ui/theme';
 
 export interface ProgressBarProps {
@@ -70,7 +71,14 @@ export default function ProgressBar({
               }),
             },
           ]}
-        />
+        >
+          <LinearGradient
+            colors={[THEME.colors.success, THEME.colors.star.filled]}
+            start={[0, 0]}
+            end={[1, 0]}
+            style={styles.gradient}
+          />
+        </Animated.View>
       </View>
 
       {showLabel && (
@@ -92,7 +100,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   barFill: {
-    backgroundColor: THEME.colors.success, // #4CAF50 (green fill)
+    overflow: 'hidden',
+  },
+  gradient: {
+    flex: 1,
+    borderRadius: 4, // Matches parent border radius
   },
   label: {
     marginTop: THEME.spacing.xs,
