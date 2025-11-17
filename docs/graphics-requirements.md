@@ -440,3 +440,94 @@ assets/images/
 - [ ] Testowanie w kontekście gry
 - [ ] Dokumentacja sprite sheets (jeśli używane)
 
+---
+
+## Aktualne rozmiary assetów
+
+**Ostatnia aktualizacja**: 2025-11-17
+
+### Production Bundle Size (Game Assets)
+
+**Całkowity rozmiar**: ~518 KB
+
+### Rozmiary per kategoria:
+
+| Kategoria | Rozmiar | Liczba plików | % całości |
+|-----------|---------|---------------|-----------|
+| **UI** | 412.3 KB | 4 | 79.6% |
+| **Map** | 79.2 KB | 12 | 15.3% |
+| **Towers** | 15.3 KB | 3 | 3.0% |
+| **Enemies** | 10.7 KB | 3 | 2.1% |
+| **Projectiles** | 299 B | 1 | 0.1% |
+| **Effects** | 243 B | 2 | 0.0% |
+
+### Największe pliki (produkcja):
+
+1. `ui/main-menu-background.png` - 379.7 KB
+2. `map/background.png` - 66.1 KB
+3. `ui/panel-bg.png` - 24.3 KB
+
+### Limity rozmiarów plików:
+
+| Typ assetów | Maksymalny rozmiar |
+|-------------|-------------------|
+| Towers | 50 KB per plik |
+| Enemies | 20 KB per plik |
+| Projectiles | 5 KB per plik |
+| Effects | 10 KB per plik |
+| UI elements | 500 KB per plik |
+| UI background | 1 MB (special case) |
+| Map elements | 1 MB per plik |
+
+### Pliki źródłowe (nie w bundlu)
+
+Pliki źródłowe są przechowywane w `assets/images/_sources/` i **nie są** wliczane do bundla produkcyjnego:
+
+- `ground-tile-source.png` - 2.17 MB
+- `main-menu-background-original.png` - 2.36 MB
+
+---
+
+## Narzędzia i skrypty
+
+### Generowanie raportu rozmiarów
+
+```bash
+npm run asset-report
+```
+
+Generuje szczegółowy raport wszystkich assetów, ich rozmiarów i dystrybucji per kategoria.
+
+### Walidacja assetów
+
+```bash
+npm run validate-assets
+```
+
+Sprawdza:
+- Czy wszystkie wymagane pliki z `imageAssets.ts` istnieją
+- Czy rozmiary plików są w akceptowalnych zakresach
+- Czy nie ma nieużywanych plików
+
+### Optymalizacja PNG
+
+```bash
+npm run optimize-images
+```
+
+Optymalizuje wszystkie pliki PNG używając sharp:
+- Kompresja PNG z zachowaniem jakości
+- Automatyczne użycie palety dla obrazów bez przezroczystości
+- Raport oszczędności per plik
+
+---
+
+## Folder _sources/
+
+Folder `assets/images/_sources/` przechowuje:
+- Oryginalne, wysokiej rozdzielczości pliki źródłowe
+- Pliki przed optymalizacją
+- Źródła do generowania wariantów produkcyjnych
+
+**Uwaga**: Pliki w `_sources/` nie są wliczane do bundla aplikacji.
+

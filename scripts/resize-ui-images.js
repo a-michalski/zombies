@@ -19,8 +19,8 @@ function resizeUIImages() {
   console.log('🔄 Resizing UI images...\n');
   
   const files = [
-    { file: 'panel-bg-2.png', target: 'panel-bg-2.png', width: 400, height: 300 },
-    { file: 'panel-bg-3.png', target: 'panel-bg-3.png', width: 400, height: 300 },
+    // panel-bg-2.png and panel-bg-3.png removed - not used in imageAssets.ts
+    // Add new UI images here if needed
   ];
   
   files.forEach(({ file, target, width, height }) => {

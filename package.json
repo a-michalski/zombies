@@ -6,7 +6,10 @@
     "start": "bunx rork start -p l0l6xy3ojee6badby8zpj --tunnel",
     "start-web": "bunx rork start -p l0l6xy3ojee6badby8zpj --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p l0l6xy3ojee6badby8zpj --web --tunnel",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "optimize-images": "node scripts/optimize-png-images.js",
+    "validate-assets": "node scripts/validate-assets.js",
+    "asset-report": "node scripts/generate-asset-sizes-report.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

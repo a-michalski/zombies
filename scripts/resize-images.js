@@ -94,9 +94,9 @@ function resizeImages() {
     }
   });
   
-  // Handle map texture sources
-  const groundTileSource = path.join(ASSETS_DIR, 'map/ground-tile-source.png');
-  const pathTextureSource = path.join(ASSETS_DIR, 'map/path-texture-source.png');
+  // Handle map texture sources (now in _sources/ folder)
+  const groundTileSource = path.join(ASSETS_DIR, '_sources/ground-tile-source.png');
+  const pathTextureSource = path.join(ASSETS_DIR, '_sources/path-texture-source.png');
   
   if (fs.existsSync(groundTileSource)) {
     const target = path.join(ASSETS_DIR, 'map/ground-tile.png');
