@@ -9,7 +9,9 @@
     "lint": "expo lint",
     "optimize-images": "node scripts/optimize-png-images.js",
     "validate-assets": "node scripts/validate-assets.js",
-    "asset-report": "node scripts/generate-asset-sizes-report.js"
+    "asset-report": "node scripts/generate-asset-sizes-report.js",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -48,10 +50,22 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@expo/ngrok": "^4.1.0",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/addon-links": "^8.6.14",
+    "@storybook/addon-react-native-web": "^0.0.29",
+    "@storybook/blocks": "^8.6.14",
+    "@storybook/react": "^8.6.14",
+    "@storybook/react-webpack5": "^8.6.14",
+    "@storybook/test": "^8.6.14",
     "@types/react": "~19.0.10",
+    "ajv": "^8.17.1",
+    "babel-loader": "^10.0.0",
+    "babel-plugin-react-native-web": "^0.21.2",
     "eslint": "^9.31.0",
     "eslint-config-expo": "^9.2.0",
     "sharp": "^0.34.5",
+    "storybook": "^8.6.14",
     "typescript": "~5.8.3"
   },
   "private": true
