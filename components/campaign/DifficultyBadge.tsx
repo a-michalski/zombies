@@ -15,18 +15,21 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react-native';
 import { THEME } from '@/constants/ui/theme';
 import { Difficulty } from '@/types/levels';
 
 export interface DifficultyBadgeProps {
   difficulty: Difficulty;
   size?: 'small' | 'medium';
+  showIcon?: boolean;
   style?: ViewStyle;
 }
 
 export default function DifficultyBadge({
   difficulty,
   size = 'medium',
+  showIcon = false,
   style,
 }: DifficultyBadgeProps) {
   // Get background color based on difficulty
@@ -35,21 +38,31 @@ export default function DifficultyBadge({
   // Size-specific styles
   const sizeStyles = {
     small: {
-      width: 50,
+      width: showIcon ? 65 : 50,
       height: 20,
       fontSize: 10,
+      iconSize: 14,
     },
     medium: {
-      width: 60,
+      width: showIcon ? 80 : 60,
       height: 24,
       fontSize: 12,
+      iconSize: 16,
     },
   }[size];
+
+  // Icon based on difficulty
+  const DifficultyIcon = {
+    easy: CheckCircle,
+    medium: AlertCircle,
+    hard: AlertTriangle,
+  }[difficulty];
 
   return (
     <View
       style={[
         styles.badge,
+        showIcon && styles.badgeWithIcon,
         {
           backgroundColor,
           width: sizeStyles.width,
@@ -58,6 +71,14 @@ export default function DifficultyBadge({
         style,
       ]}
     >
+      {showIcon && (
+        <DifficultyIcon
+          size={sizeStyles.iconSize}
+          color={THEME.colors.text.primary}
+          strokeWidth={2.5}
+          style={styles.icon}
+        />
+      )}
       <Text
         style={[
           styles.text,
@@ -78,6 +99,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: THEME.spacing.sm,
+  },
+  badgeWithIcon: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  icon: {
+    marginRight: 2,
   },
   text: {
     color: THEME.colors.text.primary,

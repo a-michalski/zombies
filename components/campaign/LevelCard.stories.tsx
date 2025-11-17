@@ -19,9 +19,10 @@ import {
  * - Three states: locked, unlocked (not completed), completed
  * - Shows level thumbnail with number
  * - Displays difficulty badge
+ * - **Level description** (2 lines max, ellipsis) - matches Figma specs
  * - Shows star rating for completed levels
  * - Action button: LOCKED / PLAY / REPLAY
- * - Supports highlight for next level
+ * - Supports highlight for next level (golden border)
  * - Touch interactions: onPress, onLongPress
  *
  * ## Usage

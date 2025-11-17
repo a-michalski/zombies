@@ -11,7 +11,8 @@ import { THEME } from '@/constants/ui/theme';
  * - Animated width transition (can be disabled)
  * - Customizable height
  * - Optional "X/Y Stars" label
- * - Green fill (#4CAF50) over dark gray background
+ * - **Gradient fill** from green (#4CAF50) to gold (#FFD700) - matches Figma specs
+ * - Dark gray background (#333333)
  *
  * ## Usage
  * ```tsx
