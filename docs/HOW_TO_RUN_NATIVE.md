@@ -96,3 +96,5 @@ Po uruchomieniu aplikacji na natywnym urządzeniu:
 - Sprawdź czy masz zainstalowane Xcode (iOS) lub Android Studio (Android)
 - Uruchom `npx expo-doctor` żeby sprawdzić konfigurację
 
+
+

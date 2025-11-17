@@ -43,7 +43,7 @@ export default function MainMenu() {
           <View style={styles.titleContainer}>
             <Skull size={64} color="#FFFFFF" strokeWidth={2.5} />
             <Text style={styles.title}>ZOMBIE FLEET</Text>
-            <Text style={styles.subtitle}>BASTION PROTOTYPE</Text>
+            <Text style={styles.subtitle}>BASTION</Text>
           </View>
 
         <TouchableOpacity
