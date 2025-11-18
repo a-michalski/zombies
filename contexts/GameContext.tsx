@@ -2,7 +2,7 @@ import createContextHook from "@nkzw/create-context-hook";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CONSTRUCTION_SPOTS, GAME_CONFIG } from "@/constants/gameConfig";
-import { LOOKOUT_POST } from "@/constants/towers";
+import { LOOKOUT_POST, CANNON_TOWER } from "@/constants/towers";
 import {
   FloatingText,
   GameState,
@@ -82,19 +82,21 @@ export const [GameProvider, useGame] = createContextHook(() => {
     lastUpdateRef.current = Date.now();
   }, []);
 
-  const buildTower = useCallback((spotId: string) => {
+  const buildTower = useCallback((spotId: string, towerType: "tower_lookout_post" | "tower_cannon" = "tower_lookout_post") => {
     setGameState((prev) => {
-      if (prev.scrap < LOOKOUT_POST.buildCost) return prev;
-      
+      const towerConfig = towerType === "tower_cannon" ? CANNON_TOWER : LOOKOUT_POST;
+
+      if (prev.scrap < towerConfig.buildCost) return prev;
+
       const spot = CONSTRUCTION_SPOTS.find((s) => s.id === spotId);
       if (!spot) return prev;
-      
+
       const existingTower = prev.towers.find((t) => t.spotId === spotId);
       if (existingTower) return prev;
 
       const newTower: Tower = {
         id: `tower_${Date.now()}`,
-        type: "tower_lookout_post", // TODO: Make this configurable
+        type: towerType,
         spotId,
         position: { x: spot.x, y: spot.y },
         level: 1,
@@ -104,7 +106,7 @@ export const [GameProvider, useGame] = createContextHook(() => {
 
       return {
         ...prev,
-        scrap: prev.scrap - LOOKOUT_POST.buildCost,
+        scrap: prev.scrap - towerConfig.buildCost,
         towers: [...prev.towers, newTower],
         selectedSpotId: null,
       };
@@ -116,9 +118,10 @@ export const [GameProvider, useGame] = createContextHook(() => {
       const tower = prev.towers.find((t) => t.id === towerId);
       if (!tower || tower.level >= 3) return prev;
 
-      const nextLevel = LOOKOUT_POST.levels[tower.level];
+      const towerConfig = tower.type === "tower_cannon" ? CANNON_TOWER : LOOKOUT_POST;
+      const nextLevel = towerConfig.levels[tower.level];
       const upgradeCost = nextLevel.upgradeCost;
-      
+
       if (!upgradeCost || prev.scrap < upgradeCost) return prev;
 
       return {
@@ -136,13 +139,15 @@ export const [GameProvider, useGame] = createContextHook(() => {
       const tower = prev.towers.find((t) => t.id === towerId);
       if (!tower) return prev;
 
-      let invested = LOOKOUT_POST.buildCost;
+      const towerConfig = tower.type === "tower_cannon" ? CANNON_TOWER : LOOKOUT_POST;
+
+      let invested = towerConfig.buildCost;
       for (let i = 1; i < tower.level; i++) {
-        const levelCost = LOOKOUT_POST.levels[i].upgradeCost;
+        const levelCost = towerConfig.levels[i].upgradeCost;
         if (levelCost) invested += levelCost;
       }
 
-      const sellValue = Math.floor(invested * LOOKOUT_POST.sellValueModifier);
+      const sellValue = Math.floor(invested * towerConfig.sellValueModifier);
 
       return {
         ...prev,

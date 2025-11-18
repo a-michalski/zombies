@@ -1,5 +1,5 @@
 import { X } from "lucide-react-native";
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   StyleSheet,
@@ -8,16 +8,20 @@ import {
   View,
 } from "react-native";
 
-import { LOOKOUT_POST } from "@/constants/towers";
+import { LOOKOUT_POST, CANNON_TOWER } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
+
+type TowerType = "tower_lookout_post" | "tower_cannon";
 
 export function BuildMenu() {
   const { gameState, buildTower, selectSpot } = useGame();
+  const [selectedTowerType, setSelectedTowerType] = useState<TowerType>("tower_lookout_post");
 
   if (!gameState.selectedSpotId) return null;
 
-  const canAfford = gameState.scrap >= LOOKOUT_POST.buildCost;
-  const level1Stats = LOOKOUT_POST.levels[0];
+  const towerConfig = selectedTowerType === "tower_cannon" ? CANNON_TOWER : LOOKOUT_POST;
+  const canAfford = gameState.scrap >= towerConfig.buildCost;
+  const level1Stats = towerConfig.levels[0];
   const dps = (level1Stats.damage * level1Stats.fireRate).toFixed(1);
 
   return (
@@ -47,9 +51,50 @@ export function BuildMenu() {
             </TouchableOpacity>
           </View>
 
+          {/* Tower Type Selection */}
+          <View style={styles.towerTypeContainer}>
+            <TouchableOpacity
+              style={[
+                styles.towerTypeButton,
+                selectedTowerType === "tower_lookout_post" && styles.towerTypeButtonActive,
+              ]}
+              onPress={() => setSelectedTowerType("tower_lookout_post")}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.towerTypeText,
+                  selectedTowerType === "tower_lookout_post" && styles.towerTypeTextActive,
+                ]}
+              >
+                Lookout Post
+              </Text>
+              <Text style={styles.towerTypeCost}>🔩 {LOOKOUT_POST.buildCost}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.towerTypeButton,
+                selectedTowerType === "tower_cannon" && styles.towerTypeButtonActive,
+              ]}
+              onPress={() => setSelectedTowerType("tower_cannon")}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.towerTypeText,
+                  selectedTowerType === "tower_cannon" && styles.towerTypeTextActive,
+                ]}
+              >
+                Cannon Tower
+              </Text>
+              <Text style={styles.towerTypeCost}>🔩 {CANNON_TOWER.buildCost}</Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={styles.content}>
-            <Text style={styles.towerName}>{LOOKOUT_POST.name}</Text>
-            <Text style={styles.description}>{LOOKOUT_POST.description}</Text>
+            <Text style={styles.towerName}>{towerConfig.name}</Text>
+            <Text style={styles.description}>{towerConfig.description}</Text>
 
             <View style={styles.statsContainer}>
               <View style={styles.statRow}>
@@ -68,12 +113,18 @@ export function BuildMenu() {
                 <Text style={styles.statLabel}>DPS:</Text>
                 <Text style={styles.statValue}>{dps}</Text>
               </View>
+              {selectedTowerType === "tower_cannon" && (
+                <View style={styles.statRow}>
+                  <Text style={styles.statLabel}>Type:</Text>
+                  <Text style={[styles.statValue, { color: "#FF8800" }]}>AOE (radius 1.0)</Text>
+                </View>
+              )}
             </View>
 
             <View style={styles.costContainer}>
               <Text style={styles.costLabel}>Cost:</Text>
               <Text style={[styles.costValue, !canAfford && styles.costValueInsufficient]}>
-                🔩 {LOOKOUT_POST.buildCost}
+                🔩 {towerConfig.buildCost}
               </Text>
             </View>
           </View>
@@ -96,10 +147,10 @@ export function BuildMenu() {
               onPress={() => {
                 if (canAfford && gameState.selectedSpotId) {
                   const spotId = gameState.selectedSpotId;
-                  buildTower(spotId);
+                  buildTower(spotId, selectedTowerType);
                   selectSpot(null); // Close menu after building
                   if (__DEV__) {
-                    console.log("Building tower at spot:", spotId);
+                    console.log("Building tower at spot:", spotId, "type:", selectedTowerType);
                   }
                 }
               }}
@@ -148,6 +199,38 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 4,
+  },
+  towerTypeContainer: {
+    flexDirection: "row",
+    padding: 16,
+    paddingBottom: 0,
+    gap: 12,
+  },
+  towerTypeButton: {
+    flex: 1,
+    backgroundColor: "#1a1a1a",
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 2,
+    borderColor: "#333333",
+    alignItems: "center",
+  },
+  towerTypeButtonActive: {
+    borderColor: "#4A90E2",
+    backgroundColor: "#2a3a4a",
+  },
+  towerTypeText: {
+    fontSize: 14,
+    fontWeight: "700" as const,
+    color: "#AAAAAA",
+    marginBottom: 4,
+  },
+  towerTypeTextActive: {
+    color: "#4A90E2",
+  },
+  towerTypeCost: {
+    fontSize: 12,
+    color: "#666666",
   },
   content: {
     padding: 20,
