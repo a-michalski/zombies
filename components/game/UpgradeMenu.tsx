@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 
-import { LOOKOUT_POST } from "@/constants/towers";
+import { LOOKOUT_POST, CANNON_TOWER } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
 
 export function UpgradeMenu() {
@@ -18,19 +18,22 @@ export function UpgradeMenu() {
 
   if (!tower) return null;
 
-  const currentStats = LOOKOUT_POST.levels[tower.level - 1];
-  const nextStats = tower.level < 3 ? LOOKOUT_POST.levels[tower.level] : null;
+  // Get the correct tower config based on tower type
+  const towerConfig = tower.type === "tower_cannon" ? CANNON_TOWER : LOOKOUT_POST;
+
+  const currentStats = towerConfig.levels[tower.level - 1];
+  const nextStats = tower.level < 3 ? towerConfig.levels[tower.level] : null;
   const canUpgrade = nextStats && gameState.scrap >= (nextStats.upgradeCost || 0);
 
   const currentDps = (currentStats.damage * currentStats.fireRate).toFixed(1);
   const nextDps = nextStats ? (nextStats.damage * nextStats.fireRate).toFixed(1) : null;
 
-  let invested = LOOKOUT_POST.buildCost;
+  let invested = towerConfig.buildCost;
   for (let i = 1; i < tower.level; i++) {
-    const levelCost = LOOKOUT_POST.levels[i].upgradeCost;
+    const levelCost = towerConfig.levels[i].upgradeCost;
     if (levelCost) invested += levelCost;
   }
-  const sellValue = Math.floor(invested * LOOKOUT_POST.sellValueModifier);
+  const sellValue = Math.floor(invested * towerConfig.sellValueModifier);
 
   return (
     <Modal
@@ -51,7 +54,7 @@ export function UpgradeMenu() {
         >
           <View style={styles.header}>
             <Text style={styles.title}>
-              {LOOKOUT_POST.name} - Level {tower.level}
+              {towerConfig.name} - Level {tower.level}
             </Text>
             <TouchableOpacity
               onPress={() => selectTower(null)}

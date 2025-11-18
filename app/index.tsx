@@ -48,7 +48,7 @@ export default function MainMenu() {
 
         <TouchableOpacity
           style={styles.tapToContinueContainer}
-          onPress={() => router.push("/game" as any)}
+          onPress={() => router.push("/levels" as any)}
           activeOpacity={0.8}
         >
           <Animated.Text style={[styles.tapToContinue, { opacity: fadeAnim }]}>
