@@ -94,6 +94,7 @@ export const [GameProvider, useGame] = createContextHook(() => {
 
       const newTower: Tower = {
         id: `tower_${Date.now()}`,
+        type: "tower_lookout_post", // TODO: Make this configurable
         spotId,
         position: { x: spot.x, y: spot.y },
         level: 1,
