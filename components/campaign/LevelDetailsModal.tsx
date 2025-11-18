@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
 import { X, Play, Lock, Star } from 'lucide-react-native';
 import { THEME } from '@/constants/ui/theme';
-import { DifficultyBadge } from './DifficultyBadge';
+import DifficultyBadge from './DifficultyBadge';
 import type { LevelConfig } from '@/types/levels';
 import type { LevelProgress } from '@/types/progression';
 

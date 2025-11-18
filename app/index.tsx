@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Settings, Skull, Trophy } from "lucide-react-native";
+import { Infinity, Settings, Skull, Trophy } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import { Animated, Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -47,16 +47,25 @@ export default function MainMenu() {
           </View>
 
         <TouchableOpacity
-          style={styles.tapToContinueContainer}
-          onPress={() => router.push("/game" as any)}
+          style={styles.campaignButton}
+          onPress={() => router.push("/levels" as any)}
           activeOpacity={0.8}
         >
-          <Animated.Text style={[styles.tapToContinue, { opacity: fadeAnim }]}>
-            TAP TO CONTINUE
+          <Animated.Text style={[styles.campaignButtonText, { opacity: fadeAnim }]}>
+            ⚔️ CAMPAIGN MODE ⚔️
           </Animated.Text>
         </TouchableOpacity>
 
         <View style={styles.menuButtons}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => router.push("/game" as any)}
+            activeOpacity={0.7}
+          >
+            <Infinity size={20} color="#FFFFFF" />
+            <Text style={styles.menuButtonText}>Endless Mode</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.menuButton}
             onPress={() => router.push("/stats" as any)}
@@ -151,29 +160,35 @@ const styles = StyleSheet.create({
       default: "2px 2px 6px #000000",
     }),
   },
-  tapToContinueContainer: {
+  campaignButton: {
     marginTop: IS_LANDSCAPE ? 24 : 40,
-    paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingHorizontal: 40,
+    paddingVertical: 18,
+    backgroundColor: "rgba(76, 175, 80, 0.3)", // Semi-transparent green
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#4CAF50", // Green border
   },
-  tapToContinue: {
-    fontSize: 18,
-    fontWeight: "800" as const,
-    color: "#FFFFFF", // White text for better contrast
+  campaignButtonText: {
+    fontSize: 20,
+    fontWeight: "900" as const,
+    color: "#FFFFFF",
     letterSpacing: 3,
     textAlign: "center",
     // Use textShadow string format instead of deprecated props
     textShadow: Platform.select({
-      web: "2px 2px 8px rgba(0, 0, 0, 0.9), 0 0 15px rgba(0, 0, 0, 0.6)", // Strong shadow for readability
+      web: "2px 2px 8px rgba(0, 0, 0, 0.9), 0 0 15px rgba(76, 175, 80, 0.6)",
       default: "2px 2px 8px #000000",
     }),
     textTransform: "uppercase" as const,
   },
   menuButtons: {
     flexDirection: "row",
+    flexWrap: "wrap" as const,
     gap: 12,
-    marginTop: IS_LANDSCAPE ? 24 : 40,
+    marginTop: IS_LANDSCAPE ? 20 : 32,
     marginBottom: 16,
+    justifyContent: "center",
   },
   menuButton: {
     flexDirection: "row",
