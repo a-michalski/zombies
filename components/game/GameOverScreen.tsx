@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Home, RotateCcw, Trophy, Skull } from "lucide-react-native";
+import { Home, RotateCcw, Trophy, Skull, ChevronRight, Star } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
   Modal,
@@ -10,10 +10,13 @@ import {
 } from "react-native";
 
 import { useGame } from "@/contexts/GameContext";
+import { useCampaign } from "@/contexts/CampaignContext";
 import { updateStatsFromGame } from "@/utils/storage";
+import { ALL_LEVELS } from "@/data/maps";
 
 export function GameOverScreen() {
   const { gameState, resetGame } = useGame();
+  const { campaign, updateLevelProgress } = useCampaign();
   const statsSavedRef = useRef(false);
 
   useEffect(() => {
@@ -21,24 +24,73 @@ export function GameOverScreen() {
       (gameState.phase === "victory" || gameState.phase === "defeat") &&
       !statsSavedRef.current
     ) {
-      const wavesSurvived = gameState.phase === "victory" 
-        ? gameState.currentWave 
+      const wavesSurvived = gameState.phase === "victory"
+        ? gameState.currentWave
         : gameState.currentWave - 1;
-      
+
       updateStatsFromGame(
         gameState.currentWave,
         gameState.stats.zombiesKilled,
         wavesSurvived
       );
+
+      // Update campaign progress with stars earned
+      if (gameState.phase === "victory" && gameState.levelConfig) {
+        const maxHull = gameState.levelConfig.mapConfig.startingResources.hullIntegrity;
+        const hullPercent = (gameState.hullIntegrity / maxHull) * 100;
+
+        let stars = 1; // 1 star for completion
+        if (hullPercent >= (gameState.levelConfig.starRequirements.twoStars.type === 'hull_remaining'
+            ? gameState.levelConfig.starRequirements.twoStars.minHullPercent
+            : 0)) {
+          stars = 2;
+        }
+        if (hullPercent >= (gameState.levelConfig.starRequirements.threeStars.type === 'hull_remaining'
+            ? gameState.levelConfig.starRequirements.threeStars.minHullPercent
+            : 0)) {
+          stars = 3;
+        }
+
+        updateLevelProgress(gameState.levelConfig.id, stars, true);
+      }
+
       statsSavedRef.current = true;
     }
-  }, [gameState.phase, gameState.currentWave, gameState.stats.zombiesKilled]);
+  }, [gameState.phase, gameState.currentWave, gameState.stats.zombiesKilled, gameState.levelConfig, gameState.hullIntegrity, updateLevelProgress]);
 
   if (gameState.phase !== "victory" && gameState.phase !== "defeat") {
     return null;
   }
 
   const isVictory = gameState.phase === "victory";
+
+  // Calculate stars earned
+  let starsEarned = 0;
+  if (isVictory && gameState.levelConfig) {
+    const maxHull = gameState.levelConfig.mapConfig.startingResources.hullIntegrity;
+    const hullPercent = (gameState.hullIntegrity / maxHull) * 100;
+
+    starsEarned = 1; // 1 star for completion
+    if (hullPercent >= (gameState.levelConfig.starRequirements.twoStars.type === 'hull_remaining'
+        ? gameState.levelConfig.starRequirements.twoStars.minHullPercent
+        : 0)) {
+      starsEarned = 2;
+    }
+    if (hullPercent >= (gameState.levelConfig.starRequirements.threeStars.type === 'hull_remaining'
+        ? gameState.levelConfig.starRequirements.threeStars.minHullPercent
+        : 0)) {
+      starsEarned = 3;
+    }
+  }
+
+  // Find next level
+  const currentLevelIndex = gameState.levelConfig
+    ? ALL_LEVELS.findIndex(l => l.id === gameState.levelConfig?.id)
+    : -1;
+  const nextLevel = currentLevelIndex >= 0 && currentLevelIndex < ALL_LEVELS.length - 1
+    ? ALL_LEVELS[currentLevelIndex + 1]
+    : null;
+  const maxHull = gameState.levelConfig?.mapConfig.startingResources.hullIntegrity || 20;
 
   return (
     <Modal visible={true} transparent animationType="fade">
@@ -62,11 +114,25 @@ export function GameOverScreen() {
               : `Survived ${gameState.currentWave - 1}/10 waves`}
           </Text>
 
+          {isVictory && starsEarned > 0 && (
+            <View style={styles.starsContainer}>
+              {[1, 2, 3].map((starNum) => (
+                <Star
+                  key={starNum}
+                  size={40}
+                  color={starNum <= starsEarned ? "#FFD700" : "#444444"}
+                  fill={starNum <= starsEarned ? "#FFD700" : "transparent"}
+                  strokeWidth={2}
+                />
+              ))}
+            </View>
+          )}
+
           <View style={styles.statsContainer}>
             <View style={styles.statRow}>
               <Text style={styles.statLabel}>Hull Integrity:</Text>
               <Text style={styles.statValue}>
-                {gameState.hullIntegrity}/20
+                {gameState.hullIntegrity}/{maxHull}
               </Text>
             </View>
             <View style={styles.statRow}>
@@ -82,6 +148,20 @@ export function GameOverScreen() {
           </View>
 
           <View style={styles.actions}>
+            {isVictory && nextLevel && (
+              <TouchableOpacity
+                style={[styles.button, styles.nextLevelButton]}
+                onPress={() => {
+                  statsSavedRef.current = false;
+                  router.push(`/game?levelId=${nextLevel.id}` as any);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>Next Level</Text>
+                <ChevronRight size={20} color="#FFFFFF" />
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
               style={[styles.button, styles.playAgainButton]}
               onPress={() => {
@@ -146,8 +226,14 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     color: "#AAAAAA",
-    marginBottom: 32,
+    marginBottom: 16,
     textAlign: "center",
+  },
+  starsContainer: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 24,
+    justifyContent: "center",
   },
   statsContainer: {
     width: "100%",
@@ -182,6 +268,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
+  },
+  nextLevelButton: {
+    backgroundColor: "#2196F3",
   },
   playAgainButton: {
     backgroundColor: "#4CAF50",
