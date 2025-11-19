@@ -165,6 +165,9 @@ export function GameOverScreen() {
                   router.push(`/game?levelId=${nextLevel.id}` as any);
                 }}
                 activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={`Next level - ${nextLevel.name}`}
+                accessibilityHint="Start the next campaign level"
               >
                 <Text style={styles.buttonText}>Next Level</Text>
                 <ChevronRight size={20} color="#FFFFFF" />
@@ -178,6 +181,9 @@ export function GameOverScreen() {
                 resetGame();
               }}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Play again"
+              accessibilityHint="Restart the current level"
             >
               <RotateCcw size={20} color="#FFFFFF" />
               <Text style={styles.buttonText}>Play Again</Text>
@@ -187,6 +193,9 @@ export function GameOverScreen() {
               style={[styles.button, styles.menuButton]}
               onPress={() => router.back()}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Main menu"
+              accessibilityHint="Return to level selection"
             >
               <Home size={20} color="#FFFFFF" />
               <Text style={styles.buttonText}>Main Menu</Text>

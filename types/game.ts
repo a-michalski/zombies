@@ -1,5 +1,6 @@
 import { EnemyType } from "@/constants/enemies";
 import { LevelConfig } from './levels';
+import { PowerUpState, ActiveEffect } from './powerups';
 
 export interface Position {
   x: number;
@@ -94,4 +95,10 @@ export interface GameState {
 
   /** Current session configuration (campaign vs classic mode) */
   sessionConfig?: GameSessionConfig;
+
+  /** Power-up cooldown states */
+  powerUps: PowerUpState[];
+
+  /** Active power-up effects (e.g., time freeze is currently active) */
+  activeEffects: ActiveEffect[];
 }

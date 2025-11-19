@@ -28,10 +28,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import LevelCard from '@/components/campaign/LevelCard';
 import ProgressBar from '@/components/campaign/ProgressBar';
+import { PurchaseModal } from '@/components/campaign/PurchaseModal';
 import { THEME } from '@/constants/ui/theme';
 import { useCampaignContext } from '@/contexts/CampaignContext';
 import { useGame } from '@/contexts/GameContext';
+import { usePurchase } from '@/contexts/PurchaseContext';
 import { LevelConfig } from '@/types/levels';
+import { ENDLESS_MODE } from '@/data/maps/endless';
+import { Infinity } from 'lucide-react-native';
 
 export default function LevelsScreen() {
   const router = useRouter();
@@ -45,6 +49,8 @@ export default function LevelsScreen() {
     calculateTotalStars,
     isLoading,
   } = useCampaignContext();
+  const { isLevelPremium, isLevelAccessible } = usePurchase();
+  const [showPurchaseModal, setShowPurchaseModal] = React.useState(false);
 
   // Calculate stats
   const totalStars = useMemo(() => calculateTotalStars(), [playerProgress]);
@@ -66,9 +72,15 @@ export default function LevelsScreen() {
    * Starts campaign level and navigates to game screen
    */
   const handleLevelPress = (level: LevelConfig) => {
-    // Check if level is locked
+    // Check if level is locked by progression
     if (!isLevelUnlocked(level.id)) {
       return; // Don't navigate if locked
+    }
+
+    // Check if level is premium and not accessible
+    if (isLevelPremium(level.id) && !isLevelAccessible(level.id)) {
+      setShowPurchaseModal(true);
+      return;
     }
 
     // Start campaign level
@@ -86,7 +98,10 @@ export default function LevelsScreen() {
 
   // Render single level card
   const renderLevelCard = ({ item, index }: { item: LevelConfig; index: number }) => {
-    const locked = !isLevelUnlocked(item.id);
+    const lockedByProgression = !isLevelUnlocked(item.id);
+    const isPremium = isLevelPremium(item.id);
+    const isPremiumLocked = isPremium && !isLevelAccessible(item.id);
+    const locked = lockedByProgression || isPremiumLocked;
     const progress = getLevelProgress(item.id);
     const isNext = nextLevel?.id === item.id;
 
@@ -100,6 +115,11 @@ export default function LevelsScreen() {
           onPress={() => handleLevelPress(item)}
           onLongPress={() => handleLevelLongPress(item)}
         />
+        {isPremiumLocked && (
+          <View style={styles.premiumBadge}>
+            <Text style={styles.premiumBadgeText}>PREMIUM</Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -148,6 +168,39 @@ export default function LevelsScreen() {
         />
       </View>
 
+      {/* Endless Mode Card */}
+      <View style={styles.endlessModeSection}>
+        <TouchableOpacity
+          style={styles.endlessModeCard}
+          onPress={() => {
+            startCampaignLevel(ENDLESS_MODE);
+            router.push('/game');
+          }}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Endless Survival Mode"
+          accessibilityHint="Test your skills in infinite waves with increasing difficulty"
+        >
+          <View style={styles.endlessModeIconContainer}>
+            <Infinity size={48} color="#FFD700" strokeWidth={3} />
+          </View>
+          <View style={styles.endlessModeContent}>
+            <Text style={styles.endlessModeTitle}>ENDLESS SURVIVAL</Text>
+            <Text style={styles.endlessModeDescription}>
+              Infinite waves • Increasing difficulty • Test your skills!
+            </Text>
+            <View style={styles.endlessModeBadge}>
+              <Text style={styles.endlessModeBadgeText}>FREE</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      {/* Campaign Levels Label */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Campaign Levels</Text>
+      </View>
+
       {/* Level Grid */}
       <FlatList
         data={availableLevels}
@@ -157,6 +210,12 @@ export default function LevelsScreen() {
         contentContainerStyle={styles.listContent}
         columnWrapperStyle={styles.columnWrapper}
         showsVerticalScrollIndicator={false}
+      />
+
+      {/* Purchase Modal */}
+      <PurchaseModal
+        visible={showPurchaseModal}
+        onClose={() => setShowPurchaseModal(false)}
       />
     </SafeAreaView>
   );
@@ -224,6 +283,72 @@ const styles = StyleSheet.create({
     marginTop: THEME.spacing.xs,
   },
 
+  // Endless Mode Section
+  endlessModeSection: {
+    padding: THEME.spacing.md,
+    backgroundColor: THEME.colors.background.primary,
+  },
+  endlessModeCard: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    borderWidth: 2,
+    borderColor: '#FFD700',
+    borderRadius: 16,
+    padding: THEME.spacing.md,
+    alignItems: 'center',
+    gap: THEME.spacing.md,
+  },
+  endlessModeIconContainer: {
+    width: 80,
+    height: 80,
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  endlessModeContent: {
+    flex: 1,
+  },
+  endlessModeTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#FFD700',
+    marginBottom: 4,
+  },
+  endlessModeDescription: {
+    fontSize: 13,
+    color: THEME.colors.text.secondary,
+    marginBottom: 8,
+  },
+  endlessModeBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  endlessModeBadgeText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+
+  // Section Header
+  sectionHeader: {
+    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: THEME.spacing.sm,
+    backgroundColor: THEME.colors.background.secondary,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: THEME.colors.border.default,
+  },
+  sectionTitle: {
+    fontSize: THEME.typography.fontSize.md,
+    fontWeight: THEME.typography.fontWeight.bold,
+    color: THEME.colors.text.secondary,
+    textTransform: 'uppercase',
+  },
+
   // Level Grid
   listContent: {
     padding: THEME.spacing.md,
@@ -235,5 +360,24 @@ const styles = StyleSheet.create({
   cardWrapper: {
     // Cards are 160px wide, gap between columns
     width: '48%', // Slightly less than 50% for gap
+    position: 'relative',
+  },
+  premiumBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#1a1a1a',
+    zIndex: 10,
+  },
+  premiumBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#1a1a1a',
+    letterSpacing: 0.5,
   },
 });

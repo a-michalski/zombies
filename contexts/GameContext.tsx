@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CONSTRUCTION_SPOTS, GAME_CONFIG } from "@/constants/gameConfig";
 import { LOOKOUT_POST, CANNON_TOWER } from "@/constants/towers";
+import { POWER_UP_CONFIGS, TIME_FREEZE_DURATION, REPAIR_PERCENTAGE } from "@/constants/powerups";
 import {
   FloatingText,
   GameState,
@@ -11,6 +12,7 @@ import {
   Tower,
 } from "@/types/game";
 import { LevelConfig } from "@/types/levels";
+import { PowerUpType } from "@/types/powerups";
 
 const INITIAL_STATE: GameState = {
   phase: "between_waves",
@@ -20,20 +22,29 @@ const INITIAL_STATE: GameState = {
   isPaused: false,
   gameSpeed: 1,
   waveCountdown: GAME_CONFIG.AUTO_START_DELAY,
-  
+
   enemies: [],
   towers: [],
   projectiles: [],
   floatingTexts: [],
   particles: [],
-  
+
   selectedSpotId: null,
   selectedTowerId: null,
-  
+
   stats: {
     zombiesKilled: 0,
     totalDamageDealt: 0,
   },
+
+  powerUps: POWER_UP_CONFIGS.map(config => ({
+    type: config.id,
+    lastUsedAt: 0,
+    isOnCooldown: false,
+    remainingCooldown: 0,
+  })),
+
+  activeEffects: [],
 };
 
 export const [GameProvider, useGame] = createContextHook(() => {
@@ -249,6 +260,89 @@ export const [GameProvider, useGame] = createContextHook(() => {
     []
   );
 
+  /**
+   * Use a power-up
+   * Checks cost and cooldown before activating
+   */
+  const usePowerUp = useCallback((powerUpType: PowerUpType) => {
+    setGameState((prev) => {
+      const powerUpConfig = POWER_UP_CONFIGS.find(p => p.id === powerUpType);
+      if (!powerUpConfig) return prev;
+
+      // Check if enough scrap
+      if (prev.scrap < powerUpConfig.cost) {
+        addFloatingText("Not enough scrap!", 10, 2, "#FF4444");
+        return prev;
+      }
+
+      // Check cooldown
+      const powerUpState = prev.powerUps.find(p => p.type === powerUpType);
+      if (powerUpState?.isOnCooldown) {
+        addFloatingText(`On cooldown: ${Math.ceil(powerUpState.remainingCooldown)}s`, 10, 2, "#FF9800");
+        return prev;
+      }
+
+      const now = Date.now();
+      let newState = { ...prev };
+
+      // Deduct cost
+      newState.scrap -= powerUpConfig.cost;
+
+      // Apply power-up effect
+      switch (powerUpType) {
+        case 'nuke':
+          // Kill all enemies
+          const killedCount = newState.enemies.length;
+          const scrapGained = newState.enemies.reduce((sum, enemy) => {
+            const config = require("@/constants/enemies").ENEMY_CONFIGS[enemy.type];
+            return sum + config.scrapReward;
+          }, 0);
+
+          newState.enemies = [];
+          newState.scrap += scrapGained;
+          newState.stats.zombiesKilled += killedCount;
+
+          addFloatingText(`☢️ NUCLEAR STRIKE! +${scrapGained} scrap`, 10, 6, "#FF4444");
+          addParticles(10, 6, "#FF4444", 30);
+          break;
+
+        case 'timeFreeze':
+          // Add time freeze effect
+          newState.activeEffects.push({
+            id: `freeze_${now}`,
+            type: 'timeFreeze',
+            startTime: now,
+            duration: TIME_FREEZE_DURATION,
+          });
+
+          addFloatingText(`⏸️ TIME FREEZE: ${TIME_FREEZE_DURATION}s`, 10, 6, "#2196F3");
+          addParticles(10, 6, "#2196F3", 20);
+          break;
+
+        case 'repair':
+          // Restore hull
+          const maxHull = newState.sessionConfig?.currentLevel?.mapConfig.startingResources.hullIntegrity || GAME_CONFIG.STARTING_HULL;
+          const repairAmount = Math.floor(maxHull * REPAIR_PERCENTAGE);
+          const actualRepair = Math.min(repairAmount, maxHull - newState.hullIntegrity);
+
+          newState.hullIntegrity = Math.min(newState.hullIntegrity + repairAmount, maxHull);
+
+          addFloatingText(`🔧 REPAIRED: +${actualRepair} hull`, 10, 6, "#4CAF50");
+          addParticles(10, 6, "#4CAF50", 25);
+          break;
+      }
+
+      // Set cooldown
+      newState.powerUps = newState.powerUps.map(p =>
+        p.type === powerUpType
+          ? { ...p, lastUsedAt: now, isOnCooldown: true, remainingCooldown: powerUpConfig.cooldown }
+          : p
+      );
+
+      return newState;
+    });
+  }, [addFloatingText, addParticles]);
+
   useEffect(() => {
     const gameLoop = () => {
       const now = Date.now();
@@ -261,10 +355,27 @@ export const [GameProvider, useGame] = createContextHook(() => {
         const dt = deltaTime * prev.gameSpeed;
         let newState = { ...prev };
 
+        // Update power-up cooldowns
+        newState.powerUps = newState.powerUps.map(p => {
+          if (!p.isOnCooldown) return p;
+
+          const newRemaining = p.remainingCooldown - dt;
+          if (newRemaining <= 0) {
+            return { ...p, isOnCooldown: false, remainingCooldown: 0 };
+          }
+          return { ...p, remainingCooldown: newRemaining };
+        });
+
+        // Remove expired active effects
+        newState.activeEffects = newState.activeEffects.filter(effect => {
+          const elapsed = (now - effect.startTime) / 1000;
+          return elapsed < effect.duration;
+        });
+
         // Auto-start disabled - waves must be started manually
         // if (newState.phase === "between_waves") {
         //   newState.waveCountdown = Math.max(0, newState.waveCountdown - dt);
-        //   
+        //
         //   if (newState.waveCountdown <= 0) {
         //     newState.phase = "playing";
         //   }
@@ -307,5 +418,6 @@ export const [GameProvider, useGame] = createContextHook(() => {
     toggleSpeed,
     addFloatingText,
     addParticles,
+    usePowerUp,
   };
 });

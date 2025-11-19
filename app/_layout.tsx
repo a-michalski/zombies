@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { CampaignProvider } from "@/contexts/CampaignContext";
 import { GameProvider } from "@/contexts/GameContext";
+import { PurchaseProvider } from "@/contexts/PurchaseContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,13 +30,15 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CampaignProvider>
-        <GameProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <RootLayoutNav />
-          </GestureHandlerRootView>
-        </GameProvider>
-      </CampaignProvider>
+      <PurchaseProvider>
+        <CampaignProvider>
+          <GameProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <RootLayoutNav />
+            </GestureHandlerRootView>
+          </GameProvider>
+        </CampaignProvider>
+      </PurchaseProvider>
     </QueryClientProvider>
   );
 }

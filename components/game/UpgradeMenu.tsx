@@ -59,6 +59,8 @@ export function UpgradeMenu() {
             <TouchableOpacity
               onPress={() => selectTower(null)}
               style={styles.closeButton}
+              accessibilityRole="button"
+              accessibilityLabel="Close upgrade menu"
             >
               <X size={24} color="#FFFFFF" />
             </TouchableOpacity>
@@ -127,6 +129,10 @@ export function UpgradeMenu() {
                   }}
                   disabled={!canUpgrade}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Upgrade tower to level ${tower.level + 1} for ${nextStats.upgradeCost} scrap`}
+                  accessibilityHint={canUpgrade ? "Tap to upgrade this tower" : "Not enough scrap to upgrade"}
+                  accessibilityState={{ disabled: !canUpgrade }}
                 >
                   <ArrowUp size={20} color="#FFFFFF" />
                   <Text style={[styles.upgradeButtonText, !canUpgrade && styles.buttonTextDisabled]}>
@@ -148,6 +154,9 @@ export function UpgradeMenu() {
               style={[styles.button, styles.sellButton]}
               onPress={() => sellTower(tower.id)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`Sell tower for ${sellValue} scrap`}
+              accessibilityHint="Tap to sell this tower and reclaim scrap"
             >
               <DollarSign size={20} color="#FFFFFF" />
               <Text style={styles.buttonText}>Sell - 🔩 {sellValue}</Text>
@@ -157,6 +166,8 @@ export function UpgradeMenu() {
               style={[styles.button, styles.cancelButton]}
               onPress={() => selectTower(null)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Close menu"
             >
               <Text style={styles.buttonText}>Close</Text>
             </TouchableOpacity>
