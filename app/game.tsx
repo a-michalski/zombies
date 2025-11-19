@@ -16,6 +16,8 @@ import { GameMap } from "@/components/game/GameMap";
 import { GameOverScreen } from "@/components/game/GameOverScreen";
 import { PauseMenu } from "@/components/game/PauseMenu";
 import { UpgradeMenu } from "@/components/game/UpgradeMenu";
+import { PowerUpBar } from "@/components/game/PowerUpBar";
+import { EffectsOverlay } from "@/components/game/EffectsOverlay";
 import { MAP_CONFIG, WAYPOINTS, CONSTRUCTION_SPOTS } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
 import { useCampaignContext } from "@/contexts/CampaignContext";
@@ -163,11 +165,18 @@ export default function GameScreen() {
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
+        {/* Power-Ups Bar - always visible during gameplay */}
+        {(gameState.phase === "playing" || gameState.phase === "between_waves") && (
+          <PowerUpBar />
+        )}
+
         {gameState.phase === "between_waves" && (
           <TouchableOpacity
             style={styles.startButton}
             onPress={() => startWave(true)}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Start next wave and earn 15 scrap bonus"
           >
             <Play size={20} color="#FFFFFF" fill="#FFFFFF" />
             <Text style={styles.startButtonText}>Start Wave (+15 🔩)</Text>
@@ -182,6 +191,7 @@ export default function GameScreen() {
       <UpgradeMenu />
       <PauseMenu />
       <GameOverScreen />
+      <EffectsOverlay />
     </View>
   );
 }

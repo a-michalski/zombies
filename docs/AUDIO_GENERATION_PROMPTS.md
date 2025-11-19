@@ -334,6 +334,43 @@ Format: WAV, 44.1kHz, stereo with spatial positioning.
 
 ---
 
+### POWER-UP SOUNDS
+
+#### POWERUP-001: Nuke Activation
+**Prompt**:
+```
+Create a devastating nuclear strike activation sound.
+Style: warning siren buildup (0.5s) followed by massive explosion with shockwave.
+Duration: 3 seconds.
+Mood: apocalyptic, devastating, ultimate weapon.
+Reference: Call of Duty nuke sound, Fallout mini-nuke.
+Format: WAV, 44.1kHz, stereo with wide spatial spread.
+```
+
+#### POWERUP-002: Time Freeze Activation
+**Prompt**:
+```
+Create a time-stop sound effect with sci-fi energy pulse.
+Style: digital time warp with descending pitch bend and crystalline chimes.
+Duration: 2 seconds.
+Mood: frozen time, sci-fi, temporal manipulation.
+Reference: Superhot time stop, Dishonored time bend.
+Format: WAV, 44.1kHz, stereo.
+```
+
+#### POWERUP-003: Repair Activation
+**Prompt**:
+```
+Create a mechanical repair sound with energy restoration.
+Style: power tools with welding sparks and energy hum-up.
+Duration: 2 seconds.
+Mood: restoration, mechanical repair, emergency fix.
+Reference: Starcraft SCV repair, Overwatch healing sound.
+Format: WAV, 44.1kHz, stereo.
+```
+
+---
+
 ### MISC SOUNDS
 
 #### MISC-001: Hull Damage Alert

@@ -204,12 +204,21 @@ export function useGameEngine() {
           }
 
           const waypoints = getWaypoints(newState);
+
+          // Check if time freeze is active
+          const isTimeFrozen = newState.activeEffects.some(effect => effect.type === 'timeFreeze');
+
           newState.enemies = newState.enemies.map((enemy: Enemy) => {
             const enemyConfig = ENEMY_CONFIGS[enemy.type];
 
-            // Hive Queen regeneration (3 HP/sec)
+            // Hive Queen regeneration (3 HP/sec) - works even when frozen
             if (enemy.type === "hiveQueen" && enemy.health < enemy.maxHealth) {
               enemy.health = Math.min(enemy.health + (3 * dt), enemy.maxHealth);
+            }
+
+            // If time is frozen, enemies don't move
+            if (isTimeFrozen) {
+              return enemy; // Return unchanged
             }
 
             // Crawler speed boost at <50% HP (2.2 → 3.08)
