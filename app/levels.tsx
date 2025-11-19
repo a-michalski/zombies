@@ -26,8 +26,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { LevelCard } from '@/components/campaign/LevelCard';
-import { ProgressBar } from '@/components/campaign/ProgressBar';
+import LevelCard from '@/components/campaign/LevelCard';
+import ProgressBar from '@/components/campaign/ProgressBar';
 import { PurchaseModal } from '@/components/campaign/PurchaseModal';
 import { THEME } from '@/constants/ui/theme';
 import { useCampaignContext } from '@/contexts/CampaignContext';
