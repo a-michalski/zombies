@@ -50,6 +50,9 @@ export default function MainMenu() {
           style={styles.tapToContinueContainer}
           onPress={() => router.push("/levels" as any)}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Start game - Go to level selection"
+          accessibilityHint="Tap to view campaign levels and start playing"
         >
           <Animated.Text style={[styles.tapToContinue, { opacity: fadeAnim }]}>
             TAP TO CONTINUE
@@ -61,6 +64,9 @@ export default function MainMenu() {
             style={styles.menuButton}
             onPress={() => router.push("/stats" as any)}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Statistics"
+            accessibilityHint="View your game statistics and achievements"
           >
             <Trophy size={20} color="#FFFFFF" />
             <Text style={styles.menuButtonText}>Statistics</Text>
@@ -70,6 +76,9 @@ export default function MainMenu() {
             style={styles.menuButton}
             onPress={() => router.push("/settings" as any)}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Settings"
+            accessibilityHint="Configure game settings and preferences"
           >
             <Settings size={20} color="#FFFFFF" />
             <Text style={styles.menuButtonText}>Settings</Text>

@@ -16,13 +16,96 @@ export function useGameEngine() {
   const lastUpdateRef = useRef<number>(Date.now());
 
   /**
+   * Generate procedural wave for endless mode
+   * Difficulty increases every wave with more enemies and advanced types
+   */
+  const generateEndlessWave = (waveNumber: number) => {
+    // Base difficulty increases with wave number
+    const baseCount = Math.floor(3 + waveNumber * 0.8); // 3, 4, 5, 6... enemies per wave
+    const spawnDelay = Math.max(0.5, 1.5 - waveNumber * 0.05); // Faster spawns over time
+
+    const enemies: { type: string; count: number }[] = [];
+
+    // Wave 1-3: Only shamblers
+    if (waveNumber <= 3) {
+      enemies.push({ type: 'shambler', count: baseCount });
+    }
+    // Wave 4-7: Shamblers + Runners
+    else if (waveNumber <= 7) {
+      const runnerCount = Math.floor(baseCount * 0.3);
+      enemies.push({ type: 'shambler', count: baseCount - runnerCount });
+      enemies.push({ type: 'runner', count: runnerCount });
+    }
+    // Wave 8-12: Add Brutes
+    else if (waveNumber <= 12) {
+      const runnerCount = Math.floor(baseCount * 0.4);
+      const bruteCount = Math.floor(baseCount * 0.2);
+      const shamblerCount = baseCount - runnerCount - bruteCount;
+      if (shamblerCount > 0) enemies.push({ type: 'shambler', count: shamblerCount });
+      enemies.push({ type: 'runner', count: runnerCount });
+      enemies.push({ type: 'brute', count: bruteCount });
+    }
+    // Wave 13-20: Add Spitters and Crawlers
+    else if (waveNumber <= 20) {
+      const advancedCount = Math.floor(baseCount * 0.6);
+      const basicCount = baseCount - advancedCount;
+      enemies.push({ type: 'shambler', count: Math.floor(basicCount * 0.5) });
+      enemies.push({ type: 'runner', count: Math.ceil(basicCount * 0.5) });
+      enemies.push({ type: 'brute', count: Math.floor(advancedCount * 0.3) });
+      enemies.push({ type: 'spitter', count: Math.floor(advancedCount * 0.4) });
+      enemies.push({ type: 'crawler', count: Math.ceil(advancedCount * 0.3) });
+    }
+    // Wave 21-30: Add Bloaters
+    else if (waveNumber <= 30) {
+      const advancedCount = Math.floor(baseCount * 0.7);
+      const basicCount = baseCount - advancedCount;
+      enemies.push({ type: 'runner', count: basicCount });
+      enemies.push({ type: 'brute', count: Math.floor(advancedCount * 0.2) });
+      enemies.push({ type: 'spitter', count: Math.floor(advancedCount * 0.3) });
+      enemies.push({ type: 'crawler', count: Math.floor(advancedCount * 0.3) });
+      enemies.push({ type: 'bloater', count: Math.ceil(advancedCount * 0.2) });
+    }
+    // Wave 31+: Add Tanks and Hive Queens
+    else {
+      const bossCount = Math.floor(waveNumber / 10); // 1 boss per 10 waves
+      const eliteCount = Math.floor(baseCount * 0.8);
+      const basicCount = baseCount - eliteCount - bossCount;
+
+      if (basicCount > 0) enemies.push({ type: 'runner', count: basicCount });
+      enemies.push({ type: 'spitter', count: Math.floor(eliteCount * 0.3) });
+      enemies.push({ type: 'crawler', count: Math.floor(eliteCount * 0.3) });
+      enemies.push({ type: 'bloater', count: Math.floor(eliteCount * 0.2) });
+      enemies.push({ type: 'tank', count: Math.ceil(eliteCount * 0.2) });
+
+      // Add Hive Queen every 10 waves
+      if (waveNumber % 10 === 0) {
+        enemies.push({ type: 'hiveQueen', count: 1 });
+      }
+    }
+
+    return {
+      wave: waveNumber,
+      enemies: enemies.filter(e => e.count > 0), // Remove 0-count entries
+      spawnDelay,
+    };
+  };
+
+  /**
    * Get wave configuration based on current game mode
-   * Campaign mode uses level's waves, classic mode uses hardcoded waves
+   * Campaign mode uses level's waves, classic mode uses hardcoded waves, endless mode generates procedurally
    */
   const getWaveConfig = (waveNumber: number, gameState: any) => {
-    // If campaign mode, use level's waves
+    // If campaign mode with a level
     if (gameState.sessionConfig?.mode === 'campaign' && gameState.sessionConfig?.currentLevel) {
-      return gameState.sessionConfig.currentLevel.mapConfig.waves.find((w: any) => w.wave === waveNumber);
+      const currentLevel = gameState.sessionConfig.currentLevel;
+
+      // Check if this is endless mode
+      if (currentLevel.id === 'endless') {
+        return generateEndlessWave(waveNumber);
+      }
+
+      // Regular campaign level
+      return currentLevel.mapConfig.waves.find((w: any) => w.wave === waveNumber);
     }
 
     // Otherwise use classic mode (hardcoded waves)
@@ -34,7 +117,14 @@ export function useGameEngine() {
    */
   const getTotalWaves = (gameState: any) => {
     if (gameState.sessionConfig?.mode === 'campaign' && gameState.sessionConfig?.currentLevel) {
-      return gameState.sessionConfig.currentLevel.mapConfig.waves.length;
+      const currentLevel = gameState.sessionConfig.currentLevel;
+
+      // Endless mode never ends
+      if (currentLevel.id === 'endless') {
+        return Infinity;
+      }
+
+      return currentLevel.mapConfig.waves.length;
     }
     return GAME_CONFIG.TOTAL_WAVES; // Classic mode: 10 waves
   };

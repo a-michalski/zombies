@@ -8,6 +8,14 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "Strategic tower defense game where you defend your bastion against relentless zombie waves. Build and upgrade towers, manage resources, and survive through 17 challenging campaign levels. Features progressive difficulty, diverse enemy types with unique abilities, and an endless survival mode for ultimate replayability.",
+    "primaryColor": "#4CAF50",
+    "privacy": "public",
+    "extra": {
+      "supportEmail": "hi@adammichalski.com",
+      "privacyPolicyUrl": "https://adammichalski.com/zombie-fleet-bastion/privacy",
+      "termsOfServiceUrl": "https://adammichalski.com/zombie-fleet-bastion/terms"
+    },
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
@@ -15,14 +23,24 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.rork.zombie-fleet-bastion"
+      "bundleIdentifier": "app.rork.zombie-fleet-bastion",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSPrivacyPolicyURL": "https://adammichalski.com/zombie-fleet-bastion/privacy",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.zombie-fleet-bastion"
+      "package": "app.rork.zombie-fleet-bastion",
+      "versionCode": 1,
+      "permissions": []
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
