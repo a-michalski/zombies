@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { ENEMY_CONFIGS } from "@/constants/enemies";
 import { GAME_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { LOOKOUT_POST, CANNON_TOWER, PROJECTILE_CONFIG } from "@/constants/towers";
-import { WAVE_CONFIGS } from "@/constants/waves";
+import { WAVE_CONFIGS, WaveEnemy } from "@/constants/waves";
 import { useGame } from "@/contexts/GameContext";
 import { Enemy, Position, Projectile } from "@/types/game";
 import { calculatePathProgress, getDistance, moveAlongPath } from "@/utils/pathfinding";
@@ -76,7 +76,7 @@ export function useGameEngine() {
             const allEnemies: { type: string; spawnTime: number }[] = [];
             let spawnTime = 0;
 
-            waveConfig.enemies.forEach((enemyGroup) => {
+            waveConfig.enemies.forEach((enemyGroup: WaveEnemy) => {
               for (let i = 0; i < enemyGroup.count; i++) {
                 allEnemies.push({
                   type: enemyGroup.type,
@@ -367,7 +367,6 @@ export function useGameEngine() {
 
               // Remove all dead enemies
               newState.enemies = newState.enemies.filter((e) => e.health > 0);
-              }
 
               return null;
             }
