@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { AuthProvider } from "@/contexts/AuthContext";
 import { CampaignProvider } from "@/contexts/CampaignContext";
 import { GameProvider } from "@/contexts/GameContext";
 
@@ -16,6 +17,7 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="game" options={{ headerShown: false }} />
       <Stack.Screen name="levels" options={{ headerShown: false }} />
     </Stack>
@@ -29,13 +31,15 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CampaignProvider>
-        <GameProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <RootLayoutNav />
-          </GestureHandlerRootView>
-        </GameProvider>
-      </CampaignProvider>
+      <AuthProvider>
+        <CampaignProvider>
+          <GameProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <RootLayoutNav />
+            </GestureHandlerRootView>
+          </GameProvider>
+        </CampaignProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
