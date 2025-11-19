@@ -7,6 +7,7 @@
 
 import { supabase } from './supabase';
 import { analytics } from './analytics';
+import { validateScoreSubmission, flagSuspiciousScore, isUserBanned } from './antiCheat';
 import {
   LeaderboardEntry,
   LeaderboardEntryWithProfile,
@@ -35,6 +36,40 @@ export async function submitScore(
   submission: ScoreSubmission
 ): Promise<{ success: boolean; entry?: LeaderboardEntry; error?: string }> {
   try {
+    // 1. Check if user is banned
+    const banned = await isUserBanned(userId);
+    if (banned) {
+      console.warn('[Leaderboard] User is banned, rejecting submission');
+      analytics.track('score_submission_rejected', {
+        user_id: userId,
+        reason: 'banned',
+      });
+      return { success: false, error: 'Account suspended. Contact support.' };
+    }
+
+    // 2. Anti-cheat validation
+    const validation = await validateScoreSubmission(userId, submission);
+
+    if (!validation.valid) {
+      console.warn('[Leaderboard] Invalid score submission:', validation.reasons);
+      analytics.track('score_submission_rejected', {
+        user_id: userId,
+        reasons: validation.reasons,
+        level_id: submission.level_id,
+      });
+
+      // Flag suspicious score
+      if (validation.shouldFlag) {
+        await flagSuspiciousScore(userId, submission, validation.reasons, validation.metadata || {});
+      }
+
+      return {
+        success: false,
+        error: 'Score validation failed. Please play normally.',
+      };
+    }
+
+    // 3. Track analytics
     analytics.track('level_completed', {
       level_id: submission.level_id,
       score: submission.score,
@@ -43,7 +78,7 @@ export async function submitScore(
       zombies_killed: submission.zombies_killed,
     });
 
-    // Check if user already has a score for this level
+    // 4. Check if user already has a score for this level
     const { data: existing } = await supabase
       .from('leaderboards')
       .select('*')
@@ -57,7 +92,7 @@ export async function submitScore(
       return { success: true, entry: existing };
     }
 
-    // Upsert score
+    // 5. Upsert score
     const { data, error } = await supabase
       .from('leaderboards')
       .upsert({
@@ -70,7 +105,7 @@ export async function submitScore(
         hull_integrity: submission.hull_integrity,
         gameplay_hash: submission.gameplay_hash,
         client_version: submission.client_version || APP_VERSION,
-        flagged: false,
+        flagged: validation.shouldFlag, // Flag if suspicious but not invalid
       })
       .select()
       .single();
@@ -80,7 +115,7 @@ export async function submitScore(
       return { success: false, error: error.message };
     }
 
-    // Update player stats
+    // 6. Update player stats
     await updatePlayerStats(userId, {
       total_games: 1,
       total_zombies_killed: submission.zombies_killed,

@@ -22,6 +22,8 @@ function RootLayoutNav() {
       <Stack.Screen name="game" options={{ headerShown: false }} />
       <Stack.Screen name="levels" options={{ headerShown: false }} />
       <Stack.Screen name="leaderboard" options={{ headerShown: false }} />
+      <Stack.Screen name="achievements" options={{ headerShown: false }} />
+      <Stack.Screen name="rewards" options={{ headerShown: false }} />
     </Stack>
   );
 }

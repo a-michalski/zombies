@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Infinity, Settings, Skull, Trophy, Medal, User, UserPlus } from "lucide-react-native";
+import { Infinity, Settings, Skull, Trophy, Medal, User, UserPlus, Award } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import { Animated, Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -88,6 +88,15 @@ export default function MainMenu() {
           >
             <Trophy size={20} color="#FFFFFF" />
             <Text style={styles.menuButtonText}>Statistics</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => router.push("/achievements" as any)}
+            activeOpacity={0.7}
+          >
+            <Award size={20} color="#FFFFFF" />
+            <Text style={styles.menuButtonText}>Achievements</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
