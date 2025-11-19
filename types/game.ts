@@ -18,6 +18,7 @@ export interface Enemy {
 
 export interface Tower {
   id: string;
+  type: "tower_lookout_post" | "tower_cannon";
   spotId: string;
   position: Position;
   level: number;
@@ -28,6 +29,7 @@ export interface Tower {
 export interface Projectile {
   id: string;
   towerId: string;
+  towerType: "tower_lookout_post" | "tower_cannon";
   position: Position;
   targetPosition: Position;
   targetEnemyId: string;

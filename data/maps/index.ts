@@ -30,6 +30,13 @@ export { LEVEL_07 } from './level-07';
 export { LEVEL_08 } from './level-08';
 export { LEVEL_09 } from './level-09';
 export { LEVEL_10 } from './level-10';
+export { LEVEL_11 } from './level-11';
+export { LEVEL_12 } from './level-12';
+export { LEVEL_13 } from './level-13';
+export { LEVEL_14 } from './level-14';
+export { LEVEL_15 } from './level-15';
+export { LEVEL_16 } from './level-16';
+export { LEVEL_17 } from './level-17';
 
 // Imports for array
 import { LEVEL_01 } from './level-01';
@@ -42,6 +49,13 @@ import { LEVEL_07 } from './level-07';
 import { LEVEL_08 } from './level-08';
 import { LEVEL_09 } from './level-09';
 import { LEVEL_10 } from './level-10';
+import { LEVEL_11 } from './level-11';
+import { LEVEL_12 } from './level-12';
+import { LEVEL_13 } from './level-13';
+import { LEVEL_14 } from './level-14';
+import { LEVEL_15 } from './level-15';
+import { LEVEL_16 } from './level-16';
+import { LEVEL_17 } from './level-17';
 
 import { LevelConfig } from '@/types/levels';
 
@@ -60,6 +74,13 @@ export const ALL_LEVELS: LevelConfig[] = [
   LEVEL_08,
   LEVEL_09,
   LEVEL_10,
+  LEVEL_11,
+  LEVEL_12,
+  LEVEL_13,
+  LEVEL_14,
+  LEVEL_15,
+  LEVEL_16,
+  LEVEL_17,
 ];
 
 /**

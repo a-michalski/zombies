@@ -1,4 +1,4 @@
-export type EnemyType = "shambler" | "runner" | "brute";
+export type EnemyType = "shambler" | "runner" | "brute" | "spitter" | "crawler" | "bloater" | "tank" | "hiveQueen";
 
 export interface EnemyConfig {
   id: EnemyType;
@@ -41,5 +41,55 @@ export const ENEMY_CONFIGS: Record<EnemyType, EnemyConfig> = {
     scrapReward: 20,
     color: "#F44336",
     size: 32,
+  },
+  spitter: {
+    id: "spitter",
+    name: "Spitter",
+    health: 130,
+    speed: 1.1,
+    damageToBastion: 2,
+    scrapReward: 13,
+    color: "#9C27B0",
+    size: 26,
+  },
+  crawler: {
+    id: "crawler",
+    name: "Crawler",
+    health: 55,
+    speed: 2.2,
+    damageToBastion: 1,
+    scrapReward: 6,
+    color: "#00BCD4",
+    size: 20,
+  },
+  bloater: {
+    id: "bloater",
+    name: "Bloater",
+    health: 375,
+    speed: 0.5,
+    damageToBastion: 3,
+    scrapReward: 30,
+    color: "#8BC34A",
+    size: 36,
+  },
+  tank: {
+    id: "tank",
+    name: "Tank",
+    health: 450,
+    speed: 0.7,
+    damageToBastion: 4,
+    scrapReward: 35,
+    color: "#607D8B",
+    size: 38,
+  },
+  hiveQueen: {
+    id: "hiveQueen",
+    name: "Hive Queen",
+    health: 950,
+    speed: 0.8,
+    damageToBastion: 10,
+    scrapReward: 80,
+    color: "#E91E63",
+    size: 48,
   },
 } as const;

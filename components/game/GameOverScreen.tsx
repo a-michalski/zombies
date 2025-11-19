@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Home, RotateCcw, Trophy, Skull } from "lucide-react-native";
+import { Home, RotateCcw, Trophy, Skull, ChevronRight, Star } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
   Modal,
@@ -10,10 +10,13 @@ import {
 } from "react-native";
 
 import { useGame } from "@/contexts/GameContext";
+import { useCampaignContext } from "@/contexts/CampaignContext";
 import { updateStatsFromGame } from "@/utils/storage";
+import { ALL_LEVELS } from "@/data/maps";
 
 export function GameOverScreen() {
   const { gameState, resetGame } = useGame();
+  const { completeLevel } = useCampaignContext();
   const statsSavedRef = useRef(false);
 
   useEffect(() => {
@@ -21,24 +24,82 @@ export function GameOverScreen() {
       (gameState.phase === "victory" || gameState.phase === "defeat") &&
       !statsSavedRef.current
     ) {
-      const wavesSurvived = gameState.phase === "victory" 
-        ? gameState.currentWave 
+      const wavesSurvived = gameState.phase === "victory"
+        ? gameState.currentWave
         : gameState.currentWave - 1;
-      
+
       updateStatsFromGame(
         gameState.currentWave,
         gameState.stats.zombiesKilled,
         wavesSurvived
       );
+
+      // Update campaign progress with stars earned
+      if (gameState.phase === "victory" && gameState.sessionConfig?.currentLevel) {
+        const levelConfig = gameState.sessionConfig.currentLevel;
+        const maxHull = levelConfig.mapConfig.startingResources.hullIntegrity;
+        const hullPercent = (gameState.hullIntegrity / maxHull) * 100;
+
+        let stars = 1; // 1 star for completion
+        if (hullPercent >= (levelConfig.starRequirements.twoStars.type === 'hull_remaining'
+            ? levelConfig.starRequirements.twoStars.minHullPercent
+            : 0)) {
+          stars = 2;
+        }
+        if (hullPercent >= (levelConfig.starRequirements.threeStars.type === 'hull_remaining'
+            ? levelConfig.starRequirements.threeStars.minHullPercent
+            : 0)) {
+          stars = 3;
+        }
+
+        // Call completeLevel with correct signature
+        completeLevel(levelConfig.id, stars, {
+          zombiesKilled: gameState.stats.zombiesKilled,
+          wavesCompleted: gameState.currentWave,
+          finalHullIntegrity: hullPercent,
+          timeTaken: 0, // TODO: Track game time
+          scrapEarned: gameState.scrap,
+        });
+      }
+
       statsSavedRef.current = true;
     }
-  }, [gameState.phase, gameState.currentWave, gameState.stats.zombiesKilled]);
+  }, [gameState.phase, gameState.currentWave, gameState.stats.zombiesKilled, gameState.sessionConfig, gameState.hullIntegrity, gameState.scrap, completeLevel]);
 
   if (gameState.phase !== "victory" && gameState.phase !== "defeat") {
     return null;
   }
 
   const isVictory = gameState.phase === "victory";
+  const currentLevel = gameState.sessionConfig?.currentLevel;
+
+  // Calculate stars earned
+  let starsEarned = 0;
+  if (isVictory && currentLevel) {
+    const maxHull = currentLevel.mapConfig.startingResources.hullIntegrity;
+    const hullPercent = (gameState.hullIntegrity / maxHull) * 100;
+
+    starsEarned = 1; // 1 star for completion
+    if (hullPercent >= (currentLevel.starRequirements.twoStars.type === 'hull_remaining'
+        ? currentLevel.starRequirements.twoStars.minHullPercent
+        : 0)) {
+      starsEarned = 2;
+    }
+    if (hullPercent >= (currentLevel.starRequirements.threeStars.type === 'hull_remaining'
+        ? currentLevel.starRequirements.threeStars.minHullPercent
+        : 0)) {
+      starsEarned = 3;
+    }
+  }
+
+  // Find next level
+  const currentLevelIndex = currentLevel
+    ? ALL_LEVELS.findIndex(l => l.id === currentLevel.id)
+    : -1;
+  const nextLevel = currentLevelIndex >= 0 && currentLevelIndex < ALL_LEVELS.length - 1
+    ? ALL_LEVELS[currentLevelIndex + 1]
+    : null;
+  const maxHull = currentLevel?.mapConfig.startingResources.hullIntegrity || 20;
 
   return (
     <Modal visible={true} transparent animationType="fade">
@@ -62,11 +123,25 @@ export function GameOverScreen() {
               : `Survived ${gameState.currentWave - 1}/10 waves`}
           </Text>
 
+          {isVictory && starsEarned > 0 && (
+            <View style={styles.starsContainer}>
+              {[1, 2, 3].map((starNum) => (
+                <Star
+                  key={starNum}
+                  size={40}
+                  color={starNum <= starsEarned ? "#FFD700" : "#444444"}
+                  fill={starNum <= starsEarned ? "#FFD700" : "transparent"}
+                  strokeWidth={2}
+                />
+              ))}
+            </View>
+          )}
+
           <View style={styles.statsContainer}>
             <View style={styles.statRow}>
               <Text style={styles.statLabel}>Hull Integrity:</Text>
               <Text style={styles.statValue}>
-                {gameState.hullIntegrity}/20
+                {gameState.hullIntegrity}/{maxHull}
               </Text>
             </View>
             <View style={styles.statRow}>
@@ -82,6 +157,20 @@ export function GameOverScreen() {
           </View>
 
           <View style={styles.actions}>
+            {isVictory && nextLevel && (
+              <TouchableOpacity
+                style={[styles.button, styles.nextLevelButton]}
+                onPress={() => {
+                  statsSavedRef.current = false;
+                  router.push(`/game?levelId=${nextLevel.id}` as any);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>Next Level</Text>
+                <ChevronRight size={20} color="#FFFFFF" />
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
               style={[styles.button, styles.playAgainButton]}
               onPress={() => {
@@ -146,8 +235,14 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     color: "#AAAAAA",
-    marginBottom: 32,
+    marginBottom: 16,
     textAlign: "center",
+  },
+  starsContainer: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 24,
+    justifyContent: "center",
   },
   statsContainer: {
     width: "100%",
@@ -182,6 +277,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
+  },
+  nextLevelButton: {
+    backgroundColor: "#2196F3",
   },
   playAgainButton: {
     backgroundColor: "#4CAF50",
