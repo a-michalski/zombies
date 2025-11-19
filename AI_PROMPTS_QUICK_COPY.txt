@@ -1,0 +1,350 @@
+═══════════════════════════════════════════════════════════════
+ZOMBIE FLEET BASTION - AI IMAGE GENERATION PROMPTS
+Copy-Paste Ready | 10 Levels | 640x384px | Dark Theme
+═══════════════════════════════════════════════════════════════
+
+INSTRUCTIONS:
+1. Copy entire prompt below (including technical specs)
+2. Paste into your AI tool (Midjourney, DALL-E, etc.)
+3. Generate image
+4. Download and resize to 640x384px
+5. Optimize to <500KB
+6. Save as level-XX-bg.png
+
+═══════════════════════════════════════════════════════════════
+LEVEL 1: FIRST CONTACT
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Abandoned coastal military bastion with concrete fortifications, watchtower ruins, and emergency barricades overlooking dark waters
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, post-apocalyptic military aesthetic, recent abandonment
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective
+
+DETAILS: Concrete barriers and sandbags, scattered military equipment crates, rusted metal structures, coastal rocks at edges, dark water visible at margins, broken emergency lights, minimal overgrowth, rust and weathering, dramatic shadows from structures
+
+LIGHTING: Dark ambient lighting with moonlight reflections on water, moody atmosphere, abandoned military installation feel
+
+GROUND SURFACE: Concrete and asphalt, uniform military base texture, weathered but intact surface
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (barriers, crates, rocks) around edges and corners
+- Center area should be relatively clear for tower and enemy placement
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 1, enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark military theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 2: THE HORDE GROWS
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Urban street scene during early zombie outbreak, abandoned vehicles along edges, empty streetlights, signs of hasty civilian evacuation
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, urban post-apocalyptic aesthetic, recent chaos
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective
+
+DETAILS: Abandoned cars with open doors along edges, dark streetlights, utility poles, scattered personal belongings, luggage and bags, intact building silhouettes in background, fresh debris and litter, cracked asphalt surface, dramatic shadows from vehicles and structures
+
+LIGHTING: Dark ambient lighting, no functional street lights, moody urban night atmosphere, shadows from abandoned vehicles
+
+GROUND SURFACE: Asphalt street surface, uniform texture with weathering and cracks, no painted paths or lane lines in main gameplay area
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (cars, poles, debris) around edges and corners
+- Center area should be relatively clear for tower and enemy placement
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 2, enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark urban theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 3: HEAVY INFANTRY
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Destroyed military checkpoint with overturned barriers, wrecked military vehicles, scattered sandbags, evidence of intense combat and defensive failure
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, military battle zone aesthetic, heavy combat damage
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective
+
+DETAILS: Overturned concrete Jersey barriers, damaged military vehicle wreckage at edges, torn sandbags spilling sand, scattered military equipment, helmets and crates, damaged barbed wire sections, bullet impact marks, shell casings, blast damage, dramatic shadows from debris
+
+LIGHTING: Dark ambient lighting with harsh shadows from destroyed structures, war zone atmosphere, smoke or dust particles in air
+
+GROUND SURFACE: Concrete and asphalt checkpoint surface, cracked and damaged from combat, uniform base texture with battle scarring
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (barriers, vehicle wreckage, debris) around edges and corners
+- Center area should be relatively clear for tower and enemy placement
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 3, enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark military combat theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 4: CROSSROADS
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Major urban intersection during zombie outbreak, multiple converging streets, broken traffic lights, abandoned vehicle pileup, chaotic evacuation scene
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, urban crossroads aesthetic, evacuation chaos
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective
+
+DETAILS: Broken traffic lights hanging or fallen, damaged road signs bent at angles, vehicle pileup at edges and corners, storm drain grates, manhole covers, tipped newspaper boxes and trash cans, scattered urban debris, cracked asphalt with chunks missing, dramatic shadows from vehicles and structures
+
+LIGHTING: Dark ambient lighting, no functional lights, moody intersection atmosphere, shadows creating depth between debris
+
+GROUND SURFACE: Asphalt intersection surface, cracked and weathered, uniform texture with battle damage and wear
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (vehicles, signs, debris) around edges and corners
+- Center area should be relatively clear for tower and enemy placement
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 4, enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark urban intersection theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 5: THE LONG MARCH
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Abandoned industrial complex with rusted factory structures, broken machinery, toxic waste, heavy industrial decay and environmental disaster
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, industrial wasteland aesthetic, toxic environment
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective
+
+DETAILS: Rusted factory structures and smokestacks at edges, broken machinery and gears, industrial debris, toxic chemical puddles (green/yellow tint), corroded metal pipes, collapsed storage tanks, oil stains, rust everywhere, heavy weathering, industrial hazard markings (faded), dramatic shadows from structures
+
+LIGHTING: Dark ambient lighting, toxic atmosphere, greenish industrial haze, moody wasteland feel
+
+GROUND SURFACE: Concrete factory floor, heavily stained with oil and chemicals, cracked and weathered industrial surface
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (machinery, tanks, debris) around edges and corners
+- Center area should be relatively clear for tower and enemy placement
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 5, enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark industrial theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 6: CHOKEPOINT
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Narrow urban alleyway between tall buildings, fire escapes overhead, dumpsters and debris creating tight corridors, claustrophobic urban passage
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, tight alley aesthetic, claustrophobic urban decay
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective, vertical compression to emphasize narrowness
+
+DETAILS: Tall building walls creating corridor on left and right sides, rusted fire escape ladders, overflowing dumpsters, chain-link fences, scattered trash bags, broken bottles, graffiti on walls, flickering alley light (broken), narrow passage feel, dramatic shadows from building walls
+
+LIGHTING: Dark ambient lighting, very minimal light reaching alley floor, shadows from towering buildings, claustrophobic atmosphere
+
+GROUND SURFACE: Alley pavement, cracked asphalt, stained concrete, puddles of questionable liquid, narrow corridor surface
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (dumpsters, fences, debris) at edges create narrow feel
+- Center corridor should be relatively clear for tower and enemy placement
+- Building walls on left/right create vertical boundaries
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 6, enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark alley theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 7: LIMITED RESOURCES
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Devastated downtown area with collapsed building facades, massive rubble piles, destroyed storefronts, total urban destruction and apocalyptic ruin
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, apocalyptic downtown aesthetic, total devastation
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective
+
+DETAILS: Collapsed building facades at edges, massive rubble and concrete chunks, destroyed storefronts with broken glass, twisted metal beams, fallen signs, crushed vehicles buried in debris, deep cracks in ground, structural collapse, heavy dust, apocalyptic destruction, dramatic shadows from ruined structures
+
+LIGHTING: Dark ambient lighting, dusty atmosphere blocking light, shadows from rubble piles, end-of-world feel
+
+GROUND SURFACE: Heavily cracked pavement, chunks of concrete missing, deep fissures, rubble scattered across surface but gameplay area relatively navigable
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay despite heavy damage
+- Background decorations (rubble, collapsed buildings) around edges and corners
+- Center area should be relatively clear for tower and enemy placement
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 7, enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark apocalyptic theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 8: SPEED RUN
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Open highway section with overpass supports, guardrails, abandoned semi-trucks, fast speed run environment with minimal obstacles
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, highway aesthetic, open road apocalypse
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective, open feeling
+
+DETAILS: Highway overpass support pillars at edges, bent guardrails, faded lane divider lines, abandoned semi-truck at edge, scattered tire debris, road signs (fallen or bent), asphalt cracks, oil stains, dramatic shadows from overpass structure, minimal obstacles for fast gameplay feel
+
+LIGHTING: Dark ambient lighting, shadows from overpass creating striped light pattern, moody highway atmosphere
+
+GROUND SURFACE: Highway asphalt, relatively clear and open, weathered with cracks, uniform surface for fast enemy movement
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (pillars, trucks, guardrails) around edges and corners
+- Center area should be VERY clear - this is a speed run level
+- More open feel than other levels
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 8 (speed run), enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark highway theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 9: THE LABYRINTH
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Underground parking garage with concrete pillars, faded parking lines, abandoned cars, dim emergency lights, claustrophobic maze environment
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, underground parking aesthetic, claustrophobic maze
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective, low ceiling implied
+
+DETAILS: Concrete support pillars creating maze-like structure, faded yellow parking space lines on floor, abandoned cars at edges and corners, dim flickering emergency lights (red/green), exposed ceiling pipes and ventilation ducts, elevator doors (closed), parking garage signage, oil stains, water puddles, dramatic shadows from pillars and low lighting
+
+LIGHTING: Very dark ambient lighting, minimal emergency lighting creating pools of dim light, claustrophobic underground atmosphere, shadows everywhere
+
+GROUND SURFACE: Concrete parking garage floor, smooth but stained, yellow parking lines partially visible, uniform concrete surface
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (pillars, cars, pipes) create maze feel but don't block center
+- Concrete pillars can be in gameplay area but leave clear paths
+- Center area navigable for tower and enemy placement
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 9 (labyrinth), enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark underground theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+LEVEL 10: LAST STAND
+═══════════════════════════════════════════════════════════════
+
+Create a top-down post-apocalyptic game map background, 640x384 pixels, for a mobile tower defense game.
+
+SCENE: Rooftop battlefield on top of skyscraper, HVAC units, satellite dishes, rooftop access structures, city skyline in distant background, epic final stand location
+
+STYLE: Dark gritty atmosphere, muted desaturated colors, base color #2a2a2a dark gray, rooftop aesthetic, epic finale atmosphere
+
+PERSPECTIVE: Slight isometric angle (2.5D), top-down view, game map perspective, elevated position implied
+
+DETAILS: Large HVAC units and cooling towers at edges, satellite dishes and communication equipment, rooftop access door structures, ventilation shafts, rooftop railings at edges, distant city skyline barely visible in background, weathered rooftop surface, gravel and tar patches, dramatic shadows from rooftop equipment, epic final battle atmosphere
+
+LIGHTING: Dark ambient lighting with dramatic sky, stormy atmosphere, end-game epic feel, shadows from rooftop structures
+
+GROUND SURFACE: Rooftop surface with tar and gravel patches, weathered but relatively flat, industrial rooftop texture
+
+CRITICAL REQUIREMENTS:
+- Do NOT draw paths, roads, or routes on the background
+- Paths will be added as separate overlay textures
+- Keep the ground surface uniform and clear for gameplay
+- Background decorations (HVAC, dishes, structures) around edges and corners
+- Center area should be relatively clear for tower and enemy placement
+- Epic finale feel - this is level 10!
+- Optimized for mobile performance
+- PNG format, <500KB file size
+
+PURPOSE: Background layer for tower defense game Level 10 (final boss level), enemies and towers will be rendered on top
+
+TECHNICAL: 640x384px, PNG format, mobile-optimized, dark rooftop theme (#2a2a2a base)
+
+
+═══════════════════════════════════════════════════════════════
+END OF PROMPTS
+═══════════════════════════════════════════════════════════════
+
+NEXT STEPS:
+1. Save generated images to: assets/images/map/backgrounds/
+2. Name them: level-01-bg.png through level-10-bg.png
+3. Verify dimensions: 640x384px
+4. Verify file size: <500KB each
+5. Test in game
+
+For detailed instructions, see: GRAPHICS_GENERATION_GUIDE.md
+For full prompts with design notes, see: docs/prompts/map-backgrounds.md
