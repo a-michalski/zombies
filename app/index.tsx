@@ -1,9 +1,11 @@
 import { router } from "expo-router";
-import { Infinity, Settings, Skull, Trophy } from "lucide-react-native";
+import { Infinity, Settings, Skull, Trophy, Medal, User, UserPlus } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import { Animated, Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useAuth } from "@/contexts/AuthContext";
+import { getNationalityByCode } from "@/types/auth";
 import { hasMainMenuBackground, UI_IMAGES } from "@/utils/imageAssets";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -14,6 +16,10 @@ export default function MainMenu() {
   const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0.7)).current;
   const hasBackground = hasMainMenuBackground();
+  const { isAuthenticated, isGuest, profile } = useAuth();
+
+  // Get user flag if authenticated
+  const userFlag = profile ? getNationalityByCode(profile.nationality)?.flag : null;
 
   useEffect(() => {
     // Pulsing animation for "TAP TO CONTINUE"
@@ -68,6 +74,15 @@ export default function MainMenu() {
 
           <TouchableOpacity
             style={styles.menuButton}
+            onPress={() => router.push("/leaderboard" as any)}
+            activeOpacity={0.7}
+          >
+            <Medal size={20} color="#FFFFFF" />
+            <Text style={styles.menuButtonText}>Leaderboard</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.menuButton}
             onPress={() => router.push("/stats" as any)}
             activeOpacity={0.7}
           >
@@ -84,6 +99,37 @@ export default function MainMenu() {
             <Text style={styles.menuButtonText}>Settings</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Profile / Login Button */}
+        {isAuthenticated && profile ? (
+          <TouchableOpacity
+            style={styles.profileButton}
+            onPress={() => router.push("/settings" as any)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.profileFlag}>{userFlag}</Text>
+            <User size={18} color="#4CAF50" />
+            <Text style={styles.profileText}>{profile.nickname}</Text>
+          </TouchableOpacity>
+        ) : isGuest ? (
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => router.push("/login" as any)}
+            activeOpacity={0.7}
+          >
+            <UserPlus size={18} color="#4CAF50" />
+            <Text style={styles.loginButtonText}>SAVE PROGRESS</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => router.push("/login" as any)}
+            activeOpacity={0.7}
+          >
+            <User size={18} color="#4CAF50" />
+            <Text style={styles.loginButtonText}>SIGN IN</Text>
+          </TouchableOpacity>
+        )}
 
         <Text style={styles.version}>v2.0 MVP</Text>
       </View>
@@ -205,6 +251,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700" as const,
     color: "#FFFFFF", // White text for better contrast
+  },
+  profileButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "rgba(76, 175, 80, 0.2)",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF50",
+    marginTop: 16,
+  },
+  profileFlag: {
+    fontSize: 20,
+  },
+  profileText: {
+    fontSize: 14,
+    fontWeight: "700" as const,
+    color: "#4CAF50",
+  },
+  loginButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "rgba(76, 175, 80, 0.2)",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF50",
+    marginTop: 16,
+  },
+  loginButtonText: {
+    fontSize: 14,
+    fontWeight: "700" as const,
+    color: "#4CAF50",
+    letterSpacing: 1,
   },
   version: {
     position: "absolute",
