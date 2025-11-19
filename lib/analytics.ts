@@ -59,6 +59,23 @@ export type AnalyticsEvent =
   | 'cloud_sync_failed'
   | 'offline_mode_detected'
 
+  // GDPR Events
+  | 'gdpr_consent_given'
+  | 'gdpr_consent_modal_shown'
+  | 'gdpr_analytics_consent_updated'
+  | 'gdpr_data_export_started'
+  | 'gdpr_data_export_completed'
+  | 'gdpr_data_export_failed'
+  | 'gdpr_data_download_completed'
+  | 'gdpr_data_download_failed'
+  | 'gdpr_account_deletion_started'
+  | 'gdpr_account_deletion_completed'
+  | 'gdpr_account_deletion_failed'
+  | 'gdpr_local_data_deletion_started'
+  | 'gdpr_local_data_deletion_completed'
+  | 'account_deletion_confirmed'
+  | 'account_deleted'
+
   // Errors
   | 'error_occurred'
   | 'network_error'

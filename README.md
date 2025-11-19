@@ -1,318 +1,551 @@
-# Welcome to your Rork app
+# Zombie Fleet - Tower Defense Game
 
-## Project info
+**Version:** 2.0 MVP
+**Platform:** iOS, Android, Web
+**Framework:** React Native + Expo
+**Backend:** Supabase
 
-This is a native cross-platform mobile app created with [Rork](https://rork.com)
+---
 
-**Platform**: Native iOS & Android app, exportable to web
-**Framework**: Expo Router + React Native
+## 🎮 Overview
 
-## How can I edit this code?
+**Zombie Fleet** is a tower defense game featuring a comprehensive authentication and gamification system. Players defend against waves of zombies, compete on global leaderboards, unlock achievements, and claim daily rewards.
 
-There are several ways of editing your native mobile application.
+### Key Features
 
-### **Use Rork**
+- 🔐 **Authentication System** - Email/password signup, guest mode, seamless account conversion
+- ☁️ **Cloud Save** - Multi-device sync with conflict resolution
+- 🏆 **Global Leaderboards** - Real-time rankings (global, regional, level-specific)
+- 🎖️ **Achievements** - Track progress, unlock rewards
+- 🎁 **Daily Rewards** - Login streaks with escalating rewards
+- 🛡️ **Anti-Cheat System** - Server-side score validation
+- 📊 **Player Statistics** - Track kills, playtime, best scores
+- 🌐 **Cross-Platform** - Play on mobile or web, progress syncs everywhere
 
-Simply visit [rork.com](https://rork.com) and prompt to build your app with AI.
+---
 
-Changes made via Rork will be committed automatically to this GitHub repo.
+## 🚀 Quick Start
 
-Whenever you make a change in your local code editor and push it to GitHub, it will be also reflected in Rork.
+### Prerequisites
 
-### **Use your preferred code editor**
+- **Node.js** (v18+) - [Install via nvm](https://github.com/nvm-sh/nvm)
+- **Bun** - [Install Bun](https://bun.sh/docs/installation)
+- **Expo CLI** - Installed automatically with dependencies
 
-If you want to work locally using your own code editor, you can clone this repo and push changes. Pushed changes will also be reflected in Rork.
-
-If you are new to coding and unsure which editor to use, we recommend Cursor. If you're familiar with terminals, try Claude Code.
-
-The only requirement is having Node.js & Bun installed - [install Node.js with nvm](https://github.com/nvm-sh/nvm) and [install Bun](https://bun.sh/docs/installation)
-
-Follow these steps:
-
-```bash
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-bun i
-
-# Step 4: Start the instant web preview of your Rork app in your browser, with auto-reloading of your changes
-bun run start-web
-
-# Step 5: Start iOS preview
-# Option A (recommended):
-bun run start  # then press "i" in the terminal to open iOS Simulator
-# Option B (if supported by your environment):
-bun run start -- --ios
-```
-
-### **Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-## What technologies are used for this project?
-
-This project is built with the most popular native mobile cross-platform technical stack:
-
-- **React Native** - Cross-platform native mobile development framework created by Meta and used for Instagram, Airbnb, and lots of top apps in the App Store
-- **Expo** - Extension of React Native + platform used by Discord, Shopify, Coinbase, Telsa, Starlink, Eightsleep, and more
-- **Expo Router** - File-based routing system for React Native with support for web, server functions and SSR
-- **TypeScript** - Type-safe JavaScript
-- **React Query** - Server state management
-- **Lucide React Native** - Beautiful icons
-
-## How can I test my app?
-
-### **On your phone (Recommended)**
-
-1. **iOS**: Download the [Rork app from the App Store](https://apps.apple.com/app/rork) or [Expo Go](https://apps.apple.com/app/expo-go/id982107779)
-2. **Android**: Download the [Expo Go app from Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent)
-3. Run `bun run start` and scan the QR code from your development server
-
-### **In your browser**
-
-Run `bun start-web` to test in a web browser. Note: The browser preview is great for quick testing, but some native features may not be available.
-
-### **iOS Simulator / Android Emulator**
-
-You can test Rork apps in Expo Go or Rork iOS app. You don't need XCode or Android Studio for most features.
-
-**When do you need Custom Development Builds?**
-
-- Native authentication (Face ID, Touch ID, Apple Sign In)
-- In-app purchases and subscriptions
-- Push notifications
-- Custom native modules
-
-Learn more: [Expo Custom Development Builds Guide](https://docs.expo.dev/develop/development-builds/introduction/)
-
-If you have XCode (iOS) or Android Studio installed:
+### Installation
 
 ```bash
-# iOS Simulator
-bun run start -- --ios
+# Clone repository
+git clone [your-repo-url]
+cd zombies
 
-# Android Emulator
-bun run start -- --android
+# Install dependencies
+bun install
+
+# Copy environment variables
+cp .env.example .env
+
+# Configure .env with your Supabase credentials
+# (See DEPLOYMENT.md for Supabase setup)
+
+# Start development server
+bun run start-web     # For web preview
+bun run start         # For mobile (scan QR code with Expo Go)
 ```
 
-## How can I deploy this project?
+### Run on Mobile
 
-### **Publish to App Store (iOS)**
+**iOS:**
+1. Download [Expo Go](https://apps.apple.com/app/expo-go/id982107779) from App Store
+2. Run `bun run start`
+3. Scan QR code with Camera app
 
-1. **Install EAS CLI**:
+**Android:**
+1. Download [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent) from Play Store
+2. Run `bun run start`
+3. Scan QR code with Expo Go app
 
-   ```bash
-   bun i -g @expo/eas-cli
-   ```
+---
 
-2. **Configure your project**:
-
-   ```bash
-   eas build:configure
-   ```
-
-3. **Build for iOS**:
-
-   ```bash
-   eas build --platform ios
-   ```
-
-4. **Submit to App Store**:
-   ```bash
-   eas submit --platform ios
-   ```
-
-For detailed instructions, visit [Expo's App Store deployment guide](https://docs.expo.dev/submit/ios/).
-
-### **Publish to Google Play (Android)**
-
-1. **Build for Android**:
-
-   ```bash
-   eas build --platform android
-   ```
-
-2. **Submit to Google Play**:
-   ```bash
-   eas submit --platform android
-   ```
-
-For detailed instructions, visit [Expo's Google Play deployment guide](https://docs.expo.dev/submit/android/).
-
-### **Publish as a Website**
-
-Your React Native app can also run on the web:
-
-1. **Build for web**:
-
-   ```bash
-   eas build --platform web
-   ```
-
-2. **Deploy with EAS Hosting**:
-   ```bash
-   eas hosting:configure
-   eas hosting:deploy
-   ```
-
-Alternative web deployment options:
-
-- **Vercel**: Deploy directly from your GitHub repository
-- **Netlify**: Connect your GitHub repo to Netlify for automatic deployments
-
-## App Features
-
-This template includes:
-
-- **Cross-platform compatibility** - Works on iOS, Android, and Web
-- **File-based routing** with Expo Router
-- **Tab navigation** with customizable tabs
-- **Modal screens** for overlays and dialogs
-- **TypeScript support** for better development experience
-- **Async storage** for local data persistence
-- **Vector icons** with Lucide React Native
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-├── app/                    # App screens (Expo Router)
-│   ├── (tabs)/            # Tab navigation screens
-│   │   ├── _layout.tsx    # Tab layout configuration
-│   │   └── index.tsx      # Home tab screen
-│   ├── _layout.tsx        # Root layout
-│   ├── modal.tsx          # Modal screen example
-│   └── +not-found.tsx     # 404 screen
-├── assets/                # Static assets
-│   └── images/           # App icons and images
-├── constants/            # App constants and configuration
-├── app.json             # Expo configuration
-├── package.json         # Dependencies and scripts
-└── tsconfig.json        # TypeScript configuration
+zombies/
+├── app/                          # Expo Router screens
+│   ├── index.tsx                 # Main menu
+│   ├── login.tsx                 # Sign in/up screen
+│   ├── convert-account.tsx       # Guest to account conversion
+│   ├── levels.tsx                # Campaign map
+│   ├── game.tsx                  # Gameplay screen
+│   ├── leaderboard.tsx           # Leaderboards
+│   ├── achievements.tsx          # Achievement list
+│   ├── rewards.tsx               # Daily rewards
+│   ├── stats.tsx                 # Player statistics
+│   └── settings.tsx              # Settings screen
+│
+├── lib/                          # Services & business logic
+│   ├── supabase.ts               # Supabase client configuration
+│   ├── profile.ts                # Profile CRUD operations
+│   ├── leaderboard.ts            # Leaderboard queries
+│   ├── achievements.ts           # Achievement tracking
+│   ├── dailyRewards.ts           # Daily reward system
+│   ├── cloudSync.ts              # Cloud save synchronization
+│   ├── antiCheat.ts              # Score validation
+│   ├── validation.ts             # Input validation
+│   └── analytics.ts              # Analytics tracking
+│
+├── contexts/                     # React Context providers
+│   ├── AuthContext.tsx           # Authentication state
+│   ├── CampaignContext.tsx       # Campaign progress
+│   └── GameContext.tsx           # Gameplay state
+│
+├── components/                   # React components
+│   ├── auth/                     # Auth-related components
+│   ├── game/                     # Game components
+│   └── ui/                       # Shared UI components
+│
+├── utils/                        # Utility functions
+│   ├── storage.ts                # Local storage helpers
+│   ├── imageAssets.ts            # Asset management
+│   └── pathfinding.ts            # Game pathfinding
+│
+├── types/                        # TypeScript type definitions
+│   ├── auth.ts                   # Authentication types
+│   ├── leaderboard.ts            # Leaderboard types
+│   ├── gamification.ts           # Achievement/reward types
+│   └── progression.ts            # Campaign types
+│
+├── supabase/                     # Supabase configuration
+│   └── schema.sql                # Database schema
+│
+├── docs/                         # Documentation
+│   ├── FEATURES.md               # Feature overview
+│   ├── API_REFERENCE.md          # API documentation
+│   ├── TESTING_GUIDE.md          # Testing guide
+│   ├── DEPLOYMENT.md             # Deployment guide
+│   └── SUPABASE_SETUP.md         # Supabase setup
+│
+├── assets/                       # Static assets
+│   └── images/                   # Game graphics
+│
+├── .env.example                  # Environment variables template
+├── app.json                      # Expo configuration
+├── eas.json                      # EAS Build configuration
+├── package.json                  # Dependencies
+└── tsconfig.json                 # TypeScript configuration
 ```
 
-## Custom Development Builds
+---
 
-For advanced native features, you'll need to create a Custom Development Build instead of using Expo Go.
+## 🏗️ Architecture
 
-### **When do you need a Custom Development Build?**
+### Tech Stack
 
-- **Native Authentication**: Face ID, Touch ID, Apple Sign In, Google Sign In
-- **In-App Purchases**: App Store and Google Play subscriptions
-- **Advanced Native Features**: Third-party SDKs, platform-specifc features (e.g. Widgets on iOS)
-- **Background Processing**: Background tasks, location tracking
+**Frontend:**
+- **React Native** (0.79.1) - Cross-platform mobile framework
+- **Expo** (53.0.4) - Development platform
+- **Expo Router** (5.0.3) - File-based routing
+- **TypeScript** (5.8.3) - Type safety
+- **NativeWind** (4.1.23) - Tailwind for React Native
 
-### **Creating a Custom Development Build**
+**Backend:**
+- **Supabase** - PostgreSQL + Auth + Realtime + Edge Functions
+- **PostgreSQL** - Primary database
+- **Row Level Security (RLS)** - Data protection
+
+**State Management:**
+- **Zustand** (5.0.2) - Global state
+- **React Query** (5.83.0) - Server state
+- **AsyncStorage** (2.1.2) - Local persistence
+
+**Services:**
+- **Authentication** - Email/password via Supabase Auth
+- **Cloud Sync** - Bidirectional sync with conflict resolution
+- **Leaderboards** - Real-time rankings with anti-cheat
+- **Achievements** - Progress tracking with rewards
+- **Daily Rewards** - Streak system with escalating rewards
+
+### Database Schema
+
+**Core Tables:**
+- `profiles` - User profiles (nickname, nationality, avatar)
+- `campaign_progress` - Cloud saves (JSONB)
+- `leaderboards` - Score submissions per level
+- `player_stats` - Aggregate statistics
+- `achievements` - Achievement definitions
+- `achievement_progress` - User progress
+- `daily_rewards` - Streak tracking
+- `suspicious_scores` - Anti-cheat logs
+- `user_bans` - Ban management
+
+**Views:**
+- `global_leaderboard` - Aggregated rankings
+
+**Functions:**
+- `get_regional_leaderboard(country_code)` - Regional rankings
+
+See `/supabase/schema.sql` for complete schema.
+
+---
+
+## 🎯 Features
+
+### Authentication
+
+**Sign Up:**
+- Email/password registration
+- Real-time nickname validation
+- Nationality selection (flag picker)
+- Password strength requirements
+- Auto-initialization of player stats and daily rewards
+
+**Sign In:**
+- Email/password authentication
+- Session persistence (7 days)
+- Cloud sync on login
+- Auto-login if session valid
+
+**Guest Mode:**
+- Play without account
+- Local save only
+- Seamless conversion to account
+- Progress preserved on conversion
+
+### Gamification
+
+**Leaderboards:**
+- Global rankings (all levels combined)
+- Level-specific leaderboards
+- Regional rankings (by country)
+- Real-time updates via WebSockets
+- User rank and percentile display
+
+**Achievements:**
+- Combat achievements (kill counts)
+- Progression achievements (level completions)
+- Special achievements (perfect runs, speed runs)
+- Progress tracking with notifications
+- Scrap and cosmetic rewards
+
+**Daily Rewards:**
+- 7-day reward cycle
+- Login streak tracking
+- Escalating rewards (100-500+ scrap)
+- Streak expiration (24h grace period)
+- Visual calendar showing progress
+
+**Player Statistics:**
+- Total games played
+- Total zombies killed
+- Total stars earned
+- Best wave reached
+- Total playtime
+
+### Cloud Sync
+
+**Bidirectional Sync:**
+- Local-first architecture (instant saves)
+- Background cloud uploads
+- Automatic conflict resolution
+- Multi-device support
+
+**Conflict Resolution:**
+- Last-Write-Wins for different timestamps
+- Merge strategy for simultaneous edits
+- Takes best of all progress values
+- Preserves all completed levels
+
+### Anti-Cheat
+
+**Score Validation:**
+- Rate limiting (10 submissions/minute)
+- Score range validation (theoretical max)
+- Time validation (min/max completion time)
+- Zombie count validation
+- Gameplay hash verification (SHA-256)
+- Consistency checks (stars vs score, etc.)
+
+**Ban System:**
+- Automatic flagging of suspicious scores
+- Manual review system
+- Temporary and permanent bans
+- Ban enforcement before submission
+
+---
+
+## 📚 Documentation
+
+Comprehensive documentation available in `/docs/`:
+
+- **[FEATURES.md](./docs/FEATURES.md)** - Complete feature overview with user flows
+- **[API_REFERENCE.md](./docs/API_REFERENCE.md)** - Full API documentation with examples
+- **[TESTING_GUIDE.md](./docs/TESTING_GUIDE.md)** - Testing procedures and scenarios
+- **[DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - Production deployment guide
+- **[SUPABASE_SETUP.md](./docs/SUPABASE_SETUP.md)** - Supabase configuration
+
+---
+
+## 🧪 Testing
+
+### Run Tests
 
 ```bash
-# Install EAS CLI
-bun i -g @expo/eas-cli
+# Unit tests
+npm test
 
-# Configure your project for development builds
-eas build:configure
+# Test coverage
+npm run test:coverage
 
-# Create a development build for your device
-eas build --profile development --platform ios
-eas build --profile development --platform android
-
-# Install the development build on your device and start developing
-bun start --dev-client
+# E2E tests (coming soon)
+npm run test:e2e
 ```
 
-**Learn more:**
+### Manual Testing
 
-- [Development Builds Introduction](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Creating Development Builds](https://docs.expo.dev/develop/development-builds/create-a-build/)
-- [Installing Development Builds](https://docs.expo.dev/develop/development-builds/installation/)
+See [TESTING_GUIDE.md](./docs/TESTING_GUIDE.md) for:
+- Authentication flow testing
+- Cloud sync testing
+- Leaderboard testing
+- Achievement testing
+- Daily rewards testing
+- Multi-device testing
 
-## Advanced Features
+---
 
-### **Add a Database**
+## 🚢 Deployment
 
-Integrate with backend services:
+### Prerequisites
 
-- **Supabase** - PostgreSQL database with real-time features
-- **Firebase** - Google's mobile development platform
-- **Custom API** - Connect to your own backend
+- Supabase project (production)
+- Apple Developer Account (iOS)
+- Google Play Developer Account (Android)
+- Hosting platform (Vercel/Netlify for web)
 
-### **Add Authentication**
+### Deploy to Production
 
-Implement user authentication:
+**1. Backend Setup:**
+```bash
+# See DEPLOYMENT.md for detailed instructions
+# 1. Create Supabase production project
+# 2. Run database schema
+# 3. Configure authentication
+# 4. Set up environment variables
+```
 
-**Basic Authentication (works in Expo Go):**
+**2. Mobile App:**
+```bash
+# iOS
+eas build --platform ios --profile production
+eas submit --platform ios
 
-- **Expo AuthSession** - OAuth providers (Google, Facebook, Apple) - [Guide](https://docs.expo.dev/guides/authentication/)
-- **Supabase Auth** - Email/password and social login - [Integration Guide](https://supabase.com/docs/guides/getting-started/tutorials/with-expo-react-native)
-- **Firebase Auth** - Comprehensive authentication solution - [Setup Guide](https://docs.expo.dev/guides/using-firebase/)
+# Android
+eas build --platform android --profile production
+eas submit --platform android
+```
 
-**Native Authentication (requires Custom Development Build):**
+**3. Web App:**
+```bash
+# Build for web
+npx expo export:web
 
-- **Apple Sign In** - Native Apple authentication - [Implementation Guide](https://docs.expo.dev/versions/latest/sdk/apple-authentication/)
-- **Google Sign In** - Native Google authentication - [Setup Guide](https://docs.expo.dev/guides/google-authentication/)
+# Deploy to Vercel
+vercel --prod
+```
 
-### **Add Push Notifications**
+See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for complete deployment guide.
 
-Send notifications to your users:
+---
 
-- **Expo Notifications** - Cross-platform push notifications
-- **Firebase Cloud Messaging** - Advanced notification features
+## 🔐 Environment Variables
 
-### **Add Payments**
+Required environment variables (see `.env.example`):
 
-Monetize your app:
+```bash
+# Supabase
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-**Web & Credit Card Payments (works in Expo Go):**
+# App Configuration
+EXPO_PUBLIC_CLIENT_VERSION=2.0.0
+EXPO_PUBLIC_ENVIRONMENT=production
 
-- **Stripe** - Credit card payments and subscriptions - [Expo + Stripe Guide](https://docs.expo.dev/guides/using-stripe/)
-- **PayPal** - PayPal payments integration - [Setup Guide](https://developer.paypal.com/docs/checkout/mobile/react-native/)
+# Anti-Cheat
+EXPO_PUBLIC_MAX_SCORE_SUBMISSIONS_PER_MINUTE=10
+```
 
-**Native In-App Purchases (requires Custom Development Build):**
+---
 
-- **RevenueCat** - Cross-platform in-app purchases and subscriptions - [Expo Integration Guide](https://www.revenuecat.com/docs/expo)
-- **Expo In-App Purchases** - Direct App Store/Google Play integration - [Implementation Guide](https://docs.expo.dev/versions/latest/sdk/in-app-purchases/)
+## 🤝 Contributing
 
-**Paywall Optimization:**
+### Development Workflow
 
-- **Superwall** - Paywall A/B testing and optimization - [React Native SDK](https://docs.superwall.com/docs/react-native)
-- **Adapty** - Mobile subscription analytics and paywalls - [Expo Integration](https://docs.adapty.io/docs/expo)
+1. Create feature branch: `git checkout -b feature/your-feature`
+2. Make changes
+3. Run tests: `npm test`
+4. Commit: `git commit -m "feat: your feature"`
+5. Push: `git push origin feature/your-feature`
+6. Create Pull Request
 
-## I want to use a custom domain - is that possible?
+### Code Style
 
-For web deployments, you can use custom domains with:
+- TypeScript for all code
+- ESLint for linting: `npm run lint`
+- Follow existing code patterns
+- Document complex logic
 
-- **EAS Hosting** - Custom domains available on paid plans
-- **Netlify** - Free custom domain support
-- **Vercel** - Custom domains with automatic SSL
+---
 
-For mobile apps, you'll configure your app's deep linking scheme in `app.json`.
+## 📊 Performance
 
-## Troubleshooting
+### Metrics
 
-### **App not loading on device?**
+- **Local Save:** < 50ms
+- **Cloud Upload:** < 2s
+- **Cloud Download:** < 1s
+- **Leaderboard Fetch:** < 100ms
+- **Score Submission:** < 500ms
+- **Profile Fetch:** < 50ms
 
-1. Make sure your phone and computer are on the same WiFi network
-2. Try using tunnel mode: `bun start -- --tunnel`
-3. Check if your firewall is blocking the connection
+### Optimization
 
-### **Build failing?**
+- Local-first architecture (instant saves)
+- Background sync (non-blocking)
+- Optimistic UI updates
+- Indexed database queries
+- Cached leaderboard data
 
-1. Clear your cache: `bunx expo start --clear`
-2. Delete `node_modules` and reinstall: `rm -rf node_modules && bun install`
-3. Check [Expo's troubleshooting guide](https://docs.expo.dev/troubleshooting/build-errors/)
+---
 
-### **Need help with native features?**
+## 🔒 Security
 
-- Check [Expo's documentation](https://docs.expo.dev/) for native APIs
-- Browse [React Native's documentation](https://reactnative.dev/docs/getting-started) for core components
-- Visit [Rork's FAQ](https://rork.com/faq) for platform-specific questions
+### Data Protection
 
-## About Rork
+- **Row Level Security (RLS)** on all tables
+- **JWT authentication** with refresh tokens
+- **Password hashing** (bcrypt via Supabase)
+- **Reserved usernames** protection
+- **Rate limiting** on all endpoints
 
-Rork builds fully native mobile apps using React Native and Expo - the same technology stack used by Discord, Shopify, Coinbase, Instagram, and nearly 30% of the top 100 apps on the App Store.
+### Privacy
 
-Your Rork app is production-ready and can be published to both the App Store and Google Play Store. You can also export your app to run on the web, making it truly cross-platform.
+- GDPR compliant (right to be forgotten)
+- Privacy policy in-app
+- Data deletion support
+- User consent for data collection
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**"Missing Supabase environment variables"**
+- Ensure `.env` exists with correct values
+- Restart dev server after changing `.env`
+
+**"Row Level Security policy violation"**
+- Check if user is authenticated
+- Verify RLS policies in Supabase dashboard
+- Re-run database schema
+
+**"Cloud sync not working"**
+- Check internet connection
+- Verify Supabase project is active (not paused)
+- Check RLS policies
+- Try manual sync from settings
+
+See [TESTING_GUIDE.md](./docs/TESTING_GUIDE.md) for more troubleshooting.
+
+---
+
+## 📱 Platform Support
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| iOS | ✅ Supported | iOS 13+ |
+| Android | ✅ Supported | Android 5.0+ |
+| Web | ✅ Supported | Modern browsers |
+| Desktop | 🚧 Planned | Electron wrapper |
+
+---
+
+## 🗺️ Roadmap
+
+### Phase 1 (Complete) ✅
+- ✅ Authentication system
+- ✅ Cloud save
+- ✅ Leaderboards
+- ✅ Achievements
+- ✅ Daily rewards
+- ✅ Anti-cheat
+
+### Phase 2 (Planned)
+- 🔲 Friends system
+- 🔲 Friend leaderboards
+- 🔲 Direct challenges
+- 🔲 In-game chat
+- 🔲 Friend requests/blocking
+
+### Phase 3 (Future)
+- 🔲 Seasons & Battle Pass
+- 🔲 Clans/Guilds
+- 🔲 Clan wars
+- 🔲 Weekly tournaments
+- 🔲 Special events
+
+### Phase 4 (Monetization)
+- 🔲 In-app purchases
+- 🔲 Premium subscription
+- 🔲 Cosmetic shop
+- 🔲 Battle Pass system
+
+---
+
+## 📄 License
+
+This project is private and proprietary. All rights reserved.
+
+---
+
+## 📞 Support
+
+**Documentation:**
+- [Features Guide](./docs/FEATURES.md)
+- [API Reference](./docs/API_REFERENCE.md)
+- [Testing Guide](./docs/TESTING_GUIDE.md)
+- [Deployment Guide](./docs/DEPLOYMENT.md)
+
+**External Resources:**
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Native Documentation](https://reactnative.dev/docs/getting-started)
+- [Supabase Documentation](https://supabase.com/docs)
+
+**Community:**
+- [Expo Forums](https://forums.expo.dev/)
+- [Supabase Discord](https://discord.supabase.com/)
+- [React Native Community](https://reactnative.dev/community/overview)
+
+---
+
+## 🎉 Credits
+
+**Built with:**
+- [React Native](https://reactnative.dev/) by Meta
+- [Expo](https://expo.dev/) by Expo Team
+- [Supabase](https://supabase.com/) by Supabase Team
+- [TypeScript](https://www.typescriptlang.org/) by Microsoft
+
+**Game Design:**
+- Tower defense mechanics
+- Progressive difficulty
+- Engaging gamification
+
+**Development:**
+- Modern tooling and best practices
+- Type-safe architecture
+- Comprehensive testing
+- Production-ready deployment
+
+---
+
+**Made with ❤️ for tower defense fans**

@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { ArrowLeft, Music, Settings as SettingsIcon, Volume2, ChevronRight, Shield, FileText, Info, Trash2 } from "lucide-react-native";
+import { ArrowLeft, Music, Settings as SettingsIcon, Volume2, ChevronRight, Shield, FileText, Info, Trash2, Database } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ScrollView,
@@ -200,6 +200,18 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.settingRow}
+            onPress={() => router.push("/data-privacy")}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingInfo}>
+              <Database size={20} color="#4CAF50" />
+              <Text style={[styles.settingLabel, styles.highlightedLabel]}>Data & Privacy</Text>
+            </View>
+            <ChevronRight size={20} color="#4CAF50" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.settingRow}
             onPress={() => router.push("/privacy")}
             activeOpacity={0.7}
           >
@@ -325,6 +337,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#FFFFFF",
     fontWeight: "600" as const,
+  },
+  highlightedLabel: {
+    color: "#4CAF50",
+    fontWeight: "700" as const,
   },
   speedButtons: {
     flexDirection: "row",

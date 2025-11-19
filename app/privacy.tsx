@@ -38,27 +38,48 @@ export default function PrivacyPolicyScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.date}>Effective Date: November 17, 2025</Text>
-        <Text style={styles.date}>Last Updated: November 17, 2025</Text>
+        <Text style={styles.date}>Effective Date: November 19, 2025</Text>
+        <Text style={styles.date}>Last Updated: November 19, 2025</Text>
+        <Text style={styles.date}>GDPR Compliant</Text>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Introduction</Text>
           <Text style={styles.paragraph}>
             Finelab Adam Michalski ("we", "our", or "us") operates the Zombie
             Fleet Bastion mobile application (the "App"). This Privacy Policy
-            explains how we collect, use, and protect your information when you
-            use our App.
+            explains how we collect, use, store, and protect your information
+            in compliance with the General Data Protection Regulation (GDPR)
+            and other applicable data protection laws.
+          </Text>
+          <Text style={styles.paragraph}>
+            We are committed to protecting your privacy and giving you control
+            over your personal data. This policy outlines your rights and how
+            we handle your information.
           </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Information We Collect</Text>
+
           <Text style={styles.subsectionTitle}>
-            Data Stored Locally on Your Device
+            1. Account Information (Optional - Cloud Storage)
           </Text>
           <Text style={styles.paragraph}>
-            Zombie Fleet Bastion stores the following information locally on
-            your device using AsyncStorage:
+            If you create an account, we collect and store:
+          </Text>
+          <Text style={styles.listItem}>• Email address (for authentication)</Text>
+          <Text style={styles.listItem}>• Nickname (displayed on leaderboards)</Text>
+          <Text style={styles.listItem}>• Nationality (for regional leaderboards)</Text>
+          <Text style={styles.listItem}>• Account creation and last seen dates</Text>
+          <Text style={styles.paragraph}>
+            Legal Basis (GDPR Article 6): Consent and contract performance
+          </Text>
+
+          <Text style={styles.subsectionTitle}>
+            2. Data Stored Locally on Your Device
+          </Text>
+          <Text style={styles.paragraph}>
+            The following data is stored locally using AsyncStorage:
           </Text>
 
           <Text style={styles.listTitle}>Game Statistics:</Text>
@@ -75,102 +96,172 @@ export default function PrivacyPolicyScreen() {
           <Text style={styles.listTitle}>Campaign Progress:</Text>
           <Text style={styles.listItem}>• Unlocked levels</Text>
           <Text style={styles.listItem}>• Level completion status</Text>
-          <Text style={styles.listItem}>• Star ratings</Text>
-          <Text style={styles.listItem}>• Total stars earned</Text>
-          <Text style={styles.listItem}>• Total scrap earned</Text>
+          <Text style={styles.listItem}>• Star ratings per level</Text>
+          <Text style={styles.listItem}>• Best scores</Text>
+          <Text style={styles.listItem}>• Total stars and scrap earned</Text>
 
-          <Text style={styles.highlight}>
-            Important: All data is stored locally on your device only. We do not
-            collect, transmit, or store any of this information on external
-            servers.
+          <Text style={styles.subsectionTitle}>
+            3. Cloud-Synced Game Data (Authenticated Users Only)
+          </Text>
+          <Text style={styles.paragraph}>
+            If you create an account, the following data is synced to our
+            secure cloud servers (Supabase):
+          </Text>
+          <Text style={styles.listItem}>• Campaign progress (for cross-device sync)</Text>
+          <Text style={styles.listItem}>• Leaderboard scores and rankings</Text>
+          <Text style={styles.listItem}>• Achievement progress</Text>
+          <Text style={styles.listItem}>• Daily reward streaks</Text>
+          <Text style={styles.listItem}>• Player statistics</Text>
+
+          <Text style={styles.subsectionTitle}>
+            4. Analytics Data (Optional)
+          </Text>
+          <Text style={styles.paragraph}>
+            With your consent, we collect anonymized analytics:
+          </Text>
+          <Text style={styles.listItem}>• Screen views and button clicks</Text>
+          <Text style={styles.listItem}>• Level completion events</Text>
+          <Text style={styles.listItem}>• Session duration</Text>
+          <Text style={styles.listItem}>• Error logs (for bug fixes)</Text>
+          <Text style={styles.paragraph}>
+            You can opt out of analytics at any time in Data & Privacy settings.
           </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>How We Use Your Information</Text>
           <Text style={styles.paragraph}>
-            The data stored on your device is used solely for:
+            We use your data for the following purposes:
           </Text>
           <Text style={styles.listItem}>
-            • Game Functionality - To save your progress, settings, and
-            statistics
+            • Game Functionality - Save progress, settings, and statistics
           </Text>
           <Text style={styles.listItem}>
-            • Personalization - To remember your preferences
+            • Cloud Sync - Sync progress across multiple devices (authenticated users)
           </Text>
           <Text style={styles.listItem}>
-            • Progress Tracking - To track your achievements and campaign
-            progress
+            • Leaderboards - Display rankings and compare scores
+          </Text>
+          <Text style={styles.listItem}>
+            • Personalization - Remember your preferences
+          </Text>
+          <Text style={styles.listItem}>
+            • Analytics - Improve game experience (with consent)
+          </Text>
+          <Text style={styles.listItem}>
+            • Bug Fixes - Identify and resolve technical issues
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Data Sharing and Transmission</Text>
+          <Text style={styles.sectionTitle}>Data Sharing and Third Parties</Text>
           <Text style={styles.highlight}>
-            We do not share, sell, or transmit your data to third parties.
+            We do not sell your personal data to third parties.
           </Text>
           <Text style={styles.paragraph}>
-            Zombie Fleet Bastion operates entirely offline and does not:
-          </Text>
-          <Text style={styles.listItem}>• Send data to external servers</Text>
-          <Text style={styles.listItem}>
-            • Share information with advertisers
+            We use the following trusted third-party services:
           </Text>
           <Text style={styles.listItem}>
-            • Transmit analytics to third-party services
+            • Supabase (Cloud Infrastructure) - Secure data storage and
+            authentication, GDPR compliant
           </Text>
-          <Text style={styles.listItem}>• Require internet connectivity</Text>
+          <Text style={styles.paragraph}>
+            Guest mode: If you play as a guest, all data remains on your device
+            only. No data is transmitted to external servers.
+          </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Data Security</Text>
           <Text style={styles.paragraph}>
-            Your data is stored locally on your device using AsyncStorage, which
-            is:
+            We implement industry-standard security measures:
           </Text>
           <Text style={styles.listItem}>
-            • Protected by your device's security measures
+            • Local data: Protected by your device's security (AsyncStorage)
           </Text>
           <Text style={styles.listItem}>
-            • Not accessible to other applications
+            • Cloud data: Encrypted in transit (HTTPS) and at rest (AES-256)
           </Text>
           <Text style={styles.listItem}>
-            • Only accessible while the app is installed
+            • Authentication: Secure password hashing (bcrypt)
+          </Text>
+          <Text style={styles.listItem}>
+            • Database: Row-level security policies (RLS) in Supabase
+          </Text>
+          <Text style={styles.paragraph}>
+            No security is 100% guaranteed. We continuously monitor and update
+            our security practices.
           </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Data Retention</Text>
           <Text style={styles.paragraph}>
-            Your data is retained on your device until:
-          </Text>
-          <Text style={styles.listItem}>• You uninstall the app</Text>
-          <Text style={styles.listItem}>
-            • You manually reset your progress using the "Reset Progress" option
-            in Settings
+            We retain your data as follows:
           </Text>
           <Text style={styles.listItem}>
-            • You clear the app's data through your device settings
+            • Local data: Until app uninstall or manual deletion
+          </Text>
+          <Text style={styles.listItem}>
+            • Account data: Until you delete your account
+          </Text>
+          <Text style={styles.listItem}>
+            • Analytics: 90 days (rolling window)
+          </Text>
+          <Text style={styles.listItem}>
+            • Deleted accounts: Permanently removed within 30 days
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Rights</Text>
-
-          <Text style={styles.subsectionTitle}>Access Your Data</Text>
+          <Text style={styles.sectionTitle}>Your GDPR Rights</Text>
           <Text style={styles.paragraph}>
-            All data stored by the app is visible within the app interface
-            (statistics, settings, campaign progress).
+            Under GDPR, you have the following rights:
           </Text>
 
-          <Text style={styles.subsectionTitle}>Delete Your Data</Text>
-          <Text style={styles.paragraph}>You can delete your data by:</Text>
-          <Text style={styles.listItem}>
-            • Using the "Reset Progress" option in Settings
+          <Text style={styles.subsectionTitle}>
+            Right to Access (Article 15)
           </Text>
-          <Text style={styles.listItem}>• Uninstalling the app</Text>
-          <Text style={styles.listItem}>
-            • Clearing the app's data through your device settings
+          <Text style={styles.paragraph}>
+            View and export all your personal data in JSON format via
+            Settings → Data & Privacy → Export My Data
+          </Text>
+
+          <Text style={styles.subsectionTitle}>
+            Right to Rectification (Article 16)
+          </Text>
+          <Text style={styles.paragraph}>
+            Update your nickname, nationality, and email in account settings
+          </Text>
+
+          <Text style={styles.subsectionTitle}>
+            Right to Erasure (Article 17)
+          </Text>
+          <Text style={styles.paragraph}>
+            Delete your account and all associated data via
+            Settings → Data & Privacy → Delete My Account
+          </Text>
+
+          <Text style={styles.subsectionTitle}>
+            Right to Data Portability (Article 20)
+          </Text>
+          <Text style={styles.paragraph}>
+            Export your data in machine-readable JSON format
+          </Text>
+
+          <Text style={styles.subsectionTitle}>
+            Right to Withdraw Consent (Article 7)
+          </Text>
+          <Text style={styles.paragraph}>
+            Opt out of analytics at any time in Data & Privacy settings
+          </Text>
+
+          <Text style={styles.subsectionTitle}>
+            Right to Lodge a Complaint
+          </Text>
+          <Text style={styles.paragraph}>
+            Contact your local data protection authority if you believe your
+            rights have been violated
           </Text>
         </View>
 
@@ -196,29 +287,59 @@ export default function PrivacyPolicyScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Consent</Text>
+          <Text style={styles.sectionTitle}>Consent and Legal Basis</Text>
           <Text style={styles.paragraph}>
-            By using Zombie Fleet Bastion, you consent to this Privacy Policy
-            and the local storage of game data as described above.
+            We process your data based on:
+          </Text>
+          <Text style={styles.listItem}>
+            • Consent (GDPR Article 6.1a) - You agree to create an account
+          </Text>
+          <Text style={styles.listItem}>
+            • Contract Performance (GDPR Article 6.1b) - Providing game services
+          </Text>
+          <Text style={styles.listItem}>
+            • Legitimate Interest (GDPR Article 6.1f) - Bug fixes and security
+          </Text>
+          <Text style={styles.paragraph}>
+            You can withdraw consent at any time by deleting your account.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>International Data Transfers</Text>
+          <Text style={styles.paragraph}>
+            Your data may be stored on servers outside your country. We ensure
+            GDPR compliance through Supabase's Standard Contractual Clauses (SCCs).
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Changes to Privacy Policy</Text>
+          <Text style={styles.paragraph}>
+            We may update this policy. Significant changes will require your
+            re-consent. Last updated date is shown at the top.
           </Text>
         </View>
 
         <View style={styles.summaryBox}>
-          <Text style={styles.summaryTitle}>Summary:</Text>
+          <Text style={styles.summaryTitle}>Quick Summary:</Text>
           <Text style={styles.summaryItem}>
-            • All data is stored locally on your device only
+            • Guest mode: All data stays on your device only
           </Text>
           <Text style={styles.summaryItem}>
-            • No data is transmitted to external servers
+            • Account mode: Data synced to secure cloud (optional)
           </Text>
           <Text style={styles.summaryItem}>
-            • No personal information is collected
+            • You control your data: Export or delete anytime
           </Text>
           <Text style={styles.summaryItem}>
-            • You can delete your data at any time
+            • GDPR compliant: Full transparency and user rights
           </Text>
           <Text style={styles.summaryItem}>
-            • The app works completely offline
+            • Analytics opt-in: You choose whether to share usage data
+          </Text>
+          <Text style={styles.summaryItem}>
+            • No selling data: We never sell your information
           </Text>
         </View>
       </ScrollView>
