@@ -1,9 +1,38 @@
+/**
+ * Main Menu Screen - Zombie Fleet Bastion
+ * 
+ * Redesigned based on "Bitten: Reclaim the Shore" UI
+ * Features:
+ * - PLAY button with cyan glow effect
+ * - Campaign/Endless toggle
+ * - Episode info display
+ * - Settings icon in corner
+ * 
+ * Recent changes (2025-11-25):
+ * - Implemented new PlayButton component with glow animation
+ * - Added GameModeToggle for Campaign/Endless selection
+ * - Redesigned layout to match Bitten-style UI
+ */
+
 import { router } from "expo-router";
-import { Infinity, Settings, Skull, Trophy } from "lucide-react-native";
-import React, { useEffect, useRef } from "react";
-import { Animated, Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Settings, Trophy } from "lucide-react-native";
+import React, { useState } from "react";
+import {
+  Dimensions,
+  ImageBackground,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { GameLogo, GameModeToggle, PlayButton } from "@/components/ui";
+import type { GameMode } from "@/components/ui";
+import { THEME } from "@/constants/ui/theme";
+import { useGame } from "@/contexts/GameContext";
+import { ENDLESS_MODE } from "@/data/maps/endless";
 import { hasMainMenuBackground, UI_IMAGES } from "@/utils/imageAssets";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -12,90 +41,83 @@ const IS_LANDSCAPE = SCREEN_WIDTH > SCREEN_HEIGHT;
 
 export default function MainMenu() {
   const insets = useSafeAreaInsets();
-  const fadeAnim = useRef(new Animated.Value(0.7)).current;
+  const { startCampaignLevel } = useGame();
   const hasBackground = hasMainMenuBackground();
+  
+  // Game mode state
+  const [gameMode, setGameMode] = useState<GameMode>("campaign");
 
-  useEffect(() => {
-    // Pulsing animation for "TAP TO CONTINUE"
-    // useNativeDriver only works on native platforms, not web
-    const useNative = Platform.OS !== "web";
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: useNative,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0.7,
-          duration: 1500,
-          useNativeDriver: useNative,
-        }),
-      ])
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, [fadeAnim]);
+  // Handle PLAY button press based on selected mode
+  const handlePlay = () => {
+    if (gameMode === "campaign") {
+      router.push("/levels" as any);
+    } else {
+      startCampaignLevel(ENDLESS_MODE);
+      router.push("/game" as any);
+    }
+  };
+
+  // Get episode info text based on mode
+  const getEpisodeInfo = () => {
+    if (gameMode === "campaign") {
+      return "Episode 1 — Shoreline Breach";
+    }
+    return "Survive infinite waves!";
+  };
 
   const content = (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      <View style={styles.content}>
-          <View style={styles.titleContainer}>
-            <Skull size={64} color="#FFFFFF" strokeWidth={2.5} />
-            <Text style={styles.title}>ZOMBIE FLEET</Text>
-            <Text style={styles.subtitle}>BASTION</Text>
-          </View>
-
+      {/* Top bar with Settings and Stats */}
+      <View style={styles.topBar}>
         <TouchableOpacity
-          style={styles.campaignButton}
-          onPress={() => router.push("/levels" as any)}
-          activeOpacity={0.8}
+          style={styles.iconButton}
+          onPress={() => router.push("/stats" as any)}
+          activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel="Start game - Go to level selection"
-          accessibilityHint="Tap to view campaign levels and start playing"
+          accessibilityLabel="Statistics"
         >
-          <Animated.Text style={[styles.campaignButtonText, { opacity: fadeAnim }]}>
-            ⚔️ CAMPAIGN MODE ⚔️
-          </Animated.Text>
+          <Trophy size={24} color={THEME.colors.text.secondary} />
         </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => router.push("/settings" as any)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+        >
+          <Settings size={24} color={THEME.colors.text.secondary} />
+        </TouchableOpacity>
+      </View>
 
-        <View style={styles.menuButtons}>
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => router.push("/game" as any)}
-            activeOpacity={0.7}
-          >
-            <Infinity size={20} color="#FFFFFF" />
-            <Text style={styles.menuButtonText}>Endless Mode</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => router.push("/stats" as any)}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel="Statistics"
-            accessibilityHint="View your game statistics and achievements"
-          >
-            <Trophy size={20} color="#FFFFFF" />
-            <Text style={styles.menuButtonText}>Statistics</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => router.push("/settings" as any)}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel="Settings"
-            accessibilityHint="Configure game settings and preferences"
-          >
-            <Settings size={20} color="#FFFFFF" />
-            <Text style={styles.menuButtonText}>Settings</Text>
-          </TouchableOpacity>
+      {/* Main content */}
+      <View style={styles.content}>
+        {/* Logo / Title */}
+        <View style={styles.titleContainer}>
+          <GameLogo scale={2.0} />
         </View>
 
-        <Text style={styles.version}>v2.0 MVP</Text>
+        {/* PLAY Button */}
+        <View style={styles.playSection}>
+          <PlayButton onPress={handlePlay} />
+          
+          {/* Game Mode Toggle */}
+          <View style={styles.toggleContainer}>
+            <GameModeToggle
+              mode={gameMode}
+              onModeChange={setGameMode}
+            />
+          </View>
+          
+          {/* Episode Info */}
+          <Text style={styles.episodeInfo}>
+            {getEpisodeInfo()}
+          </Text>
+        </View>
       </View>
+
+      {/* Version */}
+      <Text style={styles.version}>v2.0 MVP</Text>
     </View>
   );
 
@@ -120,7 +142,7 @@ export default function MainMenu() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: "#0a0a0a",
+    backgroundColor: THEME.colors.background.primary,
   },
   imageBackground: {
     flex: 1,
@@ -133,93 +155,63 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: THEME.borderRadius.sm,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    borderWidth: 1,
+    borderColor: THEME.colors.border.default,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   content: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 32,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Darker overlay for better text readability
   },
   titleContainer: {
     alignItems: "center",
-    marginBottom: IS_LANDSCAPE ? 40 : 80,
+    marginBottom: 40,
   },
-  title: {
-    fontSize: 48,
-    fontWeight: "900" as const,
-    color: "#FFFFFF", // White text for better contrast
-    marginTop: 24,
-    letterSpacing: 4,
-    textAlign: "center",
-    // Use textShadow string format instead of deprecated props
-    textShadow: Platform.select({
-      web: "3px 3px 8px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.5)", // Strong black shadow for readability
-      default: "3px 3px 8px #000000",
-    }),
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "600" as const,
-    color: "#CCCCCC", // Lighter gray for better visibility
-    marginTop: 8,
-    letterSpacing: 4,
-    // Use textShadow string format instead of deprecated props
-    textShadow: Platform.select({
-      web: "2px 2px 6px rgba(0, 0, 0, 0.9)",
-      default: "2px 2px 6px #000000",
-    }),
-  },
-  campaignButton: {
-    marginTop: IS_LANDSCAPE ? 24 : 40,
-    paddingHorizontal: 40,
-    paddingVertical: 18,
-    backgroundColor: "rgba(76, 175, 80, 0.3)", // Semi-transparent green
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#4CAF50", // Green border
-  },
-  campaignButtonText: {
-    fontSize: 20,
-    fontWeight: "900" as const,
-    color: "#FFFFFF",
-    letterSpacing: 3,
-    textAlign: "center",
-    // Use textShadow string format instead of deprecated props
-    textShadow: Platform.select({
-      web: "2px 2px 8px rgba(0, 0, 0, 0.9), 0 0 15px rgba(76, 175, 80, 0.6)",
-      default: "2px 2px 8px #000000",
-    }),
-    textTransform: "uppercase" as const,
-  },
-  menuButtons: {
-    flexDirection: "row",
-    flexWrap: "wrap" as const,
-    gap: 12,
-    marginTop: IS_LANDSCAPE ? 20 : 32,
-    marginBottom: 16,
-    justifyContent: "center",
-  },
-  menuButton: {
-    flexDirection: "row",
+  playSection: {
     alignItems: "center",
-    gap: 8,
-    backgroundColor: "rgba(0, 0, 0, 0.7)", // Darker background for better contrast
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#FFFFFF", // White border for better visibility
+    gap: 2,
   },
-  menuButtonText: {
-    fontSize: 14,
-    fontWeight: "700" as const,
-    color: "#FFFFFF", // White text for better contrast
+  toggleContainer: {
+    marginTop: 2,
+  },
+  episodeInfo: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: THEME.colors.text.tertiary,
+    letterSpacing: 1,
+    marginTop: 2,
+    textAlign: "center",
+    ...Platform.select({
+      web: {
+        textShadow: "1px 1px 4px rgba(0, 0, 0, 0.8)",
+      },
+      default: {
+        textShadowColor: "#000000",
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 4,
+      },
+    }),
   },
   version: {
     position: "absolute",
     bottom: 32,
+    alignSelf: "center",
     fontSize: 12,
-    color: "#666666",
-    fontWeight: "600" as const,
+    color: THEME.colors.text.disabled,
+    fontWeight: "600",
   },
 });
