@@ -10,12 +10,13 @@
 
 import React from "react";
 import {
-  Image,
+  PixelRatio,
   Platform,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 
 import { hasLogoImage, UI_IMAGES } from "@/utils/imageAssets";
 
@@ -29,28 +30,18 @@ export function GameLogo({ scale = 1 }: GameLogoProps) {
 
   // If we have logo image, use it
   if (hasImage) {
-    // Actual dimensions of logo.png (base version)
+    // Actual dimensions of logo.png (base version) - trimmed to remove empty space
     // React Native will automatically select @2x or @3x versions based on device pixel ratio
-    const baseWidth = 183;
-    const baseHeight = 142;
+    const baseWidth = 98;
+    const baseHeight = 41;
     
-    // Try to resolve asset source for actual dimensions (works on native, not on web)
-    // This helps get the correct dimensions for the selected @2x/@3x version
-    let actualWidth = baseWidth;
-    let actualHeight = baseHeight;
+    // Get pixel ratio to ensure we use the best quality image
+    const pixelRatio = PixelRatio.get();
     
-    try {
-      if (Image.resolveAssetSource && typeof Image.resolveAssetSource === 'function') {
-        const imageSource = Image.resolveAssetSource(UI_IMAGES.logo);
-        if (imageSource && imageSource.width && imageSource.height) {
-          actualWidth = imageSource.width;
-          actualHeight = imageSource.height;
-        }
-      }
-    } catch (error) {
-      // Fallback to base dimensions if resolveAssetSource fails
-      console.warn('Could not resolve asset source, using default dimensions');
-    }
+    // Calculate display size based on base dimensions and scale
+    // expo-image will automatically select @2x/@3x versions for best quality
+    const displayWidth = baseWidth * scale;
+    const displayHeight = baseHeight * scale;
     
     return (
       <View style={styles.container}>
@@ -59,10 +50,15 @@ export function GameLogo({ scale = 1 }: GameLogoProps) {
           style={[
             styles.logoImage,
             { 
-              width: actualWidth * scale, 
-              height: actualHeight * scale,
+              width: displayWidth, 
+              height: displayHeight,
             },
           ]}
+          contentFit="contain"
+          // Ensure best quality rendering
+          cachePolicy="memory-disk"
+          // expo-image automatically selects @2x/@3x based on pixel ratio
+          // This ensures crisp rendering on all devices
         />
       </View>
     );
@@ -87,6 +83,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "center",
+    // Add padding to compensate for trimmed space from top
+    // Original logo had empty space on top that was removed during trimming
+    // With scale=2.0, we need to compensate for the visual shift
+    paddingTop: 10,
   },
   logoImage: {
     // Width and height are set dynamically via inline styles based on scale prop
