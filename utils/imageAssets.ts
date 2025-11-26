@@ -55,7 +55,14 @@ export const UI_IMAGES = {
   buttonBg: require("@/assets/images/ui/button-bg.png"),
   panelBg: require("@/assets/images/ui/panel-bg.png"),
   scrapIcon: require("@/assets/images/ui/scrap-icon.png"),
-  mainMenuBackground: require("@/assets/images/ui/main-menu-background.png"),
+  mainMenuBackground: require("@/assets/images/ui/background.png"),
+  // Main menu buttons (extracted from mockups)
+  playButtonNormal: require("@/assets/images/ui/play-button-normal.png"),
+  playButtonPressed: require("@/assets/images/ui/play-button-pressed.png"),
+  toggleCampaignActive: require("@/assets/images/ui/toggle-campaign-active.png"),
+  toggleEndlessActive: require("@/assets/images/ui/toggle-endless-active.png"),
+  // Game logo
+  logo: require("@/assets/images/ui/logo.png"),
 } as const;
 
 // Effect images (optional)
@@ -221,4 +228,16 @@ export function getPathTexture(
 
 export function hasMainMenuBackground(): boolean {
   return !!UI_IMAGES.mainMenuBackground;
+}
+
+export function hasPlayButtonImages(): boolean {
+  return !!(UI_IMAGES.playButtonNormal && UI_IMAGES.playButtonPressed);
+}
+
+export function hasToggleImages(): boolean {
+  return !!(UI_IMAGES.toggleCampaignActive && UI_IMAGES.toggleEndlessActive);
+}
+
+export function hasLogoImage(): boolean {
+  return !!UI_IMAGES.logo;
 }

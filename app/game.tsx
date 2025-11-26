@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { ArrowLeft, FastForward, Heart, Pause, Play } from "lucide-react-native";
+import { ArrowLeft, FastForward, Heart, Infinity, Pause, Play, Wrench } from "lucide-react-native";
 import React, { useEffect } from "react";
 import {
   Dimensions,
@@ -19,6 +19,7 @@ import { UpgradeMenu } from "@/components/game/UpgradeMenu";
 import { PowerUpBar } from "@/components/game/PowerUpBar";
 import { EffectsOverlay } from "@/components/game/EffectsOverlay";
 import { MAP_CONFIG, WAYPOINTS, CONSTRUCTION_SPOTS } from "@/constants/gameConfig";
+import { Position } from "@/types/game";
 import { useGame } from "@/contexts/GameContext";
 import { useCampaignContext } from "@/contexts/CampaignContext";
 import { useGameEngine } from "@/hooks/useGameEngine";
@@ -33,9 +34,13 @@ export default function GameScreen() {
 
   useGameEngine();
 
+  // Don't reset if level is already loaded (sessionConfig exists)
+  // This prevents resetting waypoints when navigating to game screen
   useEffect(() => {
-    resetGame();
-  }, [resetGame]);
+    if (!gameState.sessionConfig) {
+      resetGame();
+    }
+  }, [resetGame, gameState.sessionConfig]);
 
   /**
    * Handle victory - complete level in campaign context and calculate stars
@@ -81,14 +86,45 @@ export default function GameScreen() {
   );
 
   // Get dynamic data from level or use defaults
-  const waypoints = currentLevel?.mapConfig.waypoints || WAYPOINTS;
-  const constructionSpots = currentLevel?.mapConfig.constructionSpots;
-  const maxHullIntegrity = currentLevel?.mapConfig.startingResources.hullIntegrity || 20;
-  const totalWaves = currentLevel?.mapConfig.waves.length || 10;
+  // Use gameState.sessionConfig to ensure consistency with game engine
+  const activeLevel = gameState.sessionConfig?.currentLevel || currentLevel;
+  const waypoints = (activeLevel?.mapConfig.waypoints || WAYPOINTS) as Position[];
+  const constructionSpots = activeLevel?.mapConfig.constructionSpots;
+  const maxHullIntegrity = activeLevel?.mapConfig.startingResources.hullIntegrity || 20;
+  const totalWaves = activeLevel?.mapConfig.waves.length || 10;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
+    <View style={styles.container}>
+      {/* Stats Panel - Top Left Corner */}
+      <View style={[styles.statsPanel, { top: insets.top + 16 }]}>
+        <View style={styles.statRow}>
+          <Heart size={18} color="#FF4444" fill="#FF4444" />
+          <Text style={styles.statValue}>
+            {gameState.hullIntegrity}
+          </Text>
+        </View>
+        <View style={styles.statRow}>
+          <Wrench size={18} color="#FFD700" fill="#FFD700" />
+          <Text style={styles.statValue}>
+            {gameState.scrap}
+          </Text>
+        </View>
+        <View style={styles.waveRow}>
+          {activeLevel ? (
+            <Text style={styles.waveText}>
+              WAVE {gameState.currentWave}/{totalWaves}
+            </Text>
+          ) : (
+            <View style={styles.endlessWaveContainer}>
+              <Infinity size={14} color="#FFFFFF" />
+              <Text style={styles.waveText}>WAVE {gameState.currentWave}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+
+      {/* Controls - Top Right Corner */}
+      <View style={[styles.topControls, { top: insets.top + 16 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
@@ -96,30 +132,6 @@ export default function GameScreen() {
         >
           <ArrowLeft size={24} color="#FFFFFF" />
         </TouchableOpacity>
-
-        <View style={styles.statsContainer}>
-          {currentLevel && (
-            <Text style={styles.levelName}>{currentLevel.name}</Text>
-          )}
-
-          <View style={styles.stat}>
-            <Heart size={18} color="#FF4444" fill="#FF4444" />
-            <Text style={styles.statText}>
-              {gameState.hullIntegrity}/{maxHullIntegrity}
-            </Text>
-          </View>
-
-          <View style={styles.stat}>
-            <Text style={styles.waveText}>
-              Wave {gameState.currentWave}/{totalWaves}
-            </Text>
-          </View>
-
-          <View style={styles.stat}>
-            <Text style={styles.statText}>🔩 {gameState.scrap}</Text>
-          </View>
-        </View>
-
         <View style={styles.controls}>
           <TouchableOpacity
             style={styles.controlButton}
@@ -164,28 +176,30 @@ export default function GameScreen() {
         </View>
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
-        {/* Power-Ups Bar - always visible during gameplay */}
-        {(gameState.phase === "playing" || gameState.phase === "between_waves") && (
-          <PowerUpBar />
-        )}
+      {/* Power-Ups Bar - always visible during gameplay, right side */}
+      {(gameState.phase === "playing" || gameState.phase === "between_waves") && (
+        <PowerUpBar />
+      )}
 
-        {gameState.phase === "between_waves" && (
-          <TouchableOpacity
-            style={styles.startButton}
-            onPress={() => startWave(true)}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityLabel="Start next wave and earn 15 scrap bonus"
-          >
-            <Play size={20} color="#FFFFFF" fill="#FFFFFF" />
-            <Text style={styles.startButtonText}>Start Wave (+15 🔩)</Text>
-          </TouchableOpacity>
-        )}
-        {gameState.phase === "playing" && (
-          <Text style={styles.footerText}>Wave {gameState.currentWave} in progress...</Text>
-        )}
-      </View>
+      {/* Start Wave Overlay - Center Screen */}
+      {gameState.phase === "between_waves" && (
+        <View style={styles.startWaveOverlay}>
+          <View style={styles.startWavePanel}>
+            <Text style={styles.startWaveTitle}>Ready for Next Wave?</Text>
+            <Text style={styles.startWaveBonus}>+15 🔩 Bonus</Text>
+            <TouchableOpacity
+              style={styles.startWaveButton}
+              onPress={() => startWave(true)}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Start next wave and earn 15 scrap bonus"
+            >
+              <Play size={24} color="#FFFFFF" fill="#FFFFFF" />
+              <Text style={styles.startWaveButtonText}>Start Wave</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       <BuildMenu />
       <UpgradeMenu />
@@ -201,46 +215,71 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1a1a1a",
   },
-  header: {
+  statsPanel: {
+    position: "absolute" as const,
+    top: 16,
+    left: 16,
+    backgroundColor: "rgba(30, 30, 30, 0.95)",
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 2,
+    borderColor: "#444444",
+    zIndex: 100,
+    minWidth: 140,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  statRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#222222",
-    borderBottomWidth: 2,
-    borderBottomColor: "#333333",
+    gap: 8,
+    marginBottom: 8,
   },
-  backButton: {
-    padding: 8,
-    marginRight: 12,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    gap: 16,
-    alignItems: "center",
-    flexWrap: "wrap" as const,
-  },
-  levelName: {
-    color: "#FFD700",
-    fontSize: 12,
-    fontWeight: "700" as const,
-    marginRight: 8,
-  },
-  stat: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  statText: {
+  statValue: {
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700" as const,
+    fontSize: 16,
+    fontWeight: "800" as const,
+  },
+  waveRow: {
+    marginTop: 4,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#444444",
   },
   waveText: {
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700" as const,
+    fontSize: 12,
+    fontWeight: "800" as const,
+    letterSpacing: 1,
+  },
+  endlessWaveContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  topControls: {
+    position: "absolute" as const,
+    top: 16,
+    right: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    zIndex: 100,
+  },
+  backButton: {
+    padding: 8,
+    backgroundColor: "rgba(30, 30, 30, 0.95)",
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "#444444",
+  },
+  footerWaveContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   controls: {
     flexDirection: "row",
@@ -250,13 +289,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    backgroundColor: "#333333",
+    backgroundColor: "rgba(30, 30, 30, 0.95)",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "#444444",
   },
   controlButtonActive: {
     backgroundColor: "#4CAF50",
+    borderColor: "#4CAF50",
   },
   speedText: {
     color: "#FFFFFF",
@@ -290,7 +332,46 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600" as const,
   },
-  startButton: {
+  startWaveOverlay: {
+    position: "absolute" as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 200,
+  },
+  startWavePanel: {
+    backgroundColor: "rgba(30, 30, 30, 0.95)",
+    borderRadius: 16,
+    padding: 24,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#444444",
+    minWidth: 280,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  startWaveTitle: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "800" as const,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  startWaveBonus: {
+    color: "#FFD700",
+    fontSize: 16,
+    fontWeight: "700" as const,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  startWaveButton: {
     backgroundColor: "#4CAF50",
     flexDirection: "row",
     alignItems: "center",
@@ -304,9 +385,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  startButtonText: {
+  startWaveButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "800" as const,
   },
 });

@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Trophy, ChevronRight, RotateCcw, ArrowLeft, Skull, CheckCircle, Clock } from 'lucide-react-native';
 import { THEME } from '@/constants/ui/theme';
-import { StarRating } from './StarRating';
+import StarRating from './StarRating';
 
 export interface VictoryScreenStats {
   zombiesKilled: number;

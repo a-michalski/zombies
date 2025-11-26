@@ -10,13 +10,14 @@
 
 import React from "react";
 import {
+  Image as RNImage,
   PixelRatio,
   Platform,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { Image } from "expo-image";
+import { Image as ExpoImage } from "expo-image";
 
 import { hasLogoImage, UI_IMAGES } from "@/utils/imageAssets";
 
@@ -30,36 +31,47 @@ export function GameLogo({ scale = 1 }: GameLogoProps) {
 
   // If we have logo image, use it
   if (hasImage) {
-    // Actual dimensions of logo.png (base version) - trimmed to remove empty space
-    // React Native will automatically select @2x or @3x versions based on device pixel ratio
-    const baseWidth = 98;
-    const baseHeight = 41;
+    // Use @1x dimensions - expo-image will automatically select @2x/@3x for retina displays
+    // This is the correct approach - let expo-image handle resolution selection
+    const baseWidth = 183; // @1x width
+    const baseHeight = 142; // @1x height
     
-    // Get pixel ratio to ensure we use the best quality image
-    const pixelRatio = PixelRatio.get();
-    
-    // Calculate display size based on base dimensions and scale
-    // expo-image will automatically select @2x/@3x versions for best quality
+    // Calculate display size - expo-image will automatically use @2x/@3x for crisp rendering
+    // on high-DPI displays, preventing pixelation
     const displayWidth = baseWidth * scale;
     const displayHeight = baseHeight * scale;
     
-    return (
-      <View style={styles.container}>
-        <Image
-          source={UI_IMAGES.logo}
-          style={[
+    // Use expo-image on native, react-native Image on web for better @2x/@3x support
+    const ImageComponent = Platform.OS === 'web' ? RNImage : ExpoImage;
+    const imageProps = Platform.OS === 'web' 
+      ? {
+          source: UI_IMAGES.logo,
+          style: [
             styles.logoImage,
             { 
               width: displayWidth, 
               height: displayHeight,
             },
-          ]}
-          contentFit="contain"
-          // Ensure best quality rendering
-          cachePolicy="memory-disk"
-          // expo-image automatically selects @2x/@3x based on pixel ratio
-          // This ensures crisp rendering on all devices
-        />
+          ],
+          resizeMode: "contain" as const,
+        }
+      : {
+          source: UI_IMAGES.logo,
+          style: [
+            styles.logoImage,
+            { 
+              width: displayWidth, 
+              height: displayHeight,
+            },
+          ],
+          contentFit: "contain" as const,
+          cachePolicy: "memory-disk" as const,
+          transition: 200,
+        };
+    
+    return (
+      <View style={styles.container}>
+        <ImageComponent {...imageProps} />
       </View>
     );
   }

@@ -1,19 +1,23 @@
 /**
- * PowerUpBar - Power-up buttons HUD
+ * PowerUpBar - Power-up buttons as vertical icons on the right side
  *
- * Displays 3 power-up buttons with costs, cooldowns, and visual feedback.
+ * Displays 3 power-up buttons as clickable icons with costs, cooldowns, and visual feedback.
  */
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Zap, Clock, Wrench } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGame } from '@/contexts/GameContext';
 import { POWER_UP_CONFIGS } from '@/constants/powerups';
 import { PowerUpType } from '@/types/powerups';
 
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
 export function PowerUpBar() {
   const { gameState, usePowerUp } = useGame();
+  const insets = useSafeAreaInsets();
 
   const handlePowerUpPress = (type: PowerUpType) => {
     usePowerUp(type);
@@ -22,18 +26,18 @@ export function PowerUpBar() {
   const getPowerUpIcon = (type: PowerUpType) => {
     switch (type) {
       case 'nuke':
-        return <Zap size={24} color="#FFFFFF" />;
+        return <Zap size={28} color="#FFFFFF" />;
       case 'timeFreeze':
-        return <Clock size={24} color="#FFFFFF" />;
+        return <Clock size={28} color="#FFFFFF" />;
       case 'repair':
-        return <Wrench size={24} color="#FFFFFF" />;
+        return <Wrench size={28} color="#FFFFFF" />;
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { top: (SCREEN_HEIGHT / 2) - 100 + insets.top }]}>
       {POWER_UP_CONFIGS.map((config) => {
-        const state = gameState.powerUps.find(p => p.type === config.id);
+        const state = gameState.powerUps?.find(p => p.type === config.id);
         const canAfford = gameState.scrap >= config.cost;
         const isOnCooldown = state?.isOnCooldown || false;
         const isDisabled = !canAfford || isOnCooldown;
@@ -59,13 +63,8 @@ export function PowerUpBar() {
               {getPowerUpIcon(config.id)}
             </View>
 
-            {/* Name */}
-            <Text style={styles.powerUpName} numberOfLines={1}>
-              {config.name}
-            </Text>
-
-            {/* Cost */}
-            <View style={styles.costContainer}>
+            {/* Cost Badge */}
+            <View style={styles.costBadge}>
               <Text style={styles.costText}>🔩 {config.cost}</Text>
             </View>
 
@@ -73,7 +72,7 @@ export function PowerUpBar() {
             {isOnCooldown && (
               <View style={styles.cooldownOverlay}>
                 <Text style={styles.cooldownText}>
-                  {Math.ceil(state?.remainingCooldown || 0)}s
+                  {Math.ceil(state?.remainingCooldown || 0)}
                 </Text>
               </View>
             )}
@@ -93,44 +92,48 @@ export function PowerUpBar() {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 12,
+    position: 'absolute' as const,
+    right: 16,
+    flexDirection: 'column',
+    gap: 12,
+    zIndex: 100,
   },
   powerUpButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+    width: 64,
+    height: 64,
+    borderRadius: 12,
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
     position: 'relative',
-    minHeight: 90,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   powerUpButtonDisabled: {
     opacity: 0.5,
   },
   iconContainer: {
-    marginBottom: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  powerUpName: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  costContainer: {
-    marginTop: 2,
+  costBadge: {
+    position: 'absolute',
+    bottom: -6,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FFD700',
   },
   costText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFD700',
   },
   cooldownOverlay: {
     position: 'absolute',
@@ -138,13 +141,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    borderRadius: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   cooldownText: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: '900',
     color: '#FFFFFF',
   },

@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: "100%",
+    paddingTop: 10,
   },
   overlayText: {
     fontSize: 14,

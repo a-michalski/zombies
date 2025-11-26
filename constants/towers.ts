@@ -56,21 +56,21 @@ export const CANNON_TOWER: TowerConfig = {
     {
       level: 1,
       damage: 25,
-      range: 1.5,
+      range: 2.5, // Increased from 1.5 to make it more usable
       fireRate: 0.4,
       upgradeCost: null,
     },
     {
       level: 2,
       damage: 40,
-      range: 1.75,
+      range: 3.0, // Increased from 1.75
       fireRate: 0.5,
       upgradeCost: 150,
     },
     {
       level: 3,
       damage: 65,
-      range: 2.0,
+      range: 3.5, // Increased from 2.0
       fireRate: 0.6,
       upgradeCost: 300,
     },

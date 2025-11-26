@@ -79,6 +79,18 @@ export const THEME = {
       darker: 'rgba(0, 0, 0, 0.9)',    // Victory/game over screens
       subtle: 'rgba(0, 0, 0, 0.5)',    // Image overlays
     },
+
+    // UI Accent Colors (Bitten-inspired)
+    accent: {
+      cyan: '#00D4FF',                 // Primary action buttons (PLAY)
+      cyanDark: '#00A3CC',             // Pressed state
+      cyanGlow: 'rgba(0, 212, 255, 0.6)', // Glow effect
+      metal: '#4A4A4A',                // Metallic backgrounds
+      metalLight: '#5A5A5A',           // Hover state
+      metalDark: '#3A3A3A',            // Pressed state
+      rust: '#8B4513',                 // Rusty accents
+      rustLight: '#A0522D',            // Lighter rust
+    },
   },
 
   spacing: {

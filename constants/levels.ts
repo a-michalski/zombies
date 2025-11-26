@@ -5,7 +5,7 @@
  * Reduces duplication across level files.
  */
 
-import { LevelDifficulty } from '@/types/levels';
+import { Difficulty } from '@/types/levels';
 
 /**
  * Default grid configuration used by all levels
@@ -19,11 +19,10 @@ export const DEFAULT_GRID = {
 /**
  * Starting scrap resources by difficulty
  */
-export const DIFFICULTY_STARTING_SCRAP: Record<LevelDifficulty, number> = {
+export const DIFFICULTY_STARTING_SCRAP: Record<Difficulty, number> = {
   easy: 200,
   medium: 150,
   hard: 100,
-  boss: 150, // Generous for complexity
 };
 
 /**
@@ -50,11 +49,6 @@ export const DEFAULT_STAR_REQUIREMENTS = {
     twoStars: { type: 'hull_remaining' as const, minHullPercent: 25 },
     threeStars: { type: 'hull_remaining' as const, minHullPercent: 45 },
   },
-  boss: {
-    oneStar: { type: 'complete' as const },
-    twoStars: { type: 'hull_remaining' as const, minHullPercent: 20 },
-    threeStars: { type: 'hull_remaining' as const, minHullPercent: 40 },
-  },
 } as const;
 
 /**
@@ -72,10 +66,6 @@ export const DIFFICULTY_REWARDS = {
   hard: {
     firstCompletionBonus: 300,
     scrapPerStar: 120,
-  },
-  boss: {
-    firstCompletionBonus: 500,
-    scrapPerStar: 150,
   },
 } as const;
 

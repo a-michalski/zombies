@@ -5,7 +5,9 @@
  * Reduces code duplication across level files.
  */
 
-import { LevelConfig, LevelDifficulty } from '@/types/levels';
+import { LevelConfig, Difficulty } from '@/types/levels';
+import { WaveConfig, MapConfig } from '@/types/map';
+import { EnemyType } from '@/constants/enemies';
 import { DEFAULT_GRID, DEFAULT_STARTING_HULL, DIFFICULTY_STARTING_SCRAP, DEFAULT_STAR_REQUIREMENTS, DIFFICULTY_REWARDS } from '@/constants/levels';
 
 /**
@@ -14,12 +16,17 @@ import { DEFAULT_GRID, DEFAULT_STARTING_HULL, DIFFICULTY_STARTING_SCRAP, DEFAULT
  * @param base - Base level configuration (will be merged with defaults)
  * @returns Complete level configuration
  */
-export function createLevelConfig(base: Partial<LevelConfig> & {
+export function createLevelConfig(base: Omit<Partial<LevelConfig>, 'mapConfig'> & {
   id: string;
   number: number;
   name: string;
   description: string;
-  difficulty: LevelDifficulty;
+  difficulty: Difficulty;
+  mapConfig?: Partial<MapConfig> & {
+    waypoints: MapConfig['waypoints'];
+    constructionSpots: MapConfig['constructionSpots'];
+    waves: MapConfig['waves'];
+  };
 }): LevelConfig {
   const difficulty = base.difficulty;
 
@@ -54,9 +61,9 @@ export function createLevelConfig(base: Partial<LevelConfig> & {
  */
 export function createWaveConfig(
   waveNumber: number,
-  enemies: Array<{ type: string; count: number }>,
+  enemies: Array<{ type: EnemyType; count: number }>,
   spawnDelay: number
-) {
+): WaveConfig {
   return {
     wave: waveNumber,
     enemies,

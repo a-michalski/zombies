@@ -98,3 +98,7 @@ Po uruchomieniu aplikacji na natywnym urządzeniu:
 
 
 
+
+
+
+

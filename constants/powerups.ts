@@ -16,7 +16,7 @@ export const NUKE: PowerUpConfig = {
   cost: 150,  // Very expensive - emergency button
   cooldown: 60, // 1 minute cooldown
   icon: '☢️',
-  color: '#FF4444', // Red
+  color: '#8B0000', // Dark red / blood red
 };
 
 export const TIME_FREEZE: PowerUpConfig = {
@@ -26,7 +26,7 @@ export const TIME_FREEZE: PowerUpConfig = {
   cost: 100,
   cooldown: 45, // 45 second cooldown
   icon: '⏸️',
-  color: '#2196F3', // Blue
+  color: '#1a1a2e', // Dark blue-gray
 };
 
 export const REPAIR: PowerUpConfig = {
@@ -36,7 +36,7 @@ export const REPAIR: PowerUpConfig = {
   cost: 120,
   cooldown: 30, // 30 second cooldown
   icon: '🔧',
-  color: '#4CAF50', // Green
+  color: '#2d5016', // Dark green / forest green
 };
 
 export const POWER_UPS: Record<string, PowerUpConfig> = {

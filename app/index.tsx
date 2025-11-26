@@ -94,7 +94,7 @@ export default function MainMenu() {
       <View style={styles.content}>
         {/* Logo / Title */}
         <View style={styles.titleContainer}>
-          <GameLogo scale={2.0} />
+          <GameLogo scale={1.3} />
         </View>
 
         {/* PLAY Button */}
@@ -183,17 +183,17 @@ const styles = StyleSheet.create({
   },
   playSection: {
     alignItems: "center",
-    gap: 2,
+    gap: 0,
   },
   toggleContainer: {
-    marginTop: 2,
+    marginTop: 0,
   },
   episodeInfo: {
     fontSize: 16,
     fontWeight: "600",
     color: THEME.colors.text.tertiary,
     letterSpacing: 1,
-    marginTop: 2,
+    marginTop: 0,
     textAlign: "center",
     ...Platform.select({
       web: {
