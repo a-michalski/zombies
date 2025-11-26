@@ -200,9 +200,7 @@ const styles = StyleSheet.create({
         textShadow: "1px 1px 4px rgba(0, 0, 0, 0.8)",
       },
       default: {
-        textShadowColor: "#000000",
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 4,
+        textShadow: "1px 1px 4px rgba(0, 0, 0, 0.8)",
       },
     }),
   },

@@ -29,7 +29,7 @@ export const EnemyRenderer = React.memo(() => {
   const tileSize = MAP_CONFIG.TILE_SIZE;
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, { pointerEvents: 'none' }]}>
       {HAS_ENEMY_IMAGES ? (
         <>
           {gameState.enemies.map((enemy) => {
@@ -107,7 +107,7 @@ export const EnemyRenderer = React.memo(() => {
           width={MAP_CONFIG.WIDTH * tileSize}
           height={MAP_CONFIG.HEIGHT * tileSize}
           style={StyleSheet.absoluteFill}
-          pointerEvents="none"
+          style={{ pointerEvents: 'none' }}
         >
           {gameState.enemies.map((enemy) => {
             const config = ENEMY_CONFIGS[enemy.type];

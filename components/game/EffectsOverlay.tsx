@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -53,8 +53,7 @@ export function EffectsOverlay() {
 
   return (
     <Animated.View
-      style={[styles.overlay, animatedStyle]}
-      pointerEvents="none"
+      style={[styles.overlay, animatedStyle, { pointerEvents: 'none' }]}
     >
       <View style={styles.freezeBorder} />
     </Animated.View>
@@ -79,10 +78,17 @@ const styles = StyleSheet.create({
     borderWidth: 8,
     borderColor: '#2196F3',
     borderRadius: 4,
-    shadowColor: '#2196F3',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 20,
-    elevation: 10,
+    ...Platform.select({
+      web: {
+        boxShadow: '0 0 20px rgba(33, 150, 243, 1)',
+      },
+      default: {
+        shadowColor: '#2196F3',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 1,
+        shadowRadius: 20,
+        elevation: 10,
+      },
+    }),
   },
 });

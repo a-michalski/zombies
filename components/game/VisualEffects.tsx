@@ -35,7 +35,7 @@ export function VisualEffects() {
           height: MAP_CONFIG.HEIGHT * tileSize,
         },
       ]}
-      pointerEvents="none"
+      style={{ pointerEvents: 'none' }}
     >
       {gameState.floatingTexts.map((ft) => {
         const age = (currentTime - ft.spawnTime) / 1000;

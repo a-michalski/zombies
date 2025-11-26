@@ -124,9 +124,7 @@ const styles = StyleSheet.create({
         textShadow: "3px 3px 0 #1A0A00, 0 4px 8px rgba(0, 0, 0, 0.8)",
       },
       default: {
-        textShadowColor: "#000000",
-        textShadowOffset: { width: 3, height: 3 },
-        textShadowRadius: 6,
+        textShadow: "3px 3px 0 #1A0A00, 0 4px 8px rgba(0, 0, 0, 0.8)",
       },
     }),
   },
@@ -143,9 +141,7 @@ const styles = StyleSheet.create({
         textShadow: "2px 2px 0 #1A1A1A, 0 2px 8px rgba(0, 0, 0, 0.6)",
       },
       default: {
-        textShadowColor: "#000000",
-        textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 4,
+        textShadow: "2px 2px 0 #1A1A1A, 0 2px 8px rgba(0, 0, 0, 0.6)",
       },
     }),
   },

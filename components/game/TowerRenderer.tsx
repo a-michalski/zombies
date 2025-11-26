@@ -15,7 +15,7 @@ export const TowerRenderer = React.memo(() => {
   const tileSize = MAP_CONFIG.TILE_SIZE;
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+    <View style={[StyleSheet.absoluteFill, { pointerEvents: 'box-none' }]}>
       {gameState.towers.map((tower) => {
         const x = tower.position.x * tileSize;
         const y = tower.position.y * tileSize;
@@ -43,7 +43,7 @@ export const TowerRenderer = React.memo(() => {
                 width={MAP_CONFIG.WIDTH * tileSize}
                 height={MAP_CONFIG.HEIGHT * tileSize}
                 style={StyleSheet.absoluteFill}
-                pointerEvents="none"
+                style={{ pointerEvents: 'none' }}
               >
                 <Circle
                   cx={x}
@@ -91,7 +91,7 @@ export const TowerRenderer = React.memo(() => {
                 width={MAP_CONFIG.WIDTH * tileSize}
                 height={MAP_CONFIG.HEIGHT * tileSize}
                 style={StyleSheet.absoluteFill}
-                pointerEvents="none"
+                style={{ pointerEvents: 'none' }}
               >
                 {(() => {
                   const baseColor =

@@ -79,12 +79,11 @@ export const GameMap = React.memo(function GameMap({ waypoints, constructionSpot
 
   // Memoize MapContent to prevent recreation on every render
   const mapContent = useMemo(() => (
-    <View style={styles.layerContainer} pointerEvents="box-none">
+    <View style={[styles.layerContainer, { pointerEvents: 'box-none' }]}>
         <Svg
           width={MAP_CONFIG.WIDTH * tileSize}
           height={MAP_CONFIG.HEIGHT * tileSize}
-          style={styles.svg}
-          pointerEvents="none"
+          style={[styles.svg, { pointerEvents: 'none' }]}
         >
         {/* Path lines - always show as fallback, even if textures exist */}
         {actualWaypoints.map((waypoint, index) => {
@@ -173,7 +172,7 @@ export const GameMap = React.memo(function GameMap({ waypoints, constructionSpot
         
         {/* Path texture overlay - disabled, using line fallback instead */}
         {false && (HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) && (
-          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <View style={[StyleSheet.absoluteFill, { pointerEvents: 'none' }]}>
             {actualWaypoints.map((waypoint, index) => {
               if (index === actualWaypoints.length - 1) return null;
               const next = actualWaypoints[index + 1];
@@ -248,7 +247,7 @@ export const GameMap = React.memo(function GameMap({ waypoints, constructionSpot
         
         {/* Waypoint sprites */}
         {HAS_WAYPOINT_SPRITES && (
-          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <View style={[StyleSheet.absoluteFill, { pointerEvents: 'none' }]}>
             {actualWaypoints.map((waypoint, index) => {
               const x = waypoint.x * tileSize;
               const y = waypoint.y * tileSize;
@@ -285,7 +284,7 @@ export const GameMap = React.memo(function GameMap({ waypoints, constructionSpot
         
         {/* Construction spot sprites */}
         {HAS_CONSTRUCTION_SPOT_SPRITE && (
-          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <View style={[StyleSheet.absoluteFill, { pointerEvents: 'none' }]}>
             {actualSpots.map((spot: { id: string; x: number; y: number }) => {
               const isOccupied = occupiedSpotIds.has(spot.id);
               const isSelected = gameState.selectedSpotId === spot.id;
