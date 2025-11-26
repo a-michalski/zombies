@@ -24,7 +24,7 @@ const WAYPOINT_ROTATIONS: number[] = (() => {
   return rotations;
 })();
 
-export function EnemyRenderer() {
+export const EnemyRenderer = React.memo(() => {
   const { gameState } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
 
@@ -155,7 +155,7 @@ export function EnemyRenderer() {
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   enemyContainer: {

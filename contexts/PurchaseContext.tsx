@@ -11,7 +11,7 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import createContextHook from "@nkzw/create-context-hook";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const PREMIUM_STORAGE_KEY = "@zombie_fleet_premium_unlocked";
 
@@ -19,10 +19,21 @@ export const [PurchaseProvider, usePurchase] = createContextHook(() => {
   const [isPremiumUnlocked, setIsPremiumUnlocked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const timeoutRefs = useRef<Set<NodeJS.Timeout>>(new Set());
 
   // Load premium status from storage
   useEffect(() => {
     loadPremiumStatus();
+  }, []);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach((timeoutId) => {
+        clearTimeout(timeoutId);
+      });
+      timeoutRefs.current.clear();
+    };
   }, []);
 
   const loadPremiumStatus = async () => {
@@ -80,7 +91,10 @@ export const [PurchaseProvider, usePurchase] = createContextHook(() => {
 
     try {
       // Simulate purchase delay (network request)
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => {
+        const id = setTimeout(resolve, 1500);
+        timeoutRefs.current.add(id);
+      });
 
       // TODO: In production, integrate with:
       // - iOS: App Store (StoreKit)
@@ -107,7 +121,10 @@ export const [PurchaseProvider, usePurchase] = createContextHook(() => {
 
     try {
       // Simulate restore delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => {
+        const id = setTimeout(resolve, 1000);
+        timeoutRefs.current.add(id);
+      });
 
       // TODO: In production, query App Store/Google Play for purchases
 

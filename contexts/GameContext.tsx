@@ -50,12 +50,9 @@ const INITIAL_STATE: GameState = {
 export const [GameProvider, useGame] = createContextHook(() => {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);
   const [currentLevel, setCurrentLevel] = useState<LevelConfig | null>(null);
-  const gameLoopRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastUpdateRef = useRef<number>(Date.now());
 
   const resetGame = useCallback(() => {
     setGameState(INITIAL_STATE);
-    lastUpdateRef.current = Date.now();
   }, []);
 
   /**
@@ -85,12 +82,18 @@ export const [GameProvider, useGame] = createContextHook(() => {
         zombiesKilled: 0,
         totalDamageDealt: 0,
       },
+      powerUps: POWER_UP_CONFIGS.map(config => ({
+        type: config.id,
+        lastUsedAt: 0,
+        isOnCooldown: false,
+        remainingCooldown: 0,
+      })),
+      activeEffects: [],
       sessionConfig: {
         currentLevel: level,
         mode: 'campaign',
       },
     });
-    lastUpdateRef.current = Date.now();
   }, []);
 
   const buildTower = useCallback((spotId: string, towerType: "tower_lookout_post" | "tower_cannon" = "tower_lookout_post") => {
@@ -343,64 +346,9 @@ export const [GameProvider, useGame] = createContextHook(() => {
     });
   }, [addFloatingText, addParticles]);
 
-  useEffect(() => {
-    const gameLoop = () => {
-      const now = Date.now();
-      const deltaTime = (now - lastUpdateRef.current) / 1000;
-      lastUpdateRef.current = now;
-
-      setGameState((prev) => {
-        if (prev.isPaused) return prev;
-
-        const dt = deltaTime * prev.gameSpeed;
-        let newState = { ...prev };
-
-        // Update power-up cooldowns
-        newState.powerUps = newState.powerUps.map(p => {
-          if (!p.isOnCooldown) return p;
-
-          const newRemaining = p.remainingCooldown - dt;
-          if (newRemaining <= 0) {
-            return { ...p, isOnCooldown: false, remainingCooldown: 0 };
-          }
-          return { ...p, remainingCooldown: newRemaining };
-        });
-
-        // Remove expired active effects
-        newState.activeEffects = newState.activeEffects.filter(effect => {
-          const elapsed = (now - effect.startTime) / 1000;
-          return elapsed < effect.duration;
-        });
-
-        // Auto-start disabled - waves must be started manually
-        // if (newState.phase === "between_waves") {
-        //   newState.waveCountdown = Math.max(0, newState.waveCountdown - dt);
-        //
-        //   if (newState.waveCountdown <= 0) {
-        //     newState.phase = "playing";
-        //   }
-        // }
-
-        newState.floatingTexts = newState.floatingTexts.filter(
-          (ft) => now - ft.spawnTime < 1000
-        );
-
-        newState.particles = newState.particles.filter(
-          (p) => (now - p.spawnTime) / 1000 < p.lifetime
-        );
-
-        return newState;
-      });
-    };
-
-    gameLoopRef.current = setInterval(gameLoop, 1000 / 60);
-
-    return () => {
-      if (gameLoopRef.current) {
-        clearInterval(gameLoopRef.current);
-      }
-    };
-  }, []);
+  // Game loop moved to useGameEngine hook to avoid duplicate loops
+  // All game logic (enemies, towers, projectiles, power-ups, effects, particles) 
+  // is now handled in a single 60 FPS loop
 
   return {
     gameState,

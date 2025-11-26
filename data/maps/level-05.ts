@@ -15,10 +15,10 @@
  * Note: This is the original "classic mode" map adapted for campaign
  */
 
-import { LevelConfig } from '@/types/levels';
 import { EnemyType } from '@/constants/enemies';
+import { createLevelConfig, createWaveConfig } from '@/utils/levelHelpers';
 
-export const LEVEL_05: LevelConfig = {
+export const LEVEL_05 = createLevelConfig({
   id: 'level-05',
   number: 5,
   name: 'The Long March',
@@ -26,12 +26,6 @@ export const LEVEL_05: LevelConfig = {
   difficulty: 'medium',
 
   mapConfig: {
-    grid: {
-      width: 20,
-      height: 12,
-      tileSize: 32,
-    },
-
     // Original waypoints from constants/gameConfig.ts
     waypoints: [
       { x: 0, y: 6 },   // Start: Left edge, middle
@@ -56,97 +50,41 @@ export const LEVEL_05: LevelConfig = {
       { id: 'CS-08', position: { x: 18, y: 2 } },
     ],
 
-    startingResources: {
-      scrap: 150,  // Original starting amount
-      hullIntegrity: 20,
-    },
-
     // Enhanced wave progression based on original WAVE_CONFIGS
     waves: [
-      {
-        wave: 1,
-        enemies: [{ type: 'shambler' as EnemyType, count: 5 }],
-        spawnDelay: 2000,
-      },
-      {
-        wave: 2,
-        enemies: [{ type: 'shambler' as EnemyType, count: 8 }],
-        spawnDelay: 1500,
-      },
-      {
-        wave: 3,
-        enemies: [{ type: 'shambler' as EnemyType, count: 12 }],
-        spawnDelay: 1500,
-      },
-      {
-        wave: 4,
-        enemies: [{ type: 'shambler' as EnemyType, count: 15 }],
-        spawnDelay: 1200,
-      },
-      {
-        wave: 5,
-        enemies: [{ type: 'runner' as EnemyType, count: 10 }],
-        spawnDelay: 1000,
-      },
-      {
-        wave: 6,
-        enemies: [
-          { type: 'shambler' as EnemyType, count: 10 },
-          { type: 'runner' as EnemyType, count: 8 },
-        ],
-        spawnDelay: 1000,
-      },
-      {
-        wave: 7,
-        enemies: [
-          { type: 'runner' as EnemyType, count: 15 },
-          { type: 'shambler' as EnemyType, count: 10 },
-        ],
-        spawnDelay: 800,
-      },
-      {
-        wave: 8,
-        enemies: [
-          { type: 'brute' as EnemyType, count: 1 },
-          { type: 'runner' as EnemyType, count: 10 },
-        ],
-        spawnDelay: 1000,
-      },
-      {
-        wave: 9,
-        enemies: [
-          { type: 'runner' as EnemyType, count: 15 },
-          { type: 'brute' as EnemyType, count: 1 },
-          { type: 'shambler' as EnemyType, count: 10 },
-        ],
-        spawnDelay: 700,
-      },
-      {
-        wave: 10,
-        enemies: [
-          { type: 'brute' as EnemyType, count: 1 },
-          { type: 'runner' as EnemyType, count: 15 },
-          { type: 'brute' as EnemyType, count: 1 },
-          { type: 'shambler' as EnemyType, count: 20 },
-        ],
-        spawnDelay: 600,
-      },
+      createWaveConfig(1, [{ type: 'shambler' as EnemyType, count: 5 }], 2000),
+      createWaveConfig(2, [{ type: 'shambler' as EnemyType, count: 8 }], 1500),
+      createWaveConfig(3, [{ type: 'shambler' as EnemyType, count: 12 }], 1500),
+      createWaveConfig(4, [{ type: 'shambler' as EnemyType, count: 15 }], 1200),
+      createWaveConfig(5, [{ type: 'runner' as EnemyType, count: 10 }], 1000),
+      createWaveConfig(6, [
+        { type: 'shambler' as EnemyType, count: 10 },
+        { type: 'runner' as EnemyType, count: 8 },
+      ], 1000),
+      createWaveConfig(7, [
+        { type: 'runner' as EnemyType, count: 15 },
+        { type: 'shambler' as EnemyType, count: 10 },
+      ], 800),
+      createWaveConfig(8, [
+        { type: 'brute' as EnemyType, count: 1 },
+        { type: 'runner' as EnemyType, count: 10 },
+      ], 1000),
+      createWaveConfig(9, [
+        { type: 'runner' as EnemyType, count: 15 },
+        { type: 'brute' as EnemyType, count: 1 },
+        { type: 'shambler' as EnemyType, count: 10 },
+      ], 700),
+      createWaveConfig(10, [
+        { type: 'brute' as EnemyType, count: 1 },
+        { type: 'runner' as EnemyType, count: 15 },
+        { type: 'brute' as EnemyType, count: 1 },
+        { type: 'shambler' as EnemyType, count: 20 },
+      ], 600),
     ],
-  },
-
-  starRequirements: {
-    oneStar: { type: 'complete' },
-    twoStars: { type: 'hull_remaining', minHullPercent: 40 },
-    threeStars: { type: 'hull_remaining', minHullPercent: 70 },
   },
 
   unlockRequirement: {
     previousLevelId: 'level-04',
     minStarsRequired: 1,
   },
-
-  rewards: {
-    firstCompletionBonus: 175,
-    scrapPerStar: 80,
-  },
-};
+});

@@ -35,7 +35,7 @@ interface GameMapProps {
   constructionSpots?: ConstructionSpotConfig[];
 }
 
-export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
+export const GameMap = React.memo(function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
   const { gameState, selectSpot } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
   const mapWidth = MAP_CONFIG.WIDTH * tileSize;
@@ -47,14 +47,16 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
   // Use provided construction spots or fall back to constants
   // Convert ConstructionSpotConfig to old format if needed
   const actualSpots = useMemo(() => {
-    if (constructionSpots) {
-      return constructionSpots.map(spot => ({
-        id: spot.id,
-        x: spot.position.x,
-        y: spot.position.y,
-      }));
+    if (constructionSpots && constructionSpots.length > 0) {
+      return constructionSpots
+        .filter((spot: ConstructionSpotConfig) => spot && spot.id && spot.position && typeof spot.position.x === 'number' && typeof spot.position.y === 'number')
+        .map((spot: ConstructionSpotConfig) => ({
+          id: spot.id,
+          x: spot.position.x,
+          y: spot.position.y,
+        }));
     }
-    return CONSTRUCTION_SPOTS as any;
+    return CONSTRUCTION_SPOTS.map(spot => ({ id: spot.id, x: spot.x, y: spot.y }));
   }, [constructionSpots]);
 
   // Memoize occupied spots to avoid recalculating on every render
@@ -84,7 +86,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
           style={styles.svg}
           pointerEvents="none"
         >
-        {/* Path lines - use path texture if available, otherwise gray line */}
+        {/* Path lines - always show as fallback, even if textures exist */}
         {actualWaypoints.map((waypoint, index) => {
           if (index === actualWaypoints.length - 1) return null;
           const next = actualWaypoints[index + 1];
@@ -96,9 +98,10 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
               y1={waypoint.y * tileSize}
               x2={next.x * tileSize}
               y2={next.y * tileSize}
-              stroke={(HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) ? "transparent" : "#555555"}
+              stroke="#555555"
               strokeWidth={tileSize * 1.5}
               strokeLinecap="round"
+              opacity={0.7}
             />
           );
         })}
@@ -115,7 +118,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         ))}
 
         {/* Construction spots - use SVG if no sprite available */}
-        {!HAS_CONSTRUCTION_SPOT_SPRITE && actualSpots.map((spot) => {
+        {!HAS_CONSTRUCTION_SPOT_SPRITE && actualSpots.map((spot: { id: string; x: number; y: number }) => {
           const isOccupied = occupiedSpotIds.has(spot.id);
           const isSelected = gameState.selectedSpotId === spot.id;
 
@@ -147,7 +150,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
 
         {/* Tower Range Visualization */}
         {selectedTower && selectedTowerRange && (() => {
-          const spot = actualSpots.find((s) => s.id === selectedTower.spotId);
+          const spot = actualSpots.find((s: { id: string; x: number; y: number }) => s.id === selectedTower.spotId);
           if (!spot) return null;
 
           const x = spot.x * tileSize;
@@ -168,8 +171,8 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         })()}
         </Svg>
         
-        {/* Path texture overlay */}
-        {(HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) && (
+        {/* Path texture overlay - disabled, using line fallback instead */}
+        {false && (HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             {actualWaypoints.map((waypoint, index) => {
               if (index === actualWaypoints.length - 1) return null;
@@ -236,7 +239,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
                   resizeMode="cover"
                   imageStyle={{ opacity: 1 }}
                 >
-                  <View style={{ width: 1, height: 1 }} />
+                  <View style={styles.pathTexturePlaceholder} />
                 </ImageBackground>
               );
             })}
@@ -283,7 +286,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         {/* Construction spot sprites */}
         {HAS_CONSTRUCTION_SPOT_SPRITE && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {actualSpots.map((spot) => {
+            {actualSpots.map((spot: { id: string; x: number; y: number }) => {
               const isOccupied = occupiedSpotIds.has(spot.id);
               const isSelected = gameState.selectedSpotId === spot.id;
 
@@ -342,7 +345,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         <ProjectileRenderer />
         <VisualEffects />
       {/* Construction spots rendered last to be on top */}
-      {actualSpots.map((spot) => {
+      {actualSpots.map((spot: { id: string; x: number; y: number }) => {
         const isOccupied = occupiedSpotIds.has(spot.id);
         if (isOccupied) return null;
 
@@ -390,9 +393,13 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
+  pathTexturePlaceholder: {
+    width: 1,
+    height: 1,
+  },
   container: {
     backgroundColor: "#2a2a2a",
     borderRadius: 8,

@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { ENEMY_CONFIGS } from "@/constants/enemies";
 import { GAME_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { LOOKOUT_POST, CANNON_TOWER, PROJECTILE_CONFIG } from "@/constants/towers";
-import { WAVE_CONFIGS } from "@/constants/waves";
+import { WAVE_CONFIGS, WaveEnemy } from "@/constants/waves";
 import { useGame } from "@/contexts/GameContext";
 import { Enemy, Position, Projectile } from "@/types/game";
 import { calculatePathProgress, getDistance, moveAlongPath } from "@/utils/pathfinding";
@@ -166,7 +166,7 @@ export function useGameEngine() {
             const allEnemies: { type: string; spawnTime: number }[] = [];
             let spawnTime = 0;
 
-            waveConfig.enemies.forEach((enemyGroup) => {
+            waveConfig.enemies.forEach((enemyGroup: WaveEnemy) => {
               for (let i = 0; i < enemyGroup.count; i++) {
                 allEnemies.push({
                   type: enemyGroup.type,
@@ -286,7 +286,7 @@ export function useGameEngine() {
           }
         }
 
-        newState.towers.forEach((tower) => {
+        newState.towers = newState.towers.map((tower) => {
           // Get tower config based on type
           const towerConfig = tower.type === "tower_cannon" ? CANNON_TOWER : LOOKOUT_POST;
           const towerStats = towerConfig.levels[tower.level - 1];
@@ -315,9 +315,28 @@ export function useGameEngine() {
               };
 
               newState.projectiles.push(newProjectile);
-              tower.lastFireTime = now / 1000;
+              
+              if (__DEV__ && tower.type === "tower_cannon") {
+                console.log(`Cannon Tower ${tower.id} fired at enemy ${target.id}, range: ${towerStats.range}, distance: ${getDistance(tower.position, target.position)}`);
+              }
+              
+              // Return updated tower with new lastFireTime
+              return { ...tower, lastFireTime: now / 1000 };
+            } else if (__DEV__ && tower.type === "tower_cannon" && newState.enemies.length > 0) {
+              // Debug: check why cannon tower isn't firing
+              const closestEnemy = newState.enemies.reduce((closest, enemy) => {
+                const dist = getDistance(tower.position, enemy.position);
+                const closestDist = getDistance(tower.position, closest.position);
+                return dist < closestDist ? enemy : closest;
+              }, newState.enemies[0]);
+              const closestDistance = getDistance(tower.position, closestEnemy.position);
+              if (closestDistance > towerStats.range) {
+                console.log(`Cannon Tower ${tower.id} - enemy too far: ${closestDistance.toFixed(2)} > ${towerStats.range}, range: ${towerStats.range}`);
+              }
             }
           }
+          // Return tower unchanged if no fire
+          return tower;
         });
 
         newState.projectiles = newState.projectiles
@@ -466,8 +485,8 @@ export function useGameEngine() {
 
               // Remove all dead enemies
               newState.enemies = newState.enemies.filter((e) => e.health > 0);
-              }
-
+              
+              // Projectile hit, remove it
               return null;
             }
 
@@ -488,6 +507,33 @@ export function useGameEngine() {
           newState.phase = "defeat";
           newState.hullIntegrity = 0;
         }
+
+        // Update power-up cooldowns (moved from GameContext)
+        newState.powerUps = newState.powerUps.map(p => {
+          if (!p.isOnCooldown) return p;
+
+          const newRemaining = p.remainingCooldown - dt;
+          if (newRemaining <= 0) {
+            return { ...p, isOnCooldown: false, remainingCooldown: 0 };
+          }
+          return { ...p, remainingCooldown: newRemaining };
+        });
+
+        // Remove expired active effects (moved from GameContext)
+        newState.activeEffects = newState.activeEffects.filter(effect => {
+          const elapsed = (now - effect.startTime) / 1000;
+          return elapsed < effect.duration;
+        });
+
+        // Filter expired floatingTexts (moved from GameContext)
+        newState.floatingTexts = newState.floatingTexts.filter(
+          (ft) => now - ft.spawnTime < 1000
+        );
+
+        // Filter expired particles (moved from GameContext)
+        newState.particles = newState.particles.filter(
+          (p) => (now - p.spawnTime) / 1000 < p.lifetime
+        );
 
         return newState;
       });

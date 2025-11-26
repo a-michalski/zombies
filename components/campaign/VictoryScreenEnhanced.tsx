@@ -1,5 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Modal, Pressable, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+  withSequence,
+} from 'react-native-reanimated';
 import { Trophy, ChevronRight, RotateCcw, ArrowLeft, Skull, CheckCircle, Clock } from 'lucide-react-native';
 import { THEME } from '@/constants/ui/theme';
 import { StarRating } from './StarRating';
@@ -31,52 +39,72 @@ export const VictoryScreenEnhanced: React.FC<VictoryScreenEnhancedProps> = ({
   onReplay,
   onBackToCampaign,
 }) => {
-  // Animation values
-  const modalOpacity = useRef(new Animated.Value(0)).current;
-  const titleScale = useRef(new Animated.Value(0)).current;
-  const statsOpacity = useRef(new Animated.Value(0)).current;
-  const buttonsTranslateY = useRef(new Animated.Value(50)).current;
+  // Animation values - using Reanimated shared values
+  const modalOpacity = useSharedValue(0);
+  const titleScale = useSharedValue(0);
+  const statsOpacity = useSharedValue(0);
+  const buttonsTranslateY = useSharedValue(50);
 
   useEffect(() => {
     if (visible) {
       // Reset animations
-      modalOpacity.setValue(0);
-      titleScale.setValue(0);
-      statsOpacity.setValue(0);
-      buttonsTranslateY.setValue(50);
+      modalOpacity.value = 0;
+      titleScale.value = 0;
+      statsOpacity.value = 0;
+      buttonsTranslateY.value = 50;
 
-      // Animation sequence
-      Animated.sequence([
-        // 1. Modal fades in
-        Animated.timing(modalOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        // 2. Title appears with scale
-        Animated.spring(titleScale, {
-          toValue: 1,
-          friction: 8,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-        // Wait for stars to complete (handled by StarRating component)
-        Animated.delay(starsEarned * 500 + 300),
-        // 3. Stats fade in
-        Animated.timing(statsOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        // 4. Buttons slide up
-        Animated.timing(buttonsTranslateY, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      // Animation sequence - runs on UI thread
+      // 1. Modal fades in
+      modalOpacity.value = withTiming(1, { duration: 300 });
+      
+      // 2. Title appears with spring animation
+      titleScale.value = withSpring(1, {
+        damping: 8,
+        stiffness: 40,
+      });
+
+      // 3. Stats fade in after stars complete
+      const starsDelay = starsEarned * 500 + 300;
+      statsOpacity.value = withDelay(
+        starsDelay,
+        withTiming(1, { duration: 300 })
+      );
+
+      // 4. Buttons slide up after stats
+      buttonsTranslateY.value = withDelay(
+        starsDelay + 300,
+        withTiming(0, { duration: 200 })
+      );
+    } else {
+      // Reset when hidden
+      modalOpacity.value = 0;
+      titleScale.value = 0;
+      statsOpacity.value = 0;
+      buttonsTranslateY.value = 50;
     }
-  }, [visible, starsEarned]);
+  }, [visible, starsEarned, modalOpacity, titleScale, statsOpacity, buttonsTranslateY]);
+
+  // Animated styles
+  const overlayAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: modalOpacity.value,
+  }));
+
+  const contentPanelAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: modalOpacity.value,
+    transform: [{ scale: modalOpacity.value }],
+  }));
+
+  const titleAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: titleScale.value }],
+  }));
+
+  const statsAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: statsOpacity.value,
+  }));
+
+  const buttonsAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: buttonsTranslateY.value }],
+  }));
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -86,20 +114,10 @@ export const VictoryScreenEnhanced: React.FC<VictoryScreenEnhancedProps> = ({
 
   return (
     <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
-      <Animated.View style={[styles.overlay, { opacity: modalOpacity }]}>
-        <Animated.View
-          style={[
-            styles.contentPanel,
-            {
-              opacity: modalOpacity,
-              transform: [{ scale: modalOpacity }],
-            },
-          ]}
-        >
+      <Animated.View style={[styles.overlay, overlayAnimatedStyle]}>
+        <Animated.View style={[styles.contentPanel, contentPanelAnimatedStyle]}>
           {/* Title with trophy icons */}
-          <Animated.View
-            style={[styles.titleContainer, { transform: [{ scale: titleScale }] }]}
-          >
+          <Animated.View style={[styles.titleContainer, titleAnimatedStyle]}>
             <Trophy size={32} color={THEME.colors.star.filled} fill={THEME.colors.star.filled} />
             <Text style={styles.title}>VICTORY!</Text>
             <Trophy size={32} color={THEME.colors.star.filled} fill={THEME.colors.star.filled} />
@@ -111,7 +129,7 @@ export const VictoryScreenEnhanced: React.FC<VictoryScreenEnhancedProps> = ({
           </View>
 
           {/* Stats panel */}
-          <Animated.View style={[styles.statsPanel, { opacity: statsOpacity }]}>
+          <Animated.View style={[styles.statsPanel, statsAnimatedStyle]}>
             <View style={styles.statRow}>
               <Skull size={20} color={THEME.colors.danger} />
               <Text style={styles.statLabel}>Zombies Killed:</Text>
@@ -140,9 +158,7 @@ export const VictoryScreenEnhanced: React.FC<VictoryScreenEnhancedProps> = ({
           </Animated.View>
 
           {/* Action buttons */}
-          <Animated.View
-            style={[styles.buttonsContainer, { transform: [{ translateY: buttonsTranslateY }] }]}
-          >
+          <Animated.View style={[styles.buttonsContainer, buttonsAnimatedStyle]}>
             {/* Next Level button (if not last level) */}
             {!isLastLevel && (
               <Pressable

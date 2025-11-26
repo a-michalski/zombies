@@ -10,7 +10,7 @@ import { getProjectileImage, hasProjectileImage } from "@/utils/imageAssets";
 // Calculate once outside component
 const HAS_PROJECTILE_IMAGE = hasProjectileImage();
 
-export function ProjectileRenderer() {
+export const ProjectileRenderer = React.memo(() => {
   const { gameState } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
 
@@ -69,7 +69,7 @@ export function ProjectileRenderer() {
       })}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   projectileContainer: {

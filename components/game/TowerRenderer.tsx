@@ -10,7 +10,7 @@ import { getTowerImage, hasTowerImages } from "@/utils/imageAssets";
 // Calculate once outside component
 const HAS_TOWER_IMAGES = hasTowerImages();
 
-export function TowerRenderer() {
+export const TowerRenderer = React.memo(() => {
   const { gameState, selectTower } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
 
@@ -19,7 +19,7 @@ export function TowerRenderer() {
       {gameState.towers.map((tower) => {
         const x = tower.position.x * tileSize;
         const y = tower.position.y * tileSize;
-        const size = tileSize * 0.9;
+        const size = tileSize * 0.9 * 2; // 2x larger towers
         const isSelected = gameState.selectedTowerId === tower.id;
         const towerStats = LOOKOUT_POST.levels[tower.level - 1];
 
@@ -85,21 +85,6 @@ export function TowerRenderer() {
                     }
                   }}
                 />
-                <View style={[styles.levelBadge, { left: x, top: y + size / 2 + 8 }]}>
-                  <Svg width={16} height={16} style={styles.levelBadgeSvg}>
-                    <Circle cx={8} cy={8} r={8} fill="#333333" stroke="#FFD700" strokeWidth={2} />
-                    <SvgText
-                      x={8}
-                      y={12}
-                      fontSize={12}
-                      fontWeight="bold"
-                      fill="#FFD700"
-                      textAnchor="middle"
-                    >
-                      {tower.level}
-                    </SvgText>
-                  </Svg>
-                </View>
               </View>
             ) : (
               <Svg
@@ -127,24 +112,6 @@ export function TowerRenderer() {
                         stroke="#8B4513"
                         strokeWidth={3}
                       />
-                      <Circle
-                        cx={x}
-                        cy={y + size / 2 + 8}
-                        r={8}
-                        fill="#333333"
-                        stroke="#FFD700"
-                        strokeWidth={2}
-                      />
-                      <SvgText
-                        x={x}
-                        y={y + size / 2 + 12}
-                        fontSize={12}
-                        fontWeight="bold"
-                        fill="#FFD700"
-                        textAnchor="middle"
-                      >
-                        {tower.level}
-                      </SvgText>
                     </>
                   );
                 })()}
@@ -155,7 +122,7 @@ export function TowerRenderer() {
       })}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   towerTouch: {
@@ -174,13 +141,5 @@ const styles = StyleSheet.create({
   towerImage: {
     width: "100%",
     height: "100%",
-  },
-  levelBadge: {
-    position: "absolute" as const,
-    transform: [{ translateX: -8 }, { translateY: -8 }],
-    zIndex: 16,
-  },
-  levelBadgeSvg: {
-    position: "absolute" as const,
   },
 });

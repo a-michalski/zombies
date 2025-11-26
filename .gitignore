@@ -31,6 +31,8 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env.development
+.env.production
 
 # typescript
 *.tsbuildinfo
@@ -38,3 +40,6 @@ yarn-error.*
 
 # Storybook
 storybook-static/
+
+# Source files (not needed in bundle)
+assets/images/_sources/

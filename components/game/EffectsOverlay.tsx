@@ -6,14 +6,21 @@
  * - (Other effects can be added)
  */
 
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withSequence,
+} from 'react-native-reanimated';
 
 import { useGame } from '@/contexts/GameContext';
 
 export function EffectsOverlay() {
   const { gameState } = useGame();
-  const pulseAnim = useRef(new Animated.Value(0.3)).current;
+  const opacity = useSharedValue(0);
 
   const hasTimeFreezeEffect = gameState.activeEffects.some(
     (effect) => effect.type === 'timeFreeze'
@@ -21,49 +28,32 @@ export function EffectsOverlay() {
 
   useEffect(() => {
     if (hasTimeFreezeEffect) {
-      // Start pulsing animation
-      const pulse = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 0.6,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 0.3,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ])
+      // Start pulsing animation - runs on UI thread
+      opacity.value = withRepeat(
+        withSequence(
+          withTiming(0.6, { duration: 800 }),
+          withTiming(0.3, { duration: 800 })
+        ),
+        -1, // Infinite repeat
+        false // Don't reverse
       );
-      pulse.start();
-
-      return () => {
-        pulse.stop();
-        pulseAnim.setValue(0);
-      };
     } else {
       // Fade out
-      Animated.timing(pulseAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      opacity.value = withTiming(0, { duration: 300 });
     }
-  }, [hasTimeFreezeEffect, pulseAnim]);
+  }, [hasTimeFreezeEffect, opacity]);
 
-  if (!hasTimeFreezeEffect) {
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  if (!hasTimeFreezeEffect && opacity.value === 0) {
     return null;
   }
 
   return (
     <Animated.View
-      style={[
-        styles.overlay,
-        {
-          opacity: pulseAnim,
-        },
-      ]}
+      style={[styles.overlay, animatedStyle]}
       pointerEvents="none"
     >
       <View style={styles.freezeBorder} />

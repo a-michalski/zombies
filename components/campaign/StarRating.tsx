@@ -15,8 +15,14 @@
  * <StarRating stars={2} size="large" animated={true} />
  */
 
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, ViewStyle } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+} from 'react-native-reanimated';
 import { Star } from 'lucide-react-native';
 import { THEME } from '@/constants/ui/theme';
 
@@ -44,26 +50,34 @@ export default function StarRating({
     large: 32,
   }[size];
 
-  // Animation refs for each star
-  const animatedValues = useRef(
-    Array.from({ length: maxStars }, () => new Animated.Value(animated ? 0 : 1))
-  ).current;
+  // Animation shared values for each star
+  const starOpacities = Array.from({ length: maxStars }, () =>
+    useSharedValue(animated ? 0 : 1)
+  );
+
+  // Create animated styles for each star
+  const starAnimatedStyles = starOpacities.map((opacity) =>
+    useAnimatedStyle(() => ({
+      opacity: opacity.value,
+    }))
+  );
 
   useEffect(() => {
     if (animated) {
-      // Sequential fade-in animation
-      const animations = animatedValues.map((value, index) => {
-        return Animated.timing(value, {
-          toValue: 1,
-          duration: THEME.animation.normal,
-          delay: index * THEME.animation.slow, // 500ms delay between stars
-          useNativeDriver: true,
-        });
+      // Sequential fade-in animation - runs on UI thread
+      starOpacities.forEach((opacity, index) => {
+        opacity.value = withDelay(
+          index * THEME.animation.slow, // 500ms delay between stars
+          withTiming(1, { duration: THEME.animation.normal })
+        );
       });
-
-      Animated.stagger(0, animations).start();
+    } else {
+      // Reset to visible if not animated
+      starOpacities.forEach((opacity) => {
+        opacity.value = 1;
+      });
     }
-  }, [animated, animatedValues]);
+  }, [animated, maxStars]);
 
   // Render individual star
   const renderStar = (index: number) => {
@@ -83,12 +97,7 @@ export default function StarRating({
       return (
         <Animated.View
           key={index}
-          style={[
-            styles.starWrapper,
-            {
-              opacity: animatedValues[index],
-            },
-          ]}
+          style={[styles.starWrapper, starAnimatedStyles[index]]}
         >
           {starContent}
         </Animated.View>

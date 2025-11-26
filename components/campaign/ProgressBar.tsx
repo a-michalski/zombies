@@ -16,8 +16,13 @@
  * <ProgressBar current={28} total={30} animated={true} />
  */
 
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, ViewStyle } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { THEME } from '@/constants/ui/theme';
 
@@ -41,20 +46,24 @@ export default function ProgressBar({
   // Calculate progress percentage (0-100)
   const progressPercent = total > 0 ? Math.min((current / total) * 100, 100) : 0;
 
-  // Animation value for width
-  const animatedWidth = useRef(new Animated.Value(animated ? 0 : progressPercent)).current;
+  // Animation shared value for width (0-100)
+  const widthProgress = useSharedValue(animated ? 0 : progressPercent);
 
   useEffect(() => {
     if (animated) {
-      Animated.timing(animatedWidth, {
-        toValue: progressPercent,
+      // Animate width - runs on UI thread
+      widthProgress.value = withTiming(progressPercent, {
         duration: THEME.animation.slow, // 500ms
-        useNativeDriver: false, // width animation requires false
-      }).start();
+      });
     } else {
-      animatedWidth.setValue(progressPercent);
+      widthProgress.value = progressPercent;
     }
-  }, [progressPercent, animated, animatedWidth]);
+  }, [progressPercent, animated, widthProgress]);
+
+  // Animated style for width
+  const animatedFillStyle = useAnimatedStyle(() => ({
+    width: `${widthProgress.value}%`,
+  }));
 
   return (
     <View style={[styles.container, style]}>
@@ -65,11 +74,8 @@ export default function ProgressBar({
             {
               height,
               borderRadius: height / 2,
-              width: animatedWidth.interpolate({
-                inputRange: [0, 100],
-                outputRange: ['0%', '100%'],
-              }),
             },
+            animatedFillStyle,
           ]}
         >
           <LinearGradient
