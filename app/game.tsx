@@ -3,6 +3,7 @@ import { ArrowLeft, FastForward, Heart, Infinity, Pause, Play, Wrench } from "lu
 import React, { useEffect } from "react";
 import {
   Dimensions,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -226,11 +227,18 @@ const styles = StyleSheet.create({
     borderColor: "#444444",
     zIndex: 100,
     minWidth: 140,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 8,
+    ...Platform.select({
+      web: {
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)',
+      },
+      default: {
+        shadowColor: "#000000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 8,
+        elevation: 8,
+      },
+    }),
   },
   statRow: {
     flexDirection: "row",
@@ -351,11 +359,18 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#444444",
     minWidth: 280,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 12,
+    ...Platform.select({
+      web: {
+        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.5)',
+      },
+      default: {
+        shadowColor: "#000000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.5,
+        shadowRadius: 16,
+        elevation: 12,
+      },
+    }),
   },
   startWaveTitle: {
     color: "#FFFFFF",
