@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 /**
  * Centralized UI theme for Zombie Fleet Bastion
  *
@@ -140,44 +142,79 @@ export const THEME = {
     none: {},
 
     sm: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 2, // Android
+      ...Platform.select({
+        web: {
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)',
+        },
+        default: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 4,
+          elevation: 2, // Android
+        },
+      }),
     },
 
     md: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 4,
+      ...Platform.select({
+        web: {
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+        },
+        default: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 4,
+        },
+      }),
     },
 
     lg: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.35,
-      shadowRadius: 16,
-      elevation: 8,
+      ...Platform.select({
+        web: {
+          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.35)',
+        },
+        default: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.35,
+          shadowRadius: 16,
+          elevation: 8,
+        },
+      }),
     },
 
     // Colored shadows for special buttons (like startButton)
     success: {
-      shadowColor: '#4CAF50',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.4,
-      shadowRadius: 8,
-      elevation: 6,
+      ...Platform.select({
+        web: {
+          boxShadow: '0 4px 8px rgba(76, 175, 80, 0.4)',
+        },
+        default: {
+          shadowColor: '#4CAF50',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.4,
+          shadowRadius: 8,
+          elevation: 6,
+        },
+      }),
     },
 
     primary: {
-      shadowColor: '#4A90E2',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.4,
-      shadowRadius: 8,
-      elevation: 6,
+      ...Platform.select({
+        web: {
+          boxShadow: '0 4px 8px rgba(74, 144, 226, 0.4)',
+        },
+        default: {
+          shadowColor: '#4A90E2',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.4,
+          shadowRadius: 8,
+          elevation: 6,
+        },
+      }),
     },
   },
 

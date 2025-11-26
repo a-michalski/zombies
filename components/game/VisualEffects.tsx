@@ -93,9 +93,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     fontSize: 16,
     fontWeight: "800" as const,
-    textShadowColor: "#000000",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    textShadow: "1px 1px 2px rgba(0, 0, 0, 1)",
   },
   particle: {
     position: "absolute",
