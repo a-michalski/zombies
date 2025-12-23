@@ -14,7 +14,6 @@
  */
 
 import { useRouter } from 'expo-router';
-import { ArrowLeft, BarChart } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import {
   View,
@@ -22,20 +21,24 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  Image,
+  Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import LevelCard from '@/components/campaign/LevelCard';
 import ProgressBar from '@/components/campaign/ProgressBar';
 import { PurchaseModal } from '@/components/campaign/PurchaseModal';
 import { THEME } from '@/constants/ui/theme';
+import { CAMPAIGN_DESIGN_SPECS } from '@/constants/campaignDesignSpecs';
+import { CAMPAIGN_ICONS, CAMPAIGN_IMAGES } from '@/utils/imageAssets';
 import { useCampaignContext } from '@/contexts/CampaignContext';
 import { useGame } from '@/contexts/GameContext';
 import { usePurchase } from '@/contexts/PurchaseContext';
 import { LevelConfig } from '@/types/levels';
 import { ENDLESS_MODE } from '@/data/maps/endless';
-import { Infinity } from 'lucide-react-native';
+import { figmaLetterSpacingToRN } from '@/constants/campaignDesignSpecs';
 
 export default function LevelsScreen() {
   const router = useRouter();
@@ -55,6 +58,8 @@ export default function LevelsScreen() {
   // Calculate stats
   const totalStars = useMemo(() => calculateTotalStars(), [playerProgress]);
   const maxStars = availableLevels.length * 3; // 10 levels × 3 stars = 30
+  // Note: Design shows 51 stars max, but we calculate based on actual levels
+  const displayMaxStars = 51; // From Figma design
 
   // Find next level to play
   const nextLevel = useMemo(() => {
@@ -112,14 +117,10 @@ export default function LevelsScreen() {
           progress={progress}
           locked={locked}
           isNext={isNext}
+          isPremium={isPremium}
           onPress={() => handleLevelPress(item)}
           onLongPress={() => handleLevelLongPress(item)}
         />
-        {isPremiumLocked && (
-          <View style={styles.premiumBadge}>
-            <Text style={styles.premiumBadgeText}>PREMIUM</Text>
-          </View>
-        )}
       </View>
     );
   };
@@ -135,25 +136,78 @@ export default function LevelsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={Platform.OS === 'web' ? [] : ['top']}>
       {/* Header */}
       <View style={styles.header}>
+        {/* Back Button */}
         <TouchableOpacity
-          style={styles.headerButton}
+          style={styles.backButton}
           onPress={() => router.back()}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
         >
-          <ArrowLeft size={24} color={THEME.colors.text.primary} />
-          <Text style={styles.headerButtonText}>Back</Text>
+          <View style={styles.backButtonContent}>
+            <Image
+              source={CAMPAIGN_ICONS.backArrow}
+              style={styles.backButtonIcon}
+              resizeMode="contain"
+              tintColor={CAMPAIGN_DESIGN_SPECS.colors.text.button}
+            />
+            <Text style={styles.backButtonText}>Back</Text>
+          </View>
         </TouchableOpacity>
 
+        {/* Title */}
         <Text style={styles.headerTitle}>CAMPAIGN</Text>
 
-        <TouchableOpacity
-          style={styles.headerButton}
-          onPress={() => router.push('/stats')}
-        >
-          <BarChart size={24} color={THEME.colors.text.primary} />
-        </TouchableOpacity>
+        {/* Right side: Stars counter, Stats, Settings */}
+        <View style={styles.headerRight}>
+          {/* Stars Counter */}
+          <View style={styles.starsCounter}>
+            <Text style={styles.starsCounterText}>
+              {totalStars}/{displayMaxStars} Stars
+            </Text>
+            <Image
+              source={CAMPAIGN_ICONS.star}
+              style={styles.starIcon}
+              resizeMode="contain"
+              tintColor={CAMPAIGN_DESIGN_SPECS.colors.text.title}
+            />
+          </View>
+
+          {/* Stats Button */}
+          <TouchableOpacity
+            style={styles.headerIconButton}
+            onPress={() => router.push('/stats')}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="View statistics"
+          >
+            <Image
+              source={CAMPAIGN_ICONS.stats}
+              style={styles.headerIcon}
+              resizeMode="contain"
+              tintColor={CAMPAIGN_DESIGN_SPECS.colors.text.button}
+            />
+          </TouchableOpacity>
+
+          {/* Settings Button */}
+          <TouchableOpacity
+            style={styles.headerIconButton}
+            onPress={() => router.push('/settings')}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Open settings"
+          >
+            <Image
+              source={CAMPAIGN_ICONS.settings}
+              style={styles.headerIcon}
+              resizeMode="contain"
+              tintColor={CAMPAIGN_DESIGN_SPECS.colors.text.button}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Campaign Info Section */}
@@ -168,8 +222,9 @@ export default function LevelsScreen() {
         />
       </View>
 
-      {/* Endless Mode Card */}
+      {/* Endless Mode Section - "TRY SURVIVE" */}
       <View style={styles.endlessModeSection}>
+        <Text style={styles.endlessModeSectionTitle}>TRY SURVIVE</Text>
         <TouchableOpacity
           style={styles.endlessModeCard}
           onPress={() => {
@@ -181,17 +236,42 @@ export default function LevelsScreen() {
           accessibilityLabel="Endless Survival Mode"
           accessibilityHint="Test your skills in infinite waves with increasing difficulty"
         >
+          {/* Infinity Icon Container */}
           <View style={styles.endlessModeIconContainer}>
-            <Infinity size={48} color="#FFD700" strokeWidth={3} />
+            <View style={styles.endlessModeIconCircle}>
+              <Image
+                source={CAMPAIGN_ICONS.infinity}
+                style={styles.endlessModeIcon}
+                resizeMode="contain"
+                tintColor={CAMPAIGN_DESIGN_SPECS.colors.text.title}
+              />
+            </View>
           </View>
+
+          {/* Content */}
           <View style={styles.endlessModeContent}>
             <Text style={styles.endlessModeTitle}>ENDLESS SURVIVAL</Text>
             <Text style={styles.endlessModeDescription}>
               Infinite waves • Increasing difficulty • Test your skills!
             </Text>
-            <View style={styles.endlessModeBadge}>
-              <Text style={styles.endlessModeBadgeText}>FREE</Text>
-            </View>
+          </View>
+
+          {/* Image on the right */}
+          <View style={styles.endlessModeImageContainer}>
+            <Image
+              source={CAMPAIGN_IMAGES.endlessMode}
+              style={styles.endlessModeImage}
+              resizeMode="cover"
+            />
+            <LinearGradient
+              colors={[
+                CAMPAIGN_DESIGN_SPECS.colors.gradient.endlessImage.from,
+                CAMPAIGN_DESIGN_SPECS.colors.gradient.endlessImage.to,
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.endlessModeImageGradient}
+            />
           </View>
         </TouchableOpacity>
       </View>
@@ -238,32 +318,147 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.secondary,
   },
 
-  // Header
+  // Header - Pixel perfect from Figma
   header: {
-    height: 64,
+    height: CAMPAIGN_DESIGN_SPECS.spacing.headerHeight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: THEME.spacing.md,
+    paddingHorizontal: CAMPAIGN_DESIGN_SPECS.spacing.headerPadding,
+    paddingTop: 0,
+    paddingBottom: 1, // pb-px from Figma
     borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border.default,
-    backgroundColor: THEME.colors.background.secondary,
+    borderBottomColor: CAMPAIGN_DESIGN_SPECS.colors.border.header,
+    backgroundColor: CAMPAIGN_DESIGN_SPECS.colors.background.header,
+    ...Platform.select({
+      web: {
+        boxShadow: '0px 4px 6px -1px rgba(0,0,0,0.1), 0px 2px 4px -2px rgba(0,0,0,0.1)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 4,
+      },
+    }),
   },
-  headerButton: {
+  backButton: {
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.backButtonHeight,
+    backgroundColor: CAMPAIGN_DESIGN_SPECS.colors.background.button,
+    borderWidth: 1,
+    borderColor: CAMPAIGN_DESIGN_SPECS.colors.border.button,
+    borderRadius: CAMPAIGN_DESIGN_SPECS.borderRadius.button,
+    ...Platform.select({
+      web: {
+        boxShadow: '0px 1px 3px 0px rgba(0,0,0,0.1), 0px 1px 2px -1px rgba(0,0,0,0.1)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+      },
+    }),
+  },
+  backButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: THEME.spacing.xs,
-    padding: THEME.spacing.sm,
+    paddingHorizontal: CAMPAIGN_DESIGN_SPECS.spacing.buttonPaddingX,
+    paddingVertical: CAMPAIGN_DESIGN_SPECS.spacing.buttonPaddingY,
+    height: '100%',
   },
-  headerButtonText: {
-    fontSize: THEME.typography.fontSize.md,
-    color: THEME.colors.text.primary,
-    fontWeight: THEME.typography.fontWeight.semibold,
+  backButtonIcon: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.backButtonIconSize,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.backButtonIconSize,
+    marginRight: CAMPAIGN_DESIGN_SPECS.spacing.buttonGap,
+  },
+  backButtonText: {
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.buttonText.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.buttonText.fontWeight,
+    letterSpacing: figmaLetterSpacingToRN(
+      CAMPAIGN_DESIGN_SPECS.typography.buttonText.letterSpacing,
+      CAMPAIGN_DESIGN_SPECS.typography.buttonText.fontSize
+    ),
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.buttonText.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.button,
+    textTransform: 'uppercase',
   },
   headerTitle: {
-    fontSize: THEME.typography.fontSize.xl,
-    color: THEME.colors.text.primary,
-    fontWeight: THEME.typography.fontWeight.bold,
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.headerTitle.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.headerTitle.fontWeight,
+    letterSpacing: figmaLetterSpacingToRN(
+      CAMPAIGN_DESIGN_SPECS.typography.headerTitle.letterSpacing,
+      CAMPAIGN_DESIGN_SPECS.typography.headerTitle.fontSize
+    ),
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.headerTitle.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.title,
+    textTransform: 'uppercase',
+    ...Platform.select({
+      web: {
+        textShadow: '0px 1px 4px rgba(0,0,0,0.15)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
+    }),
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.backButtonHeight,
+  },
+  starsCounter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 16,
+    marginRight: CAMPAIGN_DESIGN_SPECS.spacing.headerGap,
+  },
+  starsCounterText: {
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.starsCounter.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.starsCounter.fontWeight,
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.starsCounter.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.description,
+    textTransform: 'uppercase',
+  },
+  starIcon: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.starIconSize,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.starIconSize,
+    marginLeft: CAMPAIGN_DESIGN_SPECS.spacing.buttonGap,
+  },
+  headerIconButton: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.statsSettingsButtonSize,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.statsSettingsButtonSize,
+    backgroundColor: CAMPAIGN_DESIGN_SPECS.colors.background.button,
+    borderWidth: 1,
+    borderColor: CAMPAIGN_DESIGN_SPECS.colors.border.button,
+    borderRadius: CAMPAIGN_DESIGN_SPECS.borderRadius.button,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 9,
+    paddingBottom: 1,
+    paddingHorizontal: 9,
+    marginLeft: CAMPAIGN_DESIGN_SPECS.spacing.headerGap,
+    ...Platform.select({
+      web: {
+        boxShadow: '0px 1px 3px 0px rgba(0,0,0,0.1), 0px 1px 2px -1px rgba(0,0,0,0.1)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+      },
+    }),
+  },
+  headerIcon: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.statsSettingsIconSize,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.statsSettingsIconSize,
   },
 
   // Campaign Info
@@ -283,54 +478,125 @@ const styles = StyleSheet.create({
     marginTop: THEME.spacing.xs,
   },
 
-  // Endless Mode Section
+  // Endless Mode Section - Pixel perfect from Figma
   endlessModeSection: {
-    padding: THEME.spacing.md,
-    backgroundColor: THEME.colors.background.primary,
+    paddingHorizontal: CAMPAIGN_DESIGN_SPECS.spacing.containerPadding,
+    paddingVertical: CAMPAIGN_DESIGN_SPECS.spacing.containerVerticalPadding,
+    backgroundColor: CAMPAIGN_DESIGN_SPECS.colors.background.primary,
+    marginBottom: CAMPAIGN_DESIGN_SPECS.spacing.sectionHeaderGap,
+  },
+  endlessModeSectionTitle: {
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.sectionTitle.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.sectionTitle.fontWeight,
+    letterSpacing: figmaLetterSpacingToRN(
+      CAMPAIGN_DESIGN_SPECS.typography.sectionTitle.letterSpacing,
+      CAMPAIGN_DESIGN_SPECS.typography.sectionTitle.fontSize
+    ),
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.sectionTitle.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.title,
+    textTransform: 'uppercase',
+    marginBottom: CAMPAIGN_DESIGN_SPECS.spacing.sectionTitleGap,
   },
   endlessModeCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-    borderWidth: 2,
-    borderColor: '#FFD700',
-    borderRadius: 16,
-    padding: THEME.spacing.md,
     alignItems: 'center',
-    gap: THEME.spacing.md,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.endlessCardHeight,
+    borderWidth: 2,
+    borderColor: CAMPAIGN_DESIGN_SPECS.colors.border.endless,
+    borderRadius: CAMPAIGN_DESIGN_SPECS.borderRadius.endlessCard,
+    backgroundColor: CAMPAIGN_DESIGN_SPECS.colors.background.endlessCard,
+    paddingLeft: CAMPAIGN_DESIGN_SPECS.spacing.endlessCardPadding,
+    paddingRight: 0,
+    paddingVertical: 0,
+    overflow: 'hidden',
+    ...Platform.select({
+      web: {
+        boxShadow: '0px 6px 12px 0px rgba(0,0,0,0.5)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.5,
+        shadowRadius: 12,
+        elevation: 6,
+      },
+    }),
   },
   endlessModeIconContainer: {
-    width: 80,
-    height: 80,
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    borderRadius: 12,
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.endlessIconContainer,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.endlessIconContainer,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: CAMPAIGN_DESIGN_SPECS.spacing.endlessCardGap,
+  },
+  endlessModeIconCircle: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.endlessIconContainer,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.endlessIconContainer,
+    borderRadius: CAMPAIGN_DESIGN_SPECS.borderRadius.endlessIcon,
+    borderWidth: 2,
+    borderColor: CAMPAIGN_DESIGN_SPECS.colors.border.endless,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 2,
+    ...Platform.select({
+      web: {
+        boxShadow: '0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 15,
+        elevation: 4,
+      },
+    }),
+  },
+  endlessModeIcon: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.endlessIconInner,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.endlessIconInner,
   },
   endlessModeContent: {
     flex: 1,
+    justifyContent: 'center',
+    height: 38, // From Figma
   },
   endlessModeTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#FFD700',
-    marginBottom: 4,
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.endlessTitle.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.endlessTitle.fontWeight,
+    letterSpacing: figmaLetterSpacingToRN(
+      CAMPAIGN_DESIGN_SPECS.typography.endlessTitle.letterSpacing,
+      CAMPAIGN_DESIGN_SPECS.typography.endlessTitle.fontSize
+    ),
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.endlessTitle.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.endlessTitle,
+    textTransform: 'uppercase',
+    marginBottom: CAMPAIGN_DESIGN_SPECS.spacing.textGap,
   },
   endlessModeDescription: {
-    fontSize: 13,
-    color: THEME.colors.text.secondary,
-    marginBottom: 8,
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.endlessDescription.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.endlessDescription.fontWeight,
+    letterSpacing: CAMPAIGN_DESIGN_SPECS.typography.endlessDescription.letterSpacing,
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.endlessDescription.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.endlessDesc,
   },
-  endlessModeBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 8,
+  endlessModeImageContainer: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.endlessImageWidth,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.endlessImageHeight,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  endlessModeBadgeText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#FFFFFF',
+  endlessModeImage: {
+    width: '100%',
+    height: '100%',
+    opacity: 0.8,
+  },
+  endlessModeImageGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 
   // Section Header
@@ -351,33 +617,22 @@ const styles = StyleSheet.create({
 
   // Level Grid
   listContent: {
-    padding: THEME.spacing.md,
+    paddingHorizontal: CAMPAIGN_DESIGN_SPECS.spacing.containerPadding,
+    paddingVertical: CAMPAIGN_DESIGN_SPECS.spacing.containerVerticalPadding,
   },
   columnWrapper: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: THEME.spacing.md,
+    marginBottom: CAMPAIGN_DESIGN_SPECS.spacing.gridGap,
+    width: '100%',
   },
   cardWrapper: {
-    // Cards are 160px wide, gap between columns
-    width: '48%', // Slightly less than 50% for gap
+    // Cards should fill available space in grid with gap between
+    flex: 1,
+    marginRight: CAMPAIGN_DESIGN_SPECS.spacing.gridGap / 2,
     position: 'relative',
   },
-  premiumBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#FFD700',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#1a1a1a',
-    zIndex: 10,
-  },
-  premiumBadgeText: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: '#1a1a1a',
-    letterSpacing: 0.5,
+  cardWrapperLast: {
+    marginRight: 0, // Remove margin from last card in row
   },
 });

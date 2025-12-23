@@ -25,19 +25,22 @@
  */
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
-import { Lock, Play } from 'lucide-react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ViewStyle, Image, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { THEME } from '@/constants/ui/theme';
+import { CAMPAIGN_DESIGN_SPECS } from '@/constants/campaignDesignSpecs';
+import { CAMPAIGN_ICONS } from '@/utils/imageAssets';
+import { figmaLetterSpacingToRN } from '@/constants/campaignDesignSpecs';
 import { LevelConfig } from '@/types/levels';
 import { LevelProgress } from '@/types/progression';
 import StarRating from './StarRating';
-import DifficultyBadge from './DifficultyBadge';
 
 export interface LevelCardProps {
   level: LevelConfig;
   progress: LevelProgress | null;
   locked: boolean;
   isNext?: boolean;
+  isPremium?: boolean;
   onPress?: () => void;
   onLongPress?: () => void;
   style?: ViewStyle;
@@ -48,6 +51,7 @@ export default function LevelCard({
   progress,
   locked,
   isNext = false,
+  isPremium = false,
   onPress,
   onLongPress,
   style,
@@ -67,271 +71,309 @@ export default function LevelCard({
     onLongPress?.();
   };
 
-  // Button configuration based on state
-  const getButtonConfig = () => {
-    if (locked) {
-      return {
-        text: 'LOCKED',
-        backgroundColor: THEME.colors.border.default,
-        textColor: THEME.colors.text.disabled,
-        showIcon: false,
-      };
-    }
-    if (isCompleted) {
-      return {
-        text: 'REPLAY',
-        backgroundColor: THEME.colors.background.tertiary,
-        textColor: THEME.colors.text.primary,
-        showIcon: true,
-      };
-    }
-    return {
-      text: 'PLAY',
-      backgroundColor: THEME.colors.success,
-      textColor: THEME.colors.text.primary,
-      showIcon: true,
-    };
-  };
-
-  const buttonConfig = getButtonConfig();
-
-  // Border color based on state
-  const borderColor = isNext
-    ? THEME.colors.star.filled
-    : isCompleted && starsEarned === 3
-      ? THEME.colors.success
-      : THEME.colors.border.default;
-
   return (
-    <TouchableOpacity
-      style={[
-        styles.container,
-        { borderColor },
-        locked && styles.containerLocked,
-        style,
-      ]}
-      onPress={handlePress}
-      onLongPress={handleLongPress}
-      disabled={locked}
-      activeOpacity={0.7}
-      accessibilityLabel={`${level.name} - ${locked ? 'Locked' : 'Unlocked'}`}
-      accessibilityRole="button"
-    >
-      {/* Thumbnail Area */}
-      <View style={styles.thumbnail}>
-        {/* Level number placeholder */}
-        <Text style={[styles.thumbnailNumber, locked && styles.thumbnailNumberLocked]}>
-          {level.number}
-        </Text>
-
-        {/* Difficulty Badge - absolute positioned */}
-        <View style={styles.difficultyBadgeContainer}>
-          <DifficultyBadge difficulty={level.difficulty} size="small" />
+    <View style={[styles.container, style]}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={handlePress}
+        onLongPress={handleLongPress}
+        disabled={locked}
+        activeOpacity={0.7}
+        accessibilityLabel={`${level.name} - ${locked ? 'Locked' : 'Unlocked'}`}
+        accessibilityRole="button"
+      >
+        {/* Level Number Circle - Left side */}
+        <View style={styles.levelNumberContainer}>
+          <LinearGradient
+            colors={[
+              CAMPAIGN_DESIGN_SPECS.colors.gradient.levelNumber.from,
+              CAMPAIGN_DESIGN_SPECS.colors.gradient.levelNumber.to,
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.levelNumberCircle}
+          >
+            <Text style={styles.levelNumberText}>{level.number}</Text>
+          </LinearGradient>
         </View>
 
-        {/* Lock icon overlay for locked levels */}
-        {locked && (
-          <View style={styles.lockOverlay}>
-            <Lock size={32} color={THEME.colors.text.disabled} strokeWidth={2} />
+        {/* Content - Title with Stars, Description */}
+        <View style={styles.content}>
+          {/* Title Row with Stars */}
+          <View style={styles.titleRow}>
+            <Text
+              style={[styles.title, locked && styles.titleLocked]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {level.name}
+            </Text>
+            {/* Stars - same row as title */}
+            <View style={styles.starsContainer}>
+              <StarRating stars={isCompleted ? starsEarned : 0} size="small" />
+            </View>
           </View>
+
+          {/* Description */}
+          <Text
+            style={[styles.description, locked && styles.descriptionLocked]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {level.description}
+          </Text>
+        </View>
+
+        {/* Bottom Border - 4px */}
+        <View style={styles.bottomBorder} />
+
+        {/* Subtle Border Overlay - for non-premium cards */}
+        {!isPremium && (
+          <View style={styles.subtleBorderOverlay} />
         )}
-      </View>
 
-      {/* Level Info Section */}
-      <View style={styles.infoSection}>
-        {/* Level number label */}
-        <Text style={[styles.levelNumber, locked && styles.levelNumberLocked]}>
-          Level {level.number}
-        </Text>
-
-        {/* Level name */}
-        <Text
-          style={[styles.levelName, locked && styles.levelNameLocked]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {level.name}
-        </Text>
-
-        {/* Level description */}
-        <Text
-          style={[styles.levelDescription, locked && styles.levelDescriptionLocked]}
-          numberOfLines={2}
-          ellipsizeMode="tail"
-        >
-          {level.description}
-        </Text>
-
-        {/* Star Rating (if completed) or Lock Icon (if locked) */}
-        {isCompleted && !locked ? (
-          <View style={styles.starsContainer}>
-            <StarRating stars={starsEarned} size="small" />
-          </View>
-        ) : locked ? (
-          <View style={styles.lockedIndicator}>
-            <Lock size={16} color={THEME.colors.text.disabled} />
+        {/* Locked Overlay */}
+        {locked && (
+          <View style={styles.lockedOverlay}>
+            <Image
+              source={CAMPAIGN_ICONS.lock}
+              style={styles.lockIcon}
+              resizeMode="contain"
+            />
             <Text style={styles.lockedText}>LOCKED</Text>
           </View>
-        ) : (
-          <View style={styles.starsContainer}>
-            {/* Show empty stars for unlocked but not completed */}
-            <StarRating stars={0} size="small" />
-          </View>
         )}
+      </TouchableOpacity>
 
-        {/* Action Button */}
-        <View
-          style={[
-            styles.button,
-            { backgroundColor: buttonConfig.backgroundColor },
-            isCompleted && !locked && styles.buttonCompleted,
-          ]}
-        >
-          <View style={styles.buttonContent}>
-            {buttonConfig.showIcon && (
-              <Play
-                size={16}
-                color={buttonConfig.textColor}
-                fill={buttonConfig.textColor}
-                style={styles.buttonIcon}
-              />
-            )}
-            <Text style={[styles.buttonText, { color: buttonConfig.textColor }]}>
-              {buttonConfig.text}
-            </Text>
-          </View>
+      {/* Premium Badge - Right side */}
+      {isPremium && (
+        <View style={styles.premiumBadge}>
+          <LinearGradient
+            colors={[
+              CAMPAIGN_DESIGN_SPECS.colors.gradient.premiumBadge.from,
+              CAMPAIGN_DESIGN_SPECS.colors.gradient.premiumBadge.via!,
+              CAMPAIGN_DESIGN_SPECS.colors.gradient.premiumBadge.to,
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.premiumBadgeGradient}
+          >
+            <Text style={styles.premiumBadgeText}>PREMIUM</Text>
+          </LinearGradient>
         </View>
-      </View>
-    </TouchableOpacity>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Container - Pixel perfect from Figma
   container: {
-    width: 160,
-    height: 200,
-    backgroundColor: THEME.colors.background.elevated,
-    borderRadius: THEME.borderRadius.md,
-    borderWidth: 2,
-    overflow: 'hidden',
-    ...THEME.shadows.md,
-  },
-  containerLocked: {
-    opacity: 0.6,
-  },
-
-  // Thumbnail Section
-  thumbnail: {
-    height: 100,
-    backgroundColor: THEME.colors.background.tertiary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%', // Fill parent container
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.cardHeight,
     position: 'relative',
   },
-  thumbnailNumber: {
-    fontSize: 48,
-    fontWeight: THEME.typography.fontWeight.black,
-    color: THEME.colors.text.primary,
-    opacity: 0.3,
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    backgroundColor: CAMPAIGN_DESIGN_SPECS.colors.background.card,
+    borderRadius: CAMPAIGN_DESIGN_SPECS.spacing.cardBorderRadius,
+    paddingHorizontal: CAMPAIGN_DESIGN_SPECS.spacing.cardPadding,
+    paddingVertical: 0,
+    position: 'relative',
+    overflow: 'hidden',
+    ...Platform.select({
+      web: {
+        boxShadow: '0px 4px 6px -1px rgba(0,0,0,0.4), 0px 2px 4px -2px rgba(0,0,0,0.4)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 6,
+        elevation: 5,
+      },
+    }),
   },
-  thumbnailNumberLocked: {
-    opacity: 0.15,
-  },
-  difficultyBadgeContainer: {
+  subtleBorderOverlay: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    ...THEME.shadows.sm,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: CAMPAIGN_DESIGN_SPECS.spacing.cardBottomBorder, // Exclude bottom border area
+    borderWidth: 1,
+    borderColor: CAMPAIGN_DESIGN_SPECS.colors.border.cardSubtle,
+    borderRadius: CAMPAIGN_DESIGN_SPECS.spacing.cardBorderRadius,
+    pointerEvents: 'none',
   },
-  lockOverlay: {
+  bottomBorder: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: CAMPAIGN_DESIGN_SPECS.spacing.cardBottomBorder,
+    backgroundColor: CAMPAIGN_DESIGN_SPECS.colors.border.card,
+  },
+
+  // Level Number Circle - Left side
+  levelNumberContainer: {
+    marginRight: CAMPAIGN_DESIGN_SPECS.spacing.cardGap,
+  },
+  levelNumberCircle: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.levelNumberCircle,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.levelNumberCircle,
+    borderRadius: CAMPAIGN_DESIGN_SPECS.dimensions.levelNumberCircle / 2,
+    borderWidth: 1,
+    borderColor: CAMPAIGN_DESIGN_SPECS.colors.border.levelNumber,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      web: {
+        boxShadow: '0px 2px 4px 0px rgba(0,0,0,0.5), inset 0px 2px 4px 0px rgba(255,255,255,0.1)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.5,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+    }),
+  },
+  levelNumberText: {
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.levelName.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.levelName.fontWeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.number,
+    textAlign: 'center',
+  },
+
+  // Content - Title, Description, Stars
+  content: {
+    width: 271, // From Figma - exact content width for all cards (prevents overlap with premium badge at 347px)
+    justifyContent: 'center',
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.cardContentHeight,
+    flexShrink: 0, // Prevent shrinking
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // Title on left, stars on right
+    marginBottom: CAMPAIGN_DESIGN_SPECS.spacing.textGap,
+    height: 18, // From Figma
+    width: '100%', // Ensure full width
+  },
+  title: {
+    flex: 1,
+    minWidth: 0, // Allow text to shrink
+    marginRight: CAMPAIGN_DESIGN_SPECS.spacing.textGap, // Gap between title and stars
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.levelName.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.levelName.fontWeight,
+    letterSpacing: figmaLetterSpacingToRN(
+      CAMPAIGN_DESIGN_SPECS.typography.levelName.letterSpacing,
+      CAMPAIGN_DESIGN_SPECS.typography.levelName.fontSize
+    ),
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.levelName.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.title,
+    textTransform: 'uppercase',
+  },
+  titleLocked: {
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.locked,
+  },
+  description: {
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.levelDescription.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.levelDescription.fontWeight,
+    letterSpacing: figmaLetterSpacingToRN(
+      CAMPAIGN_DESIGN_SPECS.typography.levelDescription.letterSpacing,
+      CAMPAIGN_DESIGN_SPECS.typography.levelDescription.fontSize
+    ),
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.levelDescription.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.description,
+  },
+  descriptionLocked: {
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.locked,
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.starsGroupWidth,
+    height: 16, // From Figma
+  },
+
+  // Locked Overlay
+  lockedOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: CAMPAIGN_DESIGN_SPECS.colors.overlay.locked,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-
-  // Info Section
-  infoSection: {
-    flex: 1,
-    padding: THEME.spacing.sm,
-    justifyContent: 'space-between',
-  },
-  levelNumber: {
-    fontSize: THEME.typography.fontSize.xs,
-    fontWeight: THEME.typography.fontWeight.normal,
-    color: THEME.colors.text.secondary,
-    marginBottom: 2,
-  },
-  levelNumberLocked: {
-    color: THEME.colors.text.disabled,
-  },
-  levelName: {
-    fontSize: THEME.typography.fontSize.md,
-    fontWeight: THEME.typography.fontWeight.bold,
-    color: THEME.colors.text.primary,
-    marginBottom: THEME.spacing.xs,
-  },
-  levelNameLocked: {
-    color: THEME.colors.text.disabled,
-  },
-  levelDescription: {
-    fontSize: THEME.typography.fontSize.xs,
-    fontWeight: THEME.typography.fontWeight.normal,
-    color: THEME.colors.text.tertiary,
-    lineHeight: 16,
-    marginBottom: THEME.spacing.xs,
-  },
-  levelDescriptionLocked: {
-    color: THEME.colors.text.disabled,
-  },
-
-  // Stars Section
-  starsContainer: {
-    alignItems: 'center',
-    marginVertical: THEME.spacing.xs,
-  },
-
-  // Locked Indicator
-  lockedIndicator: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    marginVertical: THEME.spacing.xs,
+    gap: CAMPAIGN_DESIGN_SPECS.spacing.textGap,
+  },
+  lockIcon: {
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.lockIconSize,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.lockIconSize,
   },
   lockedText: {
-    fontSize: THEME.typography.fontSize.xs,
-    fontWeight: THEME.typography.fontWeight.bold,
-    color: THEME.colors.text.disabled,
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.lockedText.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.lockedText.fontWeight,
+    letterSpacing: figmaLetterSpacingToRN(
+      CAMPAIGN_DESIGN_SPECS.typography.lockedText.letterSpacing,
+      CAMPAIGN_DESIGN_SPECS.typography.lockedText.fontSize
+    ),
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.lockedText.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.locked,
     textTransform: 'uppercase',
   },
 
-  // Action Button
-  button: {
-    height: THEME.touchTarget.recommended,
-    borderRadius: THEME.borderRadius.sm,
+  // Premium Badge - Right side
+  premiumBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.premiumBadgeWidth,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.premiumBadgeHeight,
+    borderTopRightRadius: CAMPAIGN_DESIGN_SPECS.spacing.cardBorderRadius,
+    borderBottomRightRadius: CAMPAIGN_DESIGN_SPECS.spacing.cardBorderRadius,
+    overflow: 'hidden',
+    ...Platform.select({
+      web: {
+        boxShadow: '-2px 0px 4px 0px rgba(0,0,0,0.3)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: -2, height: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+    }),
+  },
+  premiumBadgeGradient: {
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  buttonCompleted: {
     borderWidth: 1,
-    borderColor: THEME.colors.border.light,
+    borderColor: CAMPAIGN_DESIGN_SPECS.colors.border.premium,
   },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  buttonIcon: {
-    marginRight: 4,
-  },
-  buttonText: {
-    fontSize: THEME.typography.fontSize.sm,
-    fontWeight: THEME.typography.fontWeight.bold,
+  premiumBadgeText: {
+    fontSize: CAMPAIGN_DESIGN_SPECS.typography.premiumBadge.fontSize,
+    fontWeight: CAMPAIGN_DESIGN_SPECS.typography.premiumBadge.fontWeight,
+    letterSpacing: figmaLetterSpacingToRN(
+      CAMPAIGN_DESIGN_SPECS.typography.premiumBadge.letterSpacing,
+      CAMPAIGN_DESIGN_SPECS.typography.premiumBadge.fontSize
+    ),
+    lineHeight: CAMPAIGN_DESIGN_SPECS.typography.premiumBadge.lineHeight,
+    color: CAMPAIGN_DESIGN_SPECS.colors.text.premium,
     textTransform: 'uppercase',
+    transform: [{ rotate: '90deg' }],
+    width: CAMPAIGN_DESIGN_SPECS.dimensions.premiumBadgeTextWidth,
+    height: CAMPAIGN_DESIGN_SPECS.dimensions.premiumBadgeTextHeight,
+    textAlign: 'center',
   },
 });

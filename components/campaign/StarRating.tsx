@@ -128,7 +128,7 @@ export default function StarRating({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
+    // Removed alignItems to prevent layout issues - starsRow handles alignment
   },
   starsRow: {
     flexDirection: 'row',
