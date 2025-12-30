@@ -1,0 +1,936 @@
+TUTORIAL MIGRACJI NA TILE SYSTEM - WERSJA AUDIO
+Zombie Fleet Bastion - System kafelkowych map
+Ostatnia aktualizacja: 30 grudnia 2025
+
+===============================================
+SPIS TREŚCI
+===============================================
+
+Część pierwsza: Przegląd - co się zmienia
+Część druga: Szybki start - 30 minut
+Część trzecia: Krok po kroku - pierwszy poziom
+Część czwarta: Migracja istniejących poziomów
+Część piąta: Rozwiązywanie problemów
+Część szósta: Najczęściej zadawane pytania
+
+===============================================
+CZĘŚĆ PIERWSZA: PRZEGLĄD - CO SIĘ ZMIENIA
+===============================================
+
+STARY SYSTEM - PRZED ZMIANAMI
+
+W starym systemie każdy poziom definiowałeś w pliku TypeScript. Na przykład poziom pierwszy miał kod który wyglądał tak:
+
+W pliku data, maps, level zero jeden punkt ts, eksportowałeś stałą LEVEL underscore zero jeden równa się createLevelConfig z obiektem zawierającym mapConfig. W mapConfig były waypoints - tablica punktów jak x równa zero, y równa sześć, potem x równa dziesięć, y równa sześć i tak dalej. Były też constructionSpots - miejsca gdzie można budować wieże, jak CS zero jeden na pozycji x równa cztery, y równa osiem.
+
+GameMap renderował wtedy całą mapę jako jeden wielki plik PNG o rozmiarze sześć przecinek dwa megabajta. Ścieżki były rysowane jako brzydkie linie SVG, a waypoints to były zwykłe kolorowe kółka - placeholdery.
+
+PROBLEMY STAREGO SYSTEMU:
+
+Problem pierwszy: Sześć przecinek dwa megabajta tło w jednym pliku PNG - to gigantyczny rozmiar.
+
+Problem drugi: Nie można łatwo edytować map - trzeba otwierać Photoshopa albo GIMP i ręcznie malować na jednym ogromnym obrazie.
+
+Problem trzeci: Linie SVG wyglądają źle - nie ma ładnych tekstur dla ścieżek.
+
+Problem czwarty: Trudno stworzyć nowe mapy - każda wymaga rysowania całego tła od zera.
+
+NOWY SYSTEM - PO ZMIANACH
+
+W nowym systemie tworzysz mapę w programie Tiled Map Editor - to wizualny edytor map. Eksportujesz ją jako plik JSON, na przykład level zero jeden punkt json. Ten plik ma około stu linijek i waży kilka kilobajtów zamiast megabajtów.
+
+Plik JSON zawiera warstwy. Warstwa ground to dane tile - jedynki dla trawy, dwójki dla ziemi. Warstwa path to dane dla ścieżki - zera dla pustych miejsc, piątki dla ścieżki. Warstwa objects to obiekty jak waypoint o współrzędnych x zero y sześć z właściwością order równa zero, albo construction spot o nazwie CS zero jeden.
+
+W kodzie TypeScript importujesz ten JSON i przekazujesz do parsera:
+
+import level zero jeden Json from at slash assets slash maps slash level zero jeden punkt json
+import nawiasy klamrowe loadTiledMapFromJson zamknij klamrowe from at slash utils slash tiledLoader
+
+const LEVEL underscore zero jeden underscore TILEMAP równa się loadTiledMapFromJson w nawiasach level zero jeden Json przecinek cudzysłów grasslands zamknij cudzysłów
+
+Potem w createLevelConfig zamiast waypoints i constructionSpots, dajesz tylko tileMap dwukropek LEVEL underscore zero jeden underscore TILEMAP.
+
+GameMap automatycznie renderuje mapę używając małego sprite sheet o rozmiarze około pięćdziesiąt kilobajtów zamiast sześć przecinek dwa megabajta. To sprite sheet pięćset dwanaście na pięćset dwanaście pikseli zawierający wszystkie kafelki po trzydzieści dwa na trzydzieści dwa piksele. TileMapRenderer składa mapę z tych małych kawałków jak z puzzli.
+
+KORZYŚCI NOWEGO SYSTEMU:
+
+Korzyść pierwsza: Dziewięćdziesiąt dziewięć procent redukcja rozmiaru - z sześć przecinek dwa megabajta do około pięćdziesiąt kilobajtów.
+
+Korzyść druga: Tiled Map Editor - wizualne tworzenie map poprzez rysowanie kafelkami zamiast kodowania współrzędnych.
+
+Korzyść trzecia: Ładne tekstury ścieżek z darmowych assetów Kenney punkt nl zamiast brzydkich linii SVG.
+
+Korzyść czwarta: Łatwa edycja i prototypowanie - otwierasz mapę w Tiled, zmieniasz, eksportujesz, gotowe.
+
+===============================================
+CZĘŚĆ DRUGA: SZYBKI START - 30 MINUT
+===============================================
+
+FAZA A: POBIERZ ASSETY - 5 MINUT
+
+OPCJA PIERWSZA: KENNEY PUNKT NL - ZALECANA
+
+Krok pierwszy: Otwórz w przeglądarce adres https dwukropek slash slash kenney punkt nl slash assets slash tower minus defense minus top minus down
+
+Krok drugi: Kliknij przycisk Download. To są darmowe assety na licencji CC zero - możesz używać bez ograniczeń.
+
+Krok trzeci: Rozpakuj pobrany plik ZIP i znajdź folder z kafelkami.
+
+Krok czwarty: Wybierz kafelki pasujące do layoutu który zaraz opiszę.
+
+Krok piąty: Otwórz program do edycji grafiki - Figma, Photoshop albo GIMP.
+
+LAYOUT SPRITE SHEET:
+
+Sprite sheet ma wymiary pięćset dwanaście na pięćset dwanaście pikseli. To jest szesnaście na szesnaście kafelków, każdy po trzydzieści dwa na trzydzieści dwa piksele.
+
+Rząd zerowy zawiera: Pozycja zero zero - trawa wariant pierwszy. Pozycja jeden zero - trawa wariant drugi. Pozycja dwa zero - trawa wariant trzeci. Pozycja trzy zero - ziemia. Pozycja cztery zero - piasek.
+
+Rząd pierwszy zawiera ścieżki proste: Pozycja zero jeden - ścieżka pozioma. Pozycja jeden jeden - ścieżka pionowa. Pozycja dwa jeden - narożnik lewy górny. Pozycja trzy jeden - narożnik prawy górny. Pozycja cztery jeden - narożnik lewy dolny. Pozycja pięć jeden - narożnik prawy dolny.
+
+Rząd drugi zawiera skrzyżowania: Pozycja zero dwa - skrzyżowanie T w górę. Pozycja jeden dwa - skrzyżowanie T w prawo. Pozycja dwa dwa - skrzyżowanie T w dół. Pozycja trzy dwa - skrzyżowanie T w lewo. Pozycja cztery dwa - skrzyżowanie czterokierunkowe.
+
+Rząd trzeci zawiera dekoracje: Pozycja zero trzy - drzewo wariant pierwszy. Pozycja jeden trzy - drzewo wariant drugi. Pozycja dwa trzy - kamień. Pozycja trzy trzy - krzak. Pozycja cztery trzy - kwiaty.
+
+OPCJA DRUGA: PROSTY PLACEHOLDER - SZYBKI TEST
+
+Jeśli chcesz tylko szybko przetestować system bez pobierania profesjonalnych assetów:
+
+W Figmie, Photoshopie lub innym edytorze graficznym:
+
+Krok pierwszy: Stwórz nowy canvas o wymiarach pięćset dwanaście na pięćset dwanaście pikseli.
+
+Krok drugi: Włącz siatkę o rozmiarze trzydzieści dwa na trzydzieści dwa piksele.
+
+Krok trzeci: Pokoloruj kwadraty według schematu: Pozycja zero zero - zielony kolor dla trawy. Pozycja zero jeden - brązowy kolor dla ścieżki poziomej. Pozycja jeden jeden - brązowy kolor dla ścieżki pionowej. Pozycja zero trzy - ciemnozielony kolor dla drzewa.
+
+Krok czwarty: Eksportuj jako PNG.
+
+ZAPISZ PLIK JAKO:
+
+Niezależnie od wybranej opcji, zapisz sprite sheet jako: assets slash images slash tiles slash tileset minus grasslands punkt png
+
+FAZA B: ZAINSTALUJ TILED - 5 MINUT
+
+INSTALACJA NA macOS:
+
+Otwórz terminal i wpisz: brew install minus minus cask tiled
+
+INSTALACJA NA WINDOWS:
+
+Pobierz instalator ze strony https dwukropek slash slash mapeditor punkt org
+
+INSTALACJA NA LINUX:
+
+W terminalu wpisz: sudo apt install tiled, lub: snap install tiled
+
+SPRAWDŹ INSTALACJĘ:
+
+W terminalu wpisz: tiled minus minus version
+
+Powinieneś zobaczyć wersję Tiled jeden punkt dziesięć lub nowszą.
+
+FAZA C: STWÓRZ PIERWSZĄ MAPĘ - 15 MINUT
+
+KROK C1: NOWY TILESET W TILED
+
+Krok pierwszy: Otwórz program Tiled.
+
+Krok drugi: W menu wybierz Map, potem New Tileset.
+
+Krok trzeci: Ustaw następujące opcje:
+Name wpisz: grasslands
+Type wybierz: Based on Tileset Image
+Image kliknij Browse i wskaż plik: assets slash images slash tiles slash tileset minus grasslands punkt png
+Tile width wpisz: trzydzieści dwa
+Tile height wpisz: trzydzieści dwa
+
+Krok czwarty: Kliknij OK.
+
+KROK C2: USTAW WŁAŚCIWOŚCI TILE
+
+Krok pierwszy: Kliknij na kafelek trawy w panelu tileset.
+
+Krok drugi: W prawym panelu znajdź sekcję Properties.
+
+Krok trzeci: Kliknij plus, potem Add Property.
+
+Krok czwarty: Dodaj właściwość:
+Property name: walkable
+Type: bool
+Value: false dla trawy
+
+Krok piąty: Dodaj drugą właściwość:
+Property name: buildable
+Type: bool
+Value: true dla trawy
+
+USTAW DLA WSZYSTKICH KAFELKÓW:
+
+Dla trawy: walkable równa się false, buildable równa się true
+Dla ścieżki: walkable równa się true, buildable równa się false
+Dla drzewa: walkable równa się false, buildable równa się false
+
+KROK C3: NOWA MAPA
+
+Krok pierwszy: W menu wybierz File, potem New, potem New Map.
+
+Krok drugi: Ustaw następujące opcje:
+Orientation: Orthogonal
+Tile layer format: CSV
+Tile render order: Right Down
+Map size Width: dwadzieścia tiles
+Map size Height: dwanaście tiles
+Tile size: trzydzieści dwa na trzydzieści dwa piksele
+
+Krok trzeci: Kliknij OK.
+
+KROK C4: DODAJ WARSTWY
+
+Krok pierwszy: W prawym panelu znajdź sekcję Layers.
+
+Krok drugi: Kliknij plus, potem Add Tile Layer.
+
+Krok trzeci: Dodaj następujące warstwy w tej kolejności:
+
+Warstwa pierwsza: ground - to będzie Tile Layer
+Warstwa druga: path - to też będzie Tile Layer
+Warstwa trzecia: objects - UWAGA to będzie Object Layer, nie Tile Layer
+
+KROK C5: MALUJ MAPĘ
+
+Krok pierwszy: Wybierz warstwę ground w panelu Layers.
+
+Krok drugi: Wybierz kafelek trawy z panelu tileset.
+
+Krok trzeci: Kliknij ikonę Bucket Fill, albo naciśnij klawisz G.
+
+Krok czwarty: Kliknij na mapie - cała mapa wypełni się trawą.
+
+Krok piąty: Teraz wybierz warstwę path.
+
+Krok szósty: Wybierz kafelki ścieżki - poziome, pionowe i narożniki z panelu tileset.
+
+Krok siódmy: Narysuj ścieżkę od lewej strony mapy do prawej. Pamiętaj: wrogowie będą szli tą ścieżką, więc zaplanuj ją sensownie!
+
+KROK C6: DODAJ WAYPOINTS
+
+Krok pierwszy: Wybierz warstwę objects w panelu Layers.
+
+Krok drugi: Kliknij ikonę Insert Point, albo naciśnij klawisz I.
+
+Krok trzeci: Kliknij na mapie w miejscu gdzie ścieżka ma się rozpoczynać.
+
+Krok czwarty: W prawym panelu Properties ustaw:
+Type wpisz: waypoint
+Name opcjonalnie wpisz: Start
+
+Krok piąty: Kliknij plus przy Properties, wybierz Add Property:
+Property name: order
+Type: int
+Value: zero
+
+Krok szósty: Powtórz dla kolejnych punktów ścieżki:
+Drugi punkt: order równa się jeden
+Trzeci punkt: order równa się dwa
+Czwarty punkt: order równa się trzy
+I tak dalej aż do ostatniego punktu - wyjścia.
+
+BARDZO WAŻNE: Waypoints muszą mieć właściwość order w kolejności zero, jeden, dwa, trzy bez przerw!
+
+KROK C7: DODAJ CONSTRUCTION SPOTS
+
+Krok pierwszy: Nadal na warstwie objects.
+
+Krok drugi: Kliknij Insert Point.
+
+Krok trzeci: Kliknij na mapie gdzie chcesz mieć miejsce do budowy wieży. UWAGA: NIE klikaj na ścieżce! Tylko na trawie obok.
+
+Krok czwarty: W Properties ustaw:
+Type: construction
+Name: CS minus zero jeden, albo zostaw puste dla automatycznego nazewnictwa
+
+Krok piąty: Powtórz dla około pięciu do ośmiu miejsc budowy rozmieszczonych strategicznie wokół ścieżki.
+
+KROK C8: EKSPORT DO JSON
+
+Krok pierwszy: W menu wybierz File, potem Export As.
+
+Krok drugi: W Format wybierz: JSON map files, gwiazdka punkt json
+
+Krok trzeci: Zaznacz checkboxy:
+Checkbox pierwszy: Embed tilesets
+Checkbox drugi: Detach templates
+
+Krok czwarty: Zapisz jako: assets slash maps slash level minus zero jeden minus test punkt json
+
+FAZA D: TEST W GRZE - 5 MINUT
+
+KROK D1: DODAJ IMPORT DO POZIOMU
+
+Otwórz plik data slash maps slash level minus zero jeden punkt ts
+
+Na początku pliku dodaj dwie nowe linie importu:
+
+import level zero jeden TestJson from at slash assets slash maps slash level minus zero jeden minus test punkt json
+import nawiasy klamrowe loadTiledMapFromJson zamknij klamrowe from at slash utils slash tiledLoader
+
+Tuż przed export const LEVEL underscore zero jeden dodaj linię:
+
+const LEVEL underscore zero jeden underscore TILEMAP równa się loadTiledMapFromJson w nawiasach level zero jeden TestJson przecinek cudzysłów grasslands zamknij cudzysłów
+
+KROK D2: DODAJ TILEMAP DO MAPCONFIG
+
+W obiekcie createLevelConfig, w sekcji mapConfig:
+
+Zakomentuj stare linie z waypoints i constructionSpots - dodaj na początku każdej linii dwa slashe.
+
+Dodaj nową linię: tileMap dwukropek LEVEL underscore zero jeden underscore TILEMAP przecinek
+
+ZOSTAW bez zmian sekcję waves - ta musi zostać!
+ZOSTAW bez zmian sekcję startingResources.
+
+KROK D3: ODPAL GRĘ
+
+W terminalu wpisz: npm start
+
+Sprawdź czy:
+- Mapa renderuje się z kafelków zamiast z jednego obrazka
+- Waypoints są widoczne jako czerwone i niebieskie kółka
+- Construction spots są klikalne
+- Wrogowie idą po ścieżce
+- Możesz budować wieże na construction spots
+
+Jeśli coś nie działa, przejdź do części piątej: Rozwiązywanie problemów.
+
+===============================================
+CZĘŚĆ TRZECIA: KROK PO KROKU - PIERWSZY POZIOM
+===============================================
+
+PROBLEM: DWA FORMATY POZIOMÓW
+
+Twoje poziomy w grze mają dwa różne formaty:
+
+Format A używany w level minus zero jeden punkt ts, level minus zero trzy punkt ts, level minus zero cztery punkt ts i większości innych:
+
+export const LEVEL underscore zero jeden równa się createLevelConfig w nawiasach klamrowych
+  mapConfig dwukropek nawias klamrowy
+    waypoints dwukropek tablica punktów
+    constructionSpots dwukropek tablica spotów
+    waves dwukropek tablica fal
+  zamknij klamrowy
+zamknij nawias zamknij klamrowy
+
+Format B używany w level minus zero dwa punkt ts:
+
+export const LEVEL underscore zero dwa dwukropek LevelConfig równa się nawias klamrowy
+  mapConfig dwukropek nawias klamrowy
+    grid dwukropek nawias klamrowy width dwukropek dwadzieścia przecinek height dwukropek dwanaście przecinek tileSize dwukropek trzydzieści dwa zamknij klamrowy przecinek
+    waypoints dwukropek tablica punktów
+    constructionSpots dwukropek tablica spotów
+    waves dwukropek tablica fal
+  zamknij klamrowy
+zamknij klamrowy
+
+MIGRACJA FORMAT A - Z CREATE LEVEL CONFIG
+
+PRZED ZMIANAMI kod wyglądał tak:
+
+import nawiasy klamrowe createLevelConfig przecinek createWaveConfig zamknij klamrowe from at slash utils slash levelHelpers
+import nawiasy klamrowe EnemyType zamknij klamrowe from at slash constants slash enemies
+
+export const LEVEL underscore zero jeden równa się createLevelConfig w nawiasach klamrowych
+  id dwukropek cudzysłów level minus zero jeden zamknij cudzysłów przecinek
+  number dwukropek jeden przecinek
+  name dwukropek cudzysłów First Contact zamknij cudzysłów przecinek
+  description dwukropek cudzysłów Your first encounter zamknij cudzysłów przecinek
+  difficulty dwukropek cudzysłów easy zamknij cudzysłów przecinek
+
+  mapConfig dwukropek nawias klamrowy
+    waypoints dwukropek nawias kwadratowy
+      nawias klamrowy x dwukropek zero przecinek y dwukropek sześć zamknij klamrowy przecinek
+      nawias klamrowy x dwukropek dziesięć przecinek y dwukropek sześć zamknij klamrowy przecinek
+      nawias klamrowy x dwukropek dziesięć przecinek y dwukropek trzy zamknij klamrowy przecinek
+      nawias klamrowy x dwukropek dwadzieścia przecinek y dwukropek trzy zamknij klamrowy
+    zamknij kwadratowy przecinek
+
+    constructionSpots dwukropek nawias kwadratowy
+      nawias klamrowy id dwukropek cudzysłów CS minus zero jeden zamknij cudzysłów przecinek position dwukropek nawias klamrowy x dwukropek cztery przecinek y dwukropek osiem zamknij klamrowy zamknij klamrowy przecinek
+      nawias klamrowy id dwukropek cudzysłów CS minus zero dwa zamknij cudzysłów przecinek position dwukropek nawias klamrowy x dwukropek osiem przecinek y dwukropek cztery zamknij klamrowy zamknij klamrowy przecinek
+      i tak dalej dla kolejnych spotów
+    zamknij kwadratowy przecinek
+
+    startingResources dwukropek nawias klamrowy
+      scrap dwukropek dwieście przecinek
+      hullIntegrity dwukropek dwadzieścia
+    zamknij klamrowy przecinek
+
+    waves dwukropek nawias kwadratowy
+      createWaveConfig w nawiasach jeden przecinek nawias kwadratowy nawias klamrowy type dwukropek cudzysłów shambler zamknij cudzysłów as EnemyType przecinek count dwukropek pięć zamknij klamrowy zamknij kwadratowy przecinek dwa tysiące zamknij nawias przecinek
+      createWaveConfig w nawiasach dwa przecinek nawias kwadratowy nawias klamrowy type dwukropek cudzysłów shambler zamknij cudzysłów as EnemyType przecinek count dwukropek sześć zamknij klamrowy zamknij kwadratowy przecinek tysiąc osiemset zamknij nawias
+      i tak dalej dla kolejnych fal
+    zamknij kwadratowy
+  zamknij klamrowy przecinek
+
+  unlockRequirement dwukropek nawias klamrowy
+    previousLevelId dwukropek null przecinek
+    minStarsRequired dwukropek zero
+  zamknij klamrowy
+zamknij klamrowy
+
+PO ZMIANACH kod wygląda tak:
+
+import nawiasy klamrowe createLevelConfig przecinek createWaveConfig zamknij klamrowe from at slash utils slash levelHelpers
+import nawiasy klamrowe EnemyType zamknij klamrowe from at slash constants slash enemies
+NOWA LINIA: import level zero jeden Json from at slash assets slash maps slash level minus zero jeden punkt json
+NOWA LINIA: import nawiasy klamrowe loadTiledMapFromJson zamknij klamrowe from at slash utils slash tiledLoader
+
+NOWA LINIA: const LEVEL underscore zero jeden underscore TILEMAP równa się loadTiledMapFromJson w nawiasach level zero jeden Json przecinek cudzysłów grasslands zamknij cudzysłów
+
+export const LEVEL underscore zero jeden równa się createLevelConfig w nawiasach klamrowych
+  id dwukropek cudzysłów level minus zero jeden zamknij cudzysłów przecinek
+  number dwukropek jeden przecinek
+  name dwukropek cudzysłów First Contact zamknij cudzysłów przecinek
+  description dwukropek cudzysłów Your first encounter zamknij cudzysłów przecinek
+  difficulty dwukropek cudzysłów easy zamknij cudzysłów przecinek
+
+  mapConfig dwukropek nawias klamrowy
+    USUNIĘTE: cała sekcja waypoints
+    USUNIĘTE: cała sekcja constructionSpots
+
+    NOWA LINIA: tileMap dwukropek LEVEL underscore zero jeden underscore TILEMAP przecinek
+
+    startingResources dwukropek nawias klamrowy
+      scrap dwukropek dwieście przecinek
+      hullIntegrity dwukropek dwadzieścia
+    zamknij klamrowy przecinek
+
+    waves dwukropek nawias kwadratowy
+      BEZ ZMIAN - wszystkie fale zostają takie same
+    zamknij kwadratowy
+  zamknij klamrowy przecinek
+
+  unlockRequirement dwukropek nawias klamrowy
+    previousLevelId dwukropek null przecinek
+    minStarsRequired dwukropek zero
+  zamknij klamrowy
+zamknij klamrowy
+
+MIGRACJA FORMAT B - RAW OBJECT
+
+PRZED ZMIANAMI kod wyglądał tak:
+
+import nawiasy klamrowe LevelConfig zamknij klamrowe from at slash types slash levels
+import nawiasy klamrowe EnemyType zamknij klamrowe from at slash constants slash enemies
+
+export const LEVEL underscore zero dwa dwukropek LevelConfig równa się nawias klamrowy
+  id dwukropek cudzysłów level minus zero dwa zamknij cudzysłów przecinek
+  number dwukropek dwa przecinek
+  name dwukropek cudzysłów The Horde Grows zamknij cudzysłów przecinek
+  i tak dalej dla pozostałych pól
+
+  mapConfig dwukropek nawias klamrowy
+    grid dwukropek nawias klamrowy
+      width dwukropek dwadzieścia przecinek
+      height dwukropek dwanaście przecinek
+      tileSize dwukropek trzydzieści dwa
+    zamknij klamrowy przecinek
+
+    waypoints dwukropek nawias kwadratowy
+      nawias klamrowy x dwukropek zero przecinek y dwukropek dziewięć zamknij klamrowy przecinek
+      nawias klamrowy x dwukropek siedem przecinek y dwukropek dziewięć zamknij klamrowy przecinek
+      i tak dalej
+    zamknij kwadratowy przecinek
+
+    constructionSpots dwukropek nawias kwadratowy
+      nawias klamrowy id dwukropek cudzysłów CS minus zero jeden zamknij cudzysłów przecinek position dwukropek nawias klamrowy x dwukropek trzy przecinek y dwukropek jedenaście zamknij klamrowy zamknij klamrowy przecinek
+      i tak dalej
+    zamknij kwadratowy przecinek
+
+    startingResources dwukropek nawias klamrowy
+      scrap dwukropek sto siedemdziesiąt pięć przecinek
+      hullIntegrity dwukropek dwadzieścia
+    zamknij klamrowy przecinek
+
+    waves dwukropek nawias kwadratowy
+      nawias klamrowy
+        wave dwukropek jeden przecinek
+        enemies dwukropek nawias kwadratowy nawias klamrowy type dwukropek cudzysłów shambler zamknij cudzysłów as EnemyType przecinek count dwukropek sześć zamknij klamrowy zamknij kwadratowy przecinek
+        spawnDelay dwukropek dwa tysiące
+      zamknij klamrowy przecinek
+      i tak dalej dla kolejnych fal
+    zamknij kwadratowy
+  zamknij klamrowy przecinek
+
+  starRequirements dwukropek nawias klamrowy właściwości zamknij klamrowy przecinek
+  unlockRequirement dwukropek nawias klamrowy właściwości zamknij klamrowy przecinek
+  rewards dwukropek nawias klamrowy właściwości zamknij klamrowy
+zamknij klamrowy
+
+PO ZMIANACH kod wygląda tak:
+
+import nawiasy klamrowe LevelConfig zamknij klamrowe from at slash types slash levels
+import nawiasy klamrowe EnemyType zamknij klamrowe from at slash constants slash enemies
+NOWA LINIA: import level zero dwa Json from at slash assets slash maps slash level minus zero dwa punkt json
+NOWA LINIA: import nawiasy klamrowe loadTiledMapFromJson zamknij klamrowe from at slash utils slash tiledLoader
+
+NOWA LINIA: const LEVEL underscore zero dwa underscore TILEMAP równa się loadTiledMapFromJson w nawiasach level zero dwa Json przecinek cudzysłów grasslands zamknij cudzysłów
+
+export const LEVEL underscore zero dwa dwukropek LevelConfig równa się nawias klamrowy
+  id dwukropek cudzysłów level minus zero dwa zamknij cudzysłów przecinek
+  number dwukropek dwa przecinek
+  name dwukropek cudzysłów The Horde Grows zamknij cudzysłów przecinek
+  BEZ ZMIAN - pozostałe pola
+
+  mapConfig dwukropek nawias klamrowy
+    USUNIĘTE: cała sekcja grid
+    USUNIĘTE: cała sekcja waypoints
+    USUNIĘTE: cała sekcja constructionSpots
+
+    NOWA LINIA: tileMap dwukropek LEVEL underscore zero dwa underscore TILEMAP przecinek
+
+    startingResources dwukropek nawias klamrowy
+      scrap dwukropek sto siedemdziesiąt pięć przecinek
+      hullIntegrity dwukropek dwadzieścia
+    zamknij klamrowy przecinek
+
+    waves dwukropek nawias kwadratowy
+      BEZ ZMIAN - wszystkie fale zostają takie same
+    zamknij kwadratowy
+  zamknij klamrowy przecinek
+
+  starRequirements dwukropek nawias klamrowy BEZ ZMIAN zamknij klamrowy przecinek
+  unlockRequirement dwukropek nawias klamrowy BEZ ZMIAN zamknij klamrowy przecinek
+  rewards dwukropek nawias klamrowy BEZ ZMIAN zamknij klamrowy
+zamknij klamrowy
+
+===============================================
+CZĘŚĆ CZWARTA: MIGRACJA ISTNIEJĄCYCH POZIOMÓW
+===============================================
+
+STRATEGIA: MIGRUJ JEDEN POZIOM NA RAZ
+
+Masz siedemnaście poziomów do migracji:
+- level minus zero jeden do level minus siedemnaście
+- plus endless mode
+
+NIE MIGRUJ WSZYSTKICH NARAZ! Zalecana strategia:
+
+FAZA PIERWSZA: TEST NA JEDNYM POZIOMIE
+
+To już zrobiłeś w części drugiej: Szybki start. LEVEL underscore zero jeden działa z tile systemem.
+
+FAZA DRUGA: DRUGI POZIOM - 20 MINUT
+
+Krok pierwszy: Otwórz program Tiled.
+
+Krok drugi: W menu wybierz File, potem New Map. Ustaw dwadzieścia na dwanaście tiles, trzydzieści dwa na trzydzieści dwa piksele.
+
+Krok trzeci: Narysuj ścieżkę według waypoints z pliku level minus zero dwa punkt ts.
+
+Stare waypoints to:
+Punkt pierwszy: x równa zero, y równa dziewięć - to start
+Punkt drugi: x równa siedem, y równa dziewięć - idzie w prawo
+Punkt trzeci: x równa siedem, y równa cztery - zakręt w górę, to jest S-curve
+Punkt czwarty: x równa czternaście, y równa cztery - znowu w prawo
+Punkt piąty: x równa czternaście, y równa dziewięć - zakręt w dół
+Punkt szósty: x równa dwadzieścia, y równa dziewięć - to wyjście
+
+W Tiled:
+Na warstwie ground: wypełnij całą mapę trawą używając Bucket Fill.
+Na warstwie path: narysuj ścieżkę według tych waypoints. Użyj kafelków horizontal dla poziomych odcinków, vertical dla pionowych, corners dla zakrętów.
+Na warstwie objects: dodaj sześć waypoints z właściwością order od zera do pięciu.
+
+Krok czwarty: Dodaj construction spots według level minus zero dwa punkt ts.
+
+Stare construction spots to:
+CS minus zero jeden na pozycji x równa trzy, y równa jedenaście
+CS minus zero dwa na pozycji x równa pięć, y równa sześć
+I tak dalej dla pozostałych
+
+W Tiled:
+Na warstwie objects: kliknij Insert Point.
+Dla każdego spotu ustaw Type na construction, Name na CS minus zero jeden, CS minus zero dwa i tak dalej.
+
+Krok piąty: Eksportuj jako assets slash maps slash level minus zero dwa punkt json. Zaznacz checkboxy: Embed tilesets i Detach templates.
+
+Krok szósty: Otwórz plik level minus zero dwa punkt ts i dodaj na początku:
+
+import level zero dwa Json from at slash assets slash maps slash level minus zero dwa punkt json
+import nawiasy klamrowe loadTiledMapFromJson zamknij klamrowe from at slash utils slash tiledLoader
+
+const LEVEL underscore zero dwa underscore TILEMAP równa się loadTiledMapFromJson w nawiasach level zero dwa Json przecinek cudzysłów grasslands zamknij cudzysłów
+
+W mapConfig dodaj: tileMap dwukropek LEVEL underscore zero dwa underscore TILEMAP przecinek
+
+Usuń sekcje waypoints i constructionSpots. Zostaw waves bez zmian.
+
+Krok siódmy: Odpal grę i przetestuj LEVEL underscore zero dwa. Sprawdź czy ścieżka wygląda dobrze i czy wszystko działa.
+
+FAZA TRZECIA: BATCH MIGRATION - POZOSTAŁE 15 POZIOMÓW
+
+Dla każdego poziomu od trzeciego do siedemnastego powtórz następujące kroki:
+
+Krok pierwszy: Otwórz plik data slash maps slash level minus X X punkt ts gdzie X X to numer poziomu.
+
+Krok drugi: Skopiuj tablicę waypoints i tablicę constructionSpots do notatnika lub innego miejsca.
+
+Krok trzeci: Otwórz Tiled i stwórz nową mapę dwadzieścia na dwanaście tiles.
+
+Krok czwarty: Narysuj ścieżkę bazując na skopiowanych waypoints. Wyobraź sobie jak ma wyglądać trasa - może to być linia prosta, S-curve, zigzag albo cokolwiek innego.
+
+Krok piąty: Dodaj waypoints jako obiekty na warstwie objects z właściwością order od zera wzwyż.
+
+Krok szósty: Dodaj construction spots jako obiekty type równa się construction.
+
+Krok siódmy: Eksportuj do assets slash maps slash level minus X X punkt json.
+
+Krok ósmy: W pliku level minus X X punkt ts dodaj import JSONa i parsowanie przez loadTiledMapFromJson.
+
+Krok dziewiąty: W mapConfig zamień waypoints i constructionSpots na tileMap.
+
+Krok dziesiąty: Przetestuj ten poziom w grze.
+
+POMOCNA AUTOMATYZACJA:
+
+Możesz napisać skrypt który:
+- Czyta waypoints z pliku level minus X X punkt ts
+- Generuje plik Tiled JSON automatycznie na podstawie tych danych
+
+Ale uwaga: Nadal musisz ręcznie narysować ładne ścieżki w Tiled - to jest design work który wymaga twojej kreatywności!
+
+FAZA CZWARTA: ENDLESS MODE
+
+Endless mode może używać jednej uniwersalnej mapy albo losować z puli gotowych map.
+
+Opcja pierwsza: Jedna mapa dla endless mode:
+
+Stwórz w Tiled plik endless punkt json z generyczną mapą.
+Użyj jej w endless mode:
+
+import endlessJson from at slash assets slash maps slash endless punkt json
+import nawiasy klamrowe loadTiledMapFromJson zamknij klamrowe from at slash utils slash tiledLoader
+
+const ENDLESS underscore TILEMAP równa się loadTiledMapFromJson w nawiasach endlessJson przecinek cudzysłów grasslands zamknij cudzysłów
+
+export const ENDLESS underscore MODE równa się nawias klamrowy
+  mapConfig dwukropek nawias klamrowy
+    tileMap dwukropek ENDLESS underscore TILEMAP przecinek
+    waves są generowane dynamicznie
+  zamknij klamrowy
+zamknij klamrowy
+
+Opcja druga: Losowanie z puli map:
+
+Endless mode może losować jedną z map level minus zero jeden do level minus siedemnaście co rundę.
+
+===============================================
+CZĘŚĆ PIĄTA: ROZWIĄZYWANIE PROBLEMÓW
+===============================================
+
+PROBLEM PIERWSZY: MAP SIZE MISMATCH
+
+Komunikat błędu:
+Error dwukropek Map size mismatch punkt Expected dwadzieścia razy dwanaście przecinek got szesnaście razy dziesięć
+
+Rozwiązanie:
+
+Krok pierwszy: Otwórz mapę w programie Tiled.
+
+Krok drugi: W menu wybierz Map, potem Map Properties.
+
+Krok trzeci: Sprawdź pola Width i Height. Powinny być: Width dwukropek dwadzieścia, Height dwukropek dwanaście.
+
+Krok czwarty: Jeśli wartości są inne - zmień je albo stwórz nową mapę z poprawnymi wymiarami.
+
+PROBLEM DRUGI: MISSING GROUND LAYER
+
+Komunikat błędu lub ostrzeżenia:
+Warning dwukropek Missing required layer dwukropek ground
+
+Rozwiązanie:
+
+Krok pierwszy: Otwórz mapę w programie Tiled.
+
+Krok drugi: W prawym panelu znajdź sekcję Layers.
+
+Krok trzeci: Sprawdź czy jest warstwa o nazwie dokładnie ground. Nazwa musi być pisana małymi literami! Case-sensitive!
+
+Krok czwarty: Jeśli warstwy ground nie ma - kliknij plus, wybierz Add Tile Layer, nazwij ją ground.
+
+PROBLEM TRZECI: WAYPOINTS OUT OF ORDER
+
+Symptom: Wrogowie skaczą losowo po mapie zamiast iść ścieżką w logicznej kolejności.
+
+Rozwiązanie:
+
+Krok pierwszy: Otwórz mapę w programie Tiled.
+
+Krok drugi: Wybierz warstwę objects w panelu Layers.
+
+Krok trzeci: Kliknij na każdy waypoint - to są kropki na mapie.
+
+Krok czwarty: Sprawdź w prawym panelu Properties czy każdy waypoint ma właściwość order.
+
+Krok piąty: Upewnij się że wartości order to: zero, jeden, dwa, trzy, cztery i tak dalej bez dziur! Nie może być: zero, jeden, trzy, pięć - to jest źle. Musi być ciągła sekwencja.
+
+PROBLEM CZWARTY: TILES NOT RENDERING
+
+Symptom: Mapa jest całkowicie czarna albo nie widać żadnych kafelków.
+
+Rozwiązanie:
+
+Krok pierwszy: Sprawdź czy plik tileset minus grasslands punkt png istnieje. W terminalu wpisz:
+ls assets slash images slash tiles slash tileset minus grasslands punkt png
+
+Krok drugi: Sprawdź konsolę w Metro bundler - szukaj ostrzeżeń:
+WARN dwukropek Tileset not found dwukropek at slash assets slash images slash tiles slash tileset minus grasslands punkt png
+
+Krok trzeci: Jeśli plik brakuje - pobierz go z Kenney punkt nl albo stwórz prosty placeholder jak opisano w części drugiej.
+
+Krok czwarty: Sprawdź czy eksport z Tiled zawiera embedded tileset. W Tiled przy eksporcie musi być zaznaczony checkbox: Embed tilesets.
+
+PROBLEM PIĄTY: CONSTRUCTION SPOTS NOT CLICKABLE
+
+Symptom: Nie można kliknąć na construction spot, nie działa budowanie wież.
+
+Rozwiązanie:
+
+Krok pierwszy: Sprawdź czy construction spot NIE jest umieszczony na ścieżce. Spot musi być na trawie albo ziemi, nie na path tiles!
+
+Krok drugi: Construction spots muszą być na kafelkach które mają właściwość buildable równa się true. To są kafelki typu grass lub dirt.
+
+Krok trzeci: W Tiled sprawdź properties kafelka pod spotem - właściwość buildable musi być true.
+
+PROBLEM SZÓSTY: ENEMIES WALK THROUGH TOWERS
+
+Symptom: Wrogowie przechodzą przez miejsca gdzie stoją wieże.
+
+Rozwiązanie:
+
+To nie jest błąd! To jest prawidłowe zachowanie. Wrogowie idą tylko ścieżką wyznaczoną przez waypoints. Wieże są budowane poza ścieżką na construction spots. Wrogowie nie schodzą ze ścieżki, więc nigdy nie przechodzą przez wieże.
+
+Jeśli wrogowie faktycznie schodzą ze ścieżki i chodzą losowo - sprawdź problem trzeci: waypoints out of order.
+
+===============================================
+CZĘŚĆ SZÓSTA: NAJCZĘŚCIEJ ZADAWANE PYTANIA
+===============================================
+
+PYTANIE PIERWSZE: CZY MUSZĘ MIGROWAĆ WSZYSTKIE 17 POZIOMÓW NARAZ?
+
+Odpowiedź: NIE! Możesz migrować stopniowo:
+
+Nowe poziomy które tworzysz - od razu rób w tile system.
+Stare poziomy - nadal działają ze starym systemem używającym background punkt png.
+GameMap obsługuje oba systemy jednocześnie dzięki backward compatibility.
+
+Możesz mieć LEVEL underscore zero jeden z tile systemem, a LEVEL underscore zero pięć nadal z PNG - oba będą działać.
+
+PYTANIE DRUGIE: CO Z BACKGROUND PUNKT PNG? MOGĘ GO USUNĄĆ?
+
+Odpowiedź: NIE OD RAZU! Usuń background punkt png dopiero gdy:
+
+Warunek pierwszy: Wszystkie poziomy używają tile system.
+Warunek drugi: Przetestowałeś wszystkie poziomy i upewniłeś się że działają.
+Warunek trzeci: Masz bezpieczny backup na wypadek problemów.
+
+Przed usunięciem zrób backup:
+
+mkdir assets slash images slash old minus backgrounds
+mv assets slash images slash ui slash background punkt png assets slash images slash old minus backgrounds slash
+
+PYTANIE TRZECIE: CZY MOGĘ ZMIENIĆ WYGLĄD ŚCIEŻKI W ISTNIEJĄCYCH POZIOMACH?
+
+Odpowiedź: TAK! To jest jedna z głównych korzyści tile system:
+
+Krok pierwszy: Otwórz mapę poziomu w programie Tiled.
+Krok drugi: Wybierz warstwę path.
+Krok trzeci: Użyj narzędzia Eraser, klawisz E, i usuń stare kafelki ścieżki.
+Krok czwarty: Wybierz nowe kafelki ścieżki z tileset.
+Krok piąty: Narysuj nową ścieżkę.
+Krok szósty: Eksportuj mapę ponownie.
+Krok siódmy: Odśwież grę - zmiany są natychmiastowe!
+
+Nie musisz nawet zmieniać kodu TypeScript. Wystarczy wyeksportować nowy JSON.
+
+PYTANIE CZWARTE: JAK DODAĆ NOWĄ MAPĘ, NA PRZYKŁAD LEVEL MINUS OSIEMNAŚCIE?
+
+Odpowiedź:
+
+Krok pierwszy: W Tiled wybierz File, potem New Map. Ustaw dwadzieścia na dwanaście tiles.
+
+Krok drugi: Narysuj nową mapę - ścieżka, tło, dekoracje.
+
+Krok trzeci: Dodaj waypoints i construction spots.
+
+Krok czwarty: Eksportuj jako assets slash maps slash level minus osiemnaście punkt json.
+
+Krok piąty: Stwórz nowy plik data slash maps slash level minus osiemnaście punkt ts.
+
+Przykład kodu:
+
+import level osiemnaście Json from at slash assets slash maps slash level minus osiemnaście punkt json
+import nawiasy klamrowe loadTiledMapFromJson zamknij klamrowe from at slash utils slash tiledLoader
+import nawiasy klamrowe createLevelConfig przecinek createWaveConfig zamknij klamrowe from at slash utils slash levelHelpers
+
+const LEVEL underscore osiemnaście underscore TILEMAP równa się loadTiledMapFromJson w nawiasach level osiemnaście Json przecinek cudzysłów grasslands zamknij cudzysłów
+
+export const LEVEL underscore osiemnaście równa się createLevelConfig w nawiasach klamrowych
+  id dwukropek cudzysłów level minus osiemnaście zamknij cudzysłów przecinek
+  number dwukropek osiemnaście przecinek
+  name dwukropek cudzysłów New Challenge zamknij cudzysłów przecinek
+  description dwukropek cudzysłów A brand new level! zamknij cudzysłów przecinek
+  difficulty dwukropek cudzysłów hard zamknij cudzysłów przecinek
+
+  mapConfig dwukropek nawias klamrowy
+    tileMap dwukropek LEVEL underscore osiemnaście underscore TILEMAP przecinek
+    waves dwukropek tablica fal które zdefiniujesz
+  zamknij klamrowy przecinek
+
+  unlockRequirement dwukropek nawias klamrowy
+    previousLevelId dwukropek cudzysłów level minus siedemnaście zamknij cudzysłów przecinek
+    minStarsRequired dwukropek jeden
+  zamknij klamrowy
+zamknij klamrowy
+
+Krok szósty: Dodaj nowy poziom do pliku data slash maps slash index punkt ts w tablicy ALL underscore LEVELS.
+
+PYTANIE PIĄTE: JAK ZMIENIĆ THEME, NA PRZYKŁAD Z GRASSLANDS NA DESERT?
+
+Odpowiedź:
+
+Krok pierwszy: Pobierz nowy tileset z desert tiles z Kenney punkt nl.
+
+Krok drugi: Zapisz jako assets slash images slash tiles slash tileset minus desert punkt png.
+
+Krok trzeci: W Tiled otwórz Map Properties i zmień tileset na tileset minus desert punkt png.
+
+Krok czwarty: W kodzie TypeScript zmień theme:
+
+const LEVEL underscore X X underscore TILEMAP równa się loadTiledMapFromJson w nawiasach levelXXJson przecinek cudzysłów desert zamknij cudzysłów
+
+Zamiast cudzysłów grasslands zamknij cudzysłów użyj cudzysłów desert zamknij cudzysłów.
+
+PYTANIE SZÓSTE: JAK DODAĆ DEKORACJE JAK DRZEWA I KAMIENIE?
+
+Odpowiedź:
+
+Krok pierwszy: W Tiled kliknij Add Tile Layer.
+
+Krok drugi: Nazwij nową warstwę decorations.
+
+Krok trzeci: Wybierz kafelki drzew, kamieni, krzaków z tileset.
+
+Krok czwarty: Maluj dekoracje na mapie. Uwaga: tylko na trawie, NIE na ścieżce!
+
+Krok piąty: Eksportuj mapę.
+
+TileMapRenderer automatycznie wyrenderuje warstwę decorations nad warstwą ground ale pod warstwą path.
+
+PYTANIE SIÓDME: CO JEŚLI CHCĘ ŚCIEŻKĘ KTÓRA PRZECINA SAMĄ SIEBIE, CROSSROAD?
+
+Odpowiedź:
+
+Krok pierwszy: W Tiled użyj kafelka crossroad. To jest kafelek na pozycji kolumna cztery, rząd dwa w sprite sheet.
+
+Krok drugi: Waypoints muszą przechodzić przez crossroad w logicznej kolejności. Na przykład:
+
+waypoint numer trzy: x równa dziesięć, y równa pięć - to jest przed crossroad
+waypoint numer cztery: x równa jedenaście, y równa pięć - to jest crossroad
+waypoint numer pięć: x równa jedenaście, y równa sześć - to jest po crossroad, skręt
+
+Wrogowie będą przechodzili przez skrzyżowanie zgodnie z kolejnością waypoints.
+
+PYTANIE ÓSME: JAK ZROBIĆ MAPĘ Z WIELOMA ŚCIEŻKAMI, MULTIPLE PATHS?
+
+Odpowiedź:
+
+Obecny system wspiera tylko JEDNĄ ścieżkę - jeden ciągły łańcuch waypoints od startu do mety.
+
+Jeśli chcesz wiele niezależnych ścieżek:
+
+Opcja pierwsza: Stwórz jeden waypoint path który się rozgałęzia używając T-junctions i potem łączy z powrotem. To technicznie jedna ścieżka ale wygląda jak dwie.
+
+Opcja druga: Rozszerz system - to wymaga modyfikacji kodu:
+Dodaj do TileMapConfig pole paths dwukropek tablica tablic Position.
+Zmodyfikuj EnemySpawner żeby losował path dla każdego wroga.
+Zmodyfikuj EnemyRenderer żeby wspierał wrogów na różnych paths.
+
+To jest zaawansowana modyfikacja wykraczająca poza ten tutorial.
+
+PYTANIE DZIEWIĄTE: JAK DEBUGOWAĆ PROBLEMY Z MAPĄ?
+
+Odpowiedź:
+
+Metoda pierwsza: Console logs.
+Sprawdź konsolę Metro bundler w terminalu. Szukaj komunikatów:
+WARN dwukropek Tileset not found
+ERROR dwukropek Map size mismatch
+
+Metoda druga: Debug overlay.
+To będzie dostępne w przyszłości jako FAZA czwarta - jeszcze nie zaimplementowane. Będzie można użyć komponentu TileMapDebugOverlay tileMap równa się LEVEL underscore zero jeden underscore TILEMAP.
+
+Metoda trzecia: Ręczna inspekcja JSON.
+W terminalu wpisz:
+cat assets slash maps slash level minus zero jeden punkt json pipe jq kropka layers
+
+To wyświetli strukturę warstw w pliku JSON.
+
+PYTANIE DZIESIĄTE: CZY MOGĘ UŻYWAĆ RÓŻNYCH ROZMIARÓW TILE, NA PRZYKŁAD 16 NA 16 LUB 64 NA 64?
+
+Odpowiedź:
+
+System jest zaprojektowany dla kafelków trzydzieści dwa na trzydzieści dwa piksele. To jest standardowy rozmiar dla tower defense gier i dopasowany do wymiarów mapy.
+
+Jeśli chcesz użyć innego rozmiaru:
+- Musisz zmienić TILE underscore SIZE w pliku constants slash tileDefinitions punkt ts
+- Musisz stworzyć nowy sprite sheet o odpowiednich wymiarach
+- Musisz zaktualizować wszystkie mapy w Tiled
+
+Nie jest to zalecane bo wymaga dużo zmian. Lepiej zostać przy trzydzieści dwa na trzydzieści dwa.
+
+PYTANIE JEDENASTE: CO JEŚLI MAPA NIE MIEŚCI SIĘ NA EKRANIE?
+
+Odpowiedź:
+
+Wymiary mapy są ustalone: dwadzieścia na dwanaście tiles, czyli sześćset czterdzieści na trzysta osiemdziesiąt cztery piksele. To jest dostosowane do większości ekranów mobile.
+
+Jeśli mapa nie mieści się:
+- GameMap jest w ScrollView - możesz przewijać
+- Możesz zmniejszyć scale całego GameMap używając transform w StyleSheet
+- Możesz dodać zoom controls w przyszłości
+
+To wykracza poza zakres tego tutorialu.
+
+===============================================
+KONIEC TUTORIALU
+===============================================
+
+PODSUMOWANIE - CO DALEJ:
+
+Krok pierwszy: Pobierz tileset z Kenney punkt nl i zapisz jako assets slash images slash tiles slash tileset minus grasslands punkt png.
+
+Krok drugi: Zainstaluj program Tiled z adresu https dwukropek slash slash mapeditor punkt org.
+
+Krok trzeci: Stwórz pierwszą mapę level minus zero jeden punkt json w Tiled według instrukcji z części drugiej.
+
+Krok czwarty: Przetestuj level minus zero jeden w grze.
+
+Krok piąty: Stwórz mapę level minus zero dwa punkt json.
+
+Krok szósty: Stopniowo migruj pozostałe piętnaście poziomów, po jednym na raz.
+
+Krok siódmy: Kiedy wszystkie poziomy używają tile system, możesz usunąć stary plik background punkt png.
+
+DODATKOWE ZASOBY:
+
+Dokumentacja Tiled: https dwukropek slash slash doc punkt mapeditor punkt org
+Assety Kenney: https dwukropek slash slash kenney punkt nl slash assets slash tower minus defense minus top minus down
+Plik z postępem: TILE underscore SYSTEM underscore PROGRESS punkt md
+Dokumentacja kodu: pliki types slash tiles punkt ts, constants slash tileDefinitions punkt ts, utils slash tiledLoader punkt ts, components slash game slash TileMapRenderer punkt tsx, assets slash maps slash README punkt md
+
+POWODZENIA!
+
+Jeśli utkniesz, wróć do części piątej: Rozwiązywanie problemów, albo sprawdź część szóstą: Najczęściej zadawane pytania.
+
+Koniec wersji audio.
