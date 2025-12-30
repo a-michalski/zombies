@@ -10,22 +10,27 @@ Ostatnia aktualizacja: 2025-12-30 (Start implementacji)
 - **Narzędzie**: Tiled Map Editor (mapeditor.org)
 
 ## Ukończone kroki
-- [ ] FAZA 1: Fundamenty i Typy (0/5)
+- [x] FAZA 1: Fundamenty i Typy (4/5 ukończone - 2025-12-30)
+  - [x] 1.0: TILE_SYSTEM_PROGRESS.md utworzony
+  - [x] 1.1: types/tiles.ts - definicje typów
+  - [x] 1.2: constants/tileDefinitions.ts - konsolidacja stałych
+  - [x] 1.3: utils/mapValidation.ts - walidacja z błędami
+  - [x] 1.4: components/game/TileMapRenderer.tsx - renderer z React.memo
 - [ ] FAZA 2: Tiled Integration (0/4)
 - [ ] FAZA 3: Integracja z GameMap (0/4)
 - [ ] FAZA 4: Debug Tools (0/3)
 - [ ] FAZA 5: Autotiling (OPTIONAL)
 
 ## W trakcie
-- [x] 1.0: TILE_SYSTEM_PROGRESS.md utworzony
-- [ ] 1.1: types/tiles.ts - definicje typów
-  - Status: 0% - zaraz rozpoczynam
+- [ ] 1.5: Pobieranie tileset z Kenney.nl
+  - Status: 10% - przygotowuję strukturę katalogów
 
 ## Do zrobienia
-- [ ] 1.2: constants/tileDefinitions.ts
-- [ ] 1.3: utils/mapValidation.ts
-- [ ] 1.4: components/game/TileMapRenderer.tsx
-- [ ] 1.5: Test pierwszego renderowania
+- [ ] 1.5: Pobierz placeholder tileset (Kenney.nl)
+- [ ] 1.6: Test pierwszego renderowania
+- [ ] 2.1: utils/tiledLoader.ts
+- [ ] 2.2: Stwórz mapę w Tiled
+- [ ] 2.3: Test Tiled import
 
 ## Problemy napotkane
 _Brak problemów na razie_
