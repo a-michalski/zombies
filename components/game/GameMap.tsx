@@ -4,14 +4,17 @@ import Svg, { Circle, Line, Polygon } from "react-native-svg";
 
 import { EnemyRenderer } from "./EnemyRenderer";
 import { ProjectileRenderer } from "./ProjectileRenderer";
+import { TileMapRenderer } from "./TileMapRenderer";
 import { TowerRenderer } from "./TowerRenderer";
 import { VisualEffects } from "./VisualEffects";
 
 import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
+import { TILESET_IMAGES } from "@/constants/tileDefinitions";
 import { LOOKOUT_POST } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
 import { Position } from "@/types/game";
 import { ConstructionSpotConfig } from "@/types/map";
+import { TileMapConfig } from "@/types/tiles";
 import {
   MAP_IMAGES,
   getPathTexture,
@@ -33,20 +36,33 @@ interface GameMapProps {
   waypoints?: Position[];
   /** Optional construction spots - falls back to CONSTRUCTION_SPOTS constant if not provided */
   constructionSpots?: ConstructionSpotConfig[];
+  /** Optional tile map configuration - if provided, uses TileMapRenderer instead of background image */
+  tileMap?: TileMapConfig;
 }
 
-export const GameMap = React.memo(function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
+export const GameMap = React.memo(function GameMap({ waypoints, constructionSpots, tileMap }: GameMapProps = {}) {
   const { gameState, selectSpot } = useGame();
   const tileSize = MAP_CONFIG.TILE_SIZE;
   const mapWidth = MAP_CONFIG.WIDTH * tileSize;
   const mapHeight = MAP_CONFIG.HEIGHT * tileSize;
 
   // Use provided waypoints or fall back to constants
-  const actualWaypoints = waypoints || WAYPOINTS;
+  // If tileMap is provided, use waypoints from it
+  const actualWaypoints = tileMap?.waypoints || waypoints || WAYPOINTS;
 
   // Use provided construction spots or fall back to constants
   // Convert ConstructionSpotConfig to old format if needed
+  // If tileMap is provided, use construction spots from it
   const actualSpots = useMemo(() => {
+    // Priority: tileMap > constructionSpots prop > constants
+    if (tileMap?.constructionSpots && tileMap.constructionSpots.length > 0) {
+      return tileMap.constructionSpots.map(spot => ({
+        id: spot.id,
+        x: spot.position.x,
+        y: spot.position.y,
+      }));
+    }
+
     if (constructionSpots && constructionSpots.length > 0) {
       return constructionSpots
         .filter((spot: ConstructionSpotConfig) => spot && spot.id && spot.position && typeof spot.position.x === 'number' && typeof spot.position.y === 'number')
@@ -56,8 +72,9 @@ export const GameMap = React.memo(function GameMap({ waypoints, constructionSpot
           y: spot.position.y,
         }));
     }
+
     return CONSTRUCTION_SPOTS.map(spot => ({ id: spot.id, x: spot.x, y: spot.y }));
-  }, [constructionSpots]);
+  }, [tileMap, constructionSpots]);
 
   // Memoize occupied spots to avoid recalculating on every render
   const occupiedSpotIds = useMemo(() => {
@@ -379,7 +396,18 @@ export const GameMap = React.memo(function GameMap({ waypoints, constructionSpot
 
   return (
     <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>
-      {HAS_MAP_GRAPHICS && MAP_IMAGES.background ? (
+      {/* Priority: TileMap > Background Image > Plain background */}
+      {tileMap ? (
+        // NEW: Tile-based rendering
+        <>
+          <TileMapRenderer
+            tileMap={tileMap}
+            spriteSheet={TILESET_IMAGES[tileMap.theme]}
+          />
+          {mapContent}
+        </>
+      ) : HAS_MAP_GRAPHICS && MAP_IMAGES.background ? (
+        // OLD: Background image
         <ImageBackground
           source={MAP_IMAGES.background}
           style={[styles.mapBackground, { width: mapWidth, height: mapHeight, pointerEvents: "box-none" as const }]}
@@ -388,6 +416,7 @@ export const GameMap = React.memo(function GameMap({ waypoints, constructionSpot
           {mapContent}
         </ImageBackground>
       ) : (
+        // FALLBACK: Plain background with SVG
         mapContent
       )}
     </View>
