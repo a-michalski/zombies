@@ -1,7 +1,7 @@
 # Tile System Implementation Progress
 
 ## Status: W TRAKCIE
-Ostatnia aktualizacja: 2025-12-30 (Start implementacji)
+Ostatnia aktualizacja: 2025-12-30 (FAZA 3 - Integracja ukończona)
 
 ## Konfiguracja
 - **Tileset source**: Kenney.nl - "Tiny Town" lub "RPG Urban Pack" (32×32, CC0)
@@ -24,39 +24,56 @@ Ostatnia aktualizacja: 2025-12-30 (Start implementacji)
   - [ ] 2.3: Pobierz tileset z Kenney.nl
   - [ ] 2.4: Stwórz przykładową mapę w Tiled
 
-- [ ] FAZA 3: Integracja z GameMap (0/4)
+- [x] FAZA 3: Integracja z GameMap (2/2 - 2025-12-30)
+  - [x] 3.1: Dodano prop tileMap do GameMapProps
+  - [x] 3.2: Zaimplementowano priorytet: tileMap > background > fallback
+  - [x] 3.3: Ekstrakcja waypoints/construction spots z tileMap
+  - [x] 3.4: Safe tileset loading (try-catch wrapper)
+  - [x] 3.5: Backward compatibility - stare mapy dalej działają
+
 - [ ] FAZA 4: Debug Tools (0/3)
 - [ ] FAZA 5: Autotiling (OPTIONAL)
 
 ## W trakcie
-- [ ] 2.3: Czekam na pobranie tileset z Kenney.nl
-  - Status: 50% - dokumentacja gotowa, czekam na assety
-
-## Do zrobienia
+**CZEKAM NA ASSETY** - System gotowy, potrzebne pliki graficzne:
 - [ ] 2.3: Pobierz tileset "Tower Defense Top-Down" z Kenney.nl
+  - URL: https://kenney.nl/assets/tower-defense-top-down
+  - Zapisz jako: `assets/images/tiles/tileset-grasslands.png`
+  - Format: 512×512px sprite sheet (16×16 tiles @ 32px)
+
+## Do zrobienia (po pobraniu assetów)
 - [ ] 2.4: Zainstaluj Tiled i stwórz level-01.json
-- [ ] 3.1: Integracja TileMapRenderer z GameMap.tsx
-- [ ] 3.2: Test LEVEL_01 z tile system
-- [ ] 4.1: Debug overlay component
+  - Pobierz Tiled: https://www.mapeditor.org/
+  - Użyj README w assets/maps/ jako instrukcji
+  - Stwórz prostą testową mapę (20×12 tiles)
+- [ ] Test end-to-end: Tiled → tiledLoader → TileMapRenderer → GameMap
+- [ ] 4.1: Debug overlay component (jeśli potrzebny)
 
 ## Problemy napotkane
-_Brak problemów na razie_
+1. **require() crash dla brakujących tileset** (ROZWIĄZANY)
+   - Problem: `require()` rzucał błąd gdy plik nie istnieje
+   - Rozwiązanie: Wrapper `loadTileset()` z try-catch w tileDefinitions.ts
+   - Status: ✅ Fixed - aplikacja nie crashuje bez assetów
 
 ## Zmiany względem oryginalnego planu
 1. **Tiled przesunięty do FAZY 2** (zamiast FAZY 5) - priorytet wizualnego editora
 2. **Walidacja z błędami zamiast auto-clamp** - lepsze wykrywanie błędów designera
 3. **Pomijamy generator placeholder** - używamy gotowych assetów z Kenney.nl
 4. **Pomijamy react-native-skia** - najpierw React.memo, później optymalizacja jeśli trzeba
+5. **Safe asset loading** - dodano try-catch aby nie crashować bez tileset
 
 ## Notatki techniczne
 - Istniejące typy do wykorzystania: `Position` (types/game.ts), `MapConfig` (types/map.ts)
 - `LevelConfig.backgroundImage` już istnieje - możemy wykorzystać
-- Duplikacja MAP_CONFIG: constants/gameConfig.ts vs constants/levels.ts - wymaga konsolidacji
-- Construction spots: mieszany format `{id, x, y}` vs `{id, position: {x, y}}` - obsłużymy oba
+- Duplikacja MAP_CONFIG: constants/gameConfig.ts vs constants/levels.ts - skonsolidowane w tileDefinitions.ts
+- Construction spots: mieszany format `{id, x, y}` vs `{id, position: {x, y}}` - obsłużone oba w GameMap
+- GameMap backward compatible - stare mapy działają bez zmian
 
-## Następne kroki
-1. Stwórz types/tiles.ts z TileType, TileCell, TileMapConfig
-2. Stwórz constants/tileDefinitions.ts - konsolidacja stałych mapy
-3. Stwórz utils/mapValidation.ts - walidacja waypoints z błędami
-4. Stwórz TileMapRenderer component z React.memo
-5. Pobierz tileset z Kenney.nl i umieść w assets/images/tiles/
+## Następne kroki (dla użytkownika)
+1. ✅ ~~Stwórz types/tiles.ts~~ - DONE
+2. ✅ ~~Stwórz constants/tileDefinitions.ts~~ - DONE
+3. ✅ ~~Stwórz utils/mapValidation.ts~~ - DONE
+4. ✅ ~~Stwórz TileMapRenderer~~ - DONE
+5. ✅ ~~Integracja z GameMap~~ - DONE
+6. **⏳ Pobierz tileset z Kenney.nl** ← TERAZ
+7. **⏳ Zainstaluj Tiled i stwórz level-01.json** ← PO POBRANIU TILESET
