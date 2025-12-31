@@ -106,23 +106,12 @@ export const TILE_REGIONS: Record<string, Array<{ col: number; row: number }>> =
  * Tileset images per theme
  * Each tileset is a sprite sheet containing all tiles for that theme
  *
- * NOTE: Files may not exist yet - wrapped in try-catch to prevent crashes
+ * Static imports required for Metro Bundler web compatibility
  */
-function loadTileset(path: string): any {
-  try {
-    return require(path);
-  } catch (e) {
-    if (__DEV__) {
-      console.warn(`Tileset not found: ${path}`);
-    }
-    return null;
-  }
-}
-
 export const TILESET_IMAGES: Record<TileTheme, any> = {
-  grasslands: loadTileset('@/assets/images/tiles/tileset-grasslands.png'),
-  desert: loadTileset('@/assets/images/tiles/tileset-desert.png'),      // Future
-  industrial: loadTileset('@/assets/images/tiles/tileset-industrial.png'), // Future
+  grasslands: null, // require('@/assets/images/tiles/tileset-grasslands.png'),
+  desert: null,     // require('@/assets/images/tiles/tileset-desert.png'), // Future
+  industrial: null, // require('@/assets/images/tiles/tileset-industrial.png'), // Future
 };
 
 /**

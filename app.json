@@ -38,7 +38,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.zombie-fleet-bastion",
+      "package": "app.rork.zombiefleetbastion",
       "versionCode": 1,
       "permissions": []
     },
@@ -53,7 +53,8 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-dev-client"
     ],
     "experiments": {
       "typedRoutes": true

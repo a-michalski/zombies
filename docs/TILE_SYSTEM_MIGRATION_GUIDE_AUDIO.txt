@@ -1,6 +1,5 @@
 TUTORIAL MIGRACJI NA TILE SYSTEM - WERSJA AUDIO
-Zombie Fleet Bastion - System kafelkowych map
-Ostatnia aktualizacja: 30 grudnia 2025
+
 
 ===============================================
 SPIS TREŚCI

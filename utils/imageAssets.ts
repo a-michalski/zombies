@@ -71,6 +71,21 @@ export const EFFECT_IMAGES = {
   hitEffect: require("@/assets/images/effects/hit-effect.png"),
 } as const;
 
+// Campaign screen icons from Figma
+export const CAMPAIGN_ICONS = {
+  backArrow: require("@/assets/images/icons/back-arrow.png"),
+  star: require("@/assets/images/icons/star.png"),
+  lock: require("@/assets/images/icons/lock.png"),
+  infinity: require("@/assets/images/icons/infinity.png"),
+  stats: require("@/assets/images/icons/stats.png"),
+  settings: require("@/assets/images/icons/settings.png"),
+} as const;
+
+// Campaign screen images from Figma
+export const CAMPAIGN_IMAGES = {
+  endlessMode: require("@/assets/images/endless-mode-image.png"),
+} as const;
+
 // Helper functions
 export function getTowerImage(towerType: string, level: number): any {
   if (towerType === "tower_lookout_post") {

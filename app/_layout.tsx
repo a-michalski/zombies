@@ -20,7 +20,7 @@ function RootLayoutNav() {
   if (Platform.OS === "web") {
     return <Slot />;
   }
-  
+
   return (
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
