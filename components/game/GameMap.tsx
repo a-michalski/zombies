@@ -5,10 +5,11 @@ import Svg, { Circle, Line, Polygon } from "react-native-svg";
 import { EnemyRenderer } from "./EnemyRenderer";
 import { ProjectileRenderer } from "./ProjectileRenderer";
 import { RetroTileLayer } from "./RetroTileLayer";
+import { RetroTilesetLayer } from "./RetroTilesetLayer";
 import { TowerRenderer } from "./TowerRenderer";
 import { VisualEffects } from "./VisualEffects";
 
-import { RETRO_MODE } from "@/constants/retro";
+import { RETRO_MODE, RETRO_SOURCE } from "@/constants/retro";
 
 import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { LOOKOUT_POST } from "@/constants/towers";
@@ -386,7 +387,11 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
     <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>
       {RETRO ? (
         <>
-          <RetroTileLayer waypoints={actualWaypoints} />
+          {RETRO_SOURCE === "tileset" ? (
+            <RetroTilesetLayer waypoints={actualWaypoints} spots={actualSpots} />
+          ) : (
+            <RetroTileLayer waypoints={actualWaypoints} />
+          )}
           {mapContent}
         </>
       ) : HAS_MAP_GRAPHICS && MAP_IMAGES.background ? (

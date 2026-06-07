@@ -1,30 +1,42 @@
-# Retro tileset slot (CC0)
+# Retro tileset (CC0)
 
-This folder is the drop point for a free pixel-art tileset, used when
-`RETRO_SOURCE = "tileset"` in `constants/retro.ts`.
+This folder holds the pixel-art tileset used when `RETRO_SOURCE = "tileset"`
+in `constants/retro.ts`.
 
-Right now the retro look is **procedural** (drawn from code in
-`components/game/RetroTileLayer.tsx`) so the app works with zero asset files.
-A tileset gives a richer, closer-to-the-reference look once you drop one in.
+## Installed tileset
 
-## Recommended CC0 packs (free, incl. commercial use)
+- **`tiny-town.png`** — Kenney **"Tiny Town"** packed tilemap.
+  - Grid: **12 x 11** tiles, **16x16 px** each, **no spacing** (192x176 px total).
+  - Source: https://kenney.nl/assets/tiny-town
+  - License: **CC0 1.0 (public domain)** — free for personal, educational and
+    commercial use; crediting Kenney is appreciated but not required. Full text
+    in `LICENSE-tiny-town.txt`.
 
-Download locally (the build sandbox can't reach these hosts) and unzip here:
+`components/game/RetroTilesetLayer.tsx` slices this sheet on the `MAP_CONFIG`
+grid: grass base, a grass-edged dirt path auto-tiled along the waypoints
+(`computePathTiles` from `utils/retroTiles.ts`), cobblestone plots on the
+construction spots, and start/end markers.
 
-1. **Kenney – "Tiny Town" / "Tower Defense (Top-down)"** — https://kenney.nl/assets
-   16x16, perfectly tileable, the closest to the reference screenshot. CC0.
-2. **Kenney – "RPG Urban Pack" / "Roguelike/RPG pack"** — extra props, fences, water.
-3. **itch.io – "Cute Fantasy RPG", "Tiny Swords"** — check each pack's license
-   (many are CC0 / free for commercial use, but confirm per pack).
+Tile indices used (row-major, 12 per row): grass `0/1/2`, tree `4`, bush `5`,
+cobblestone `48`, and the 3x3 dirt auto-tile block `12-14 / 24-26 / 36-38`.
 
-## How to wire a tileset in (next step)
+## Crisp pixels
 
-1. Drop the tileset PNG(s) here, e.g. `assets/images/retro/tiles.png`.
-2. Note the grid size (usually 16x16) and which cell is grass/dirt/water/etc.
-3. Add a `RetroTilesetLayer` that slices the sheet (e.g. via transformed
-   `<Image>` crops or `react-native-svg` `<Image>` with a viewBox per cell)
-   and renders cells on the `MAP_CONFIG` grid — mirroring `RetroTileLayer`.
-4. Switch on `RETRO_SOURCE` inside `GameMap` to pick procedural vs tileset.
+- Web: `image-rendering: pixelated` is set on the sheet `<Image>`.
+- Native: the source is kept at native resolution and upscaled by the integer
+  factor `TILE_SIZE / 16` (= 2), so no blur is introduced.
 
-Keep source sheets crisp: on web set `image-rendering: pixelated`; on native
-keep the source at native pixel size and scale up integer multiples.
+## Comparing the two looks
+
+`RetroTileLayer` (procedural, zero assets) and `RetroTilesetLayer` (this sheet)
+are interchangeable. Switch `RETRO_SOURCE` between `"procedural"` and
+`"tileset"` to compare; `RETRO_MODE = false` restores the original high-fi look.
+
+## Adding more / alternative CC0 packs
+
+Other good CC0 options (verify each pack's license before use):
+
+1. **Kenney – "Tower Defense (Top-down)" / "RPG Urban" / "Roguelike-RPG"** —
+   https://kenney.nl/assets (all CC0).
+2. **itch.io – "Cute Fantasy RPG", "Tiny Swords"** — often CC0 / free for
+   commercial use, but confirm per pack.

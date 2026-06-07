@@ -7,14 +7,15 @@
  *
  * RETRO_SOURCE selects where the map graphics come from:
  *  - "procedural": tiles drawn from code (no asset files needed). Works offline.
- *  - "tileset":    a CC0 16x16 tileset dropped into assets/images/retro/
- *                  (see assets/images/retro/README.md). Falls back to
- *                  "procedural" until a tileset renderer is wired in.
+ *  - "tileset":    a CC0 16x16 tileset (Kenney "Tiny Town", public domain)
+ *                  in assets/images/retro/, sliced by RetroTilesetLayer.
+ *
+ * Flip RETRO_SOURCE to compare the procedural vs tileset map side by side.
  */
 export const RETRO_MODE = true;
 
 export type RetroSource = "procedural" | "tileset";
-export const RETRO_SOURCE: RetroSource = "procedural";
+export const RETRO_SOURCE: RetroSource = "tileset";
 
 /** GBA-grassland inspired limited palette (kept small on purpose). */
 export const RETRO_PALETTE = {
