@@ -4,8 +4,11 @@ import Svg, { Circle, Line, Polygon } from "react-native-svg";
 
 import { EnemyRenderer } from "./EnemyRenderer";
 import { ProjectileRenderer } from "./ProjectileRenderer";
+import { RetroEnemyRenderer } from "./RetroEnemyRenderer";
+import { RetroProjectileRenderer } from "./RetroProjectileRenderer";
 import { RetroTileLayer } from "./RetroTileLayer";
 import { RetroTilesetLayer } from "./RetroTilesetLayer";
+import { RetroTowerRenderer } from "./RetroTowerRenderer";
 import { TowerRenderer } from "./TowerRenderer";
 import { VisualEffects } from "./VisualEffects";
 
@@ -345,9 +348,9 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
             })}
           </View>
         )}
-        <TowerRenderer />
-        <EnemyRenderer />
-        <ProjectileRenderer />
+        {RETRO ? <RetroTowerRenderer /> : <TowerRenderer />}
+        {RETRO ? <RetroEnemyRenderer /> : <EnemyRenderer />}
+        {RETRO ? <RetroProjectileRenderer /> : <ProjectileRenderer />}
         <VisualEffects />
       {/* Construction spots rendered last to be on top */}
       {actualSpots.map((spot) => {
