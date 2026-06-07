@@ -4,8 +4,11 @@ import Svg, { Circle, Line, Polygon } from "react-native-svg";
 
 import { EnemyRenderer } from "./EnemyRenderer";
 import { ProjectileRenderer } from "./ProjectileRenderer";
+import { RetroTileLayer } from "./RetroTileLayer";
 import { TowerRenderer } from "./TowerRenderer";
 import { VisualEffects } from "./VisualEffects";
+
+import { RETRO_MODE } from "@/constants/retro";
 
 import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { LOOKOUT_POST } from "@/constants/towers";
@@ -27,6 +30,10 @@ const HAS_PATH_TEXTURE = !!MAP_IMAGES.pathTexture;
 const HAS_SPECIALIZED_PATH_TEXTURES = hasPathTextures();
 const HAS_WAYPOINT_SPRITES = hasWaypointImages();
 const HAS_CONSTRUCTION_SPOT_SPRITE = hasConstructionSpotImage();
+
+// When true, suppress all high-fidelity map layers and draw the procedural
+// pixel-art background instead. Dynamic overlays (towers/enemies/etc.) stay.
+const RETRO = RETRO_MODE;
 
 interface GameMapProps {
   /** Optional waypoints array - falls back to WAYPOINTS constant if not provided */
@@ -96,7 +103,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
               y1={waypoint.y * tileSize}
               x2={next.x * tileSize}
               y2={next.y * tileSize}
-              stroke={(HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) ? "transparent" : "#555555"}
+              stroke={(RETRO || HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) ? "transparent" : "#555555"}
               strokeWidth={tileSize * 1.5}
               strokeLinecap="round"
             />
@@ -104,7 +111,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         })}
 
         {/* Waypoints - use sprites if available, otherwise colored circles */}
-        {!HAS_WAYPOINT_SPRITES && actualWaypoints.map((waypoint, index) => (
+        {!RETRO && !HAS_WAYPOINT_SPRITES && actualWaypoints.map((waypoint, index) => (
           <Circle
             key={`waypoint-${index}`}
             cx={waypoint.x * tileSize}
@@ -115,7 +122,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         ))}
 
         {/* Construction spots - use SVG if no sprite available */}
-        {!HAS_CONSTRUCTION_SPOT_SPRITE && actualSpots.map((spot) => {
+        {(RETRO || !HAS_CONSTRUCTION_SPOT_SPRITE) && actualSpots.map((spot) => {
           const isOccupied = occupiedSpotIds.has(spot.id);
           const isSelected = gameState.selectedSpotId === spot.id;
 
@@ -169,7 +176,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         </Svg>
         
         {/* Path texture overlay */}
-        {(HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) && (
+        {!RETRO && (HAS_PATH_TEXTURE || HAS_SPECIALIZED_PATH_TEXTURES) && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             {actualWaypoints.map((waypoint, index) => {
               if (index === actualWaypoints.length - 1) return null;
@@ -244,7 +251,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         )}
         
         {/* Waypoint sprites */}
-        {HAS_WAYPOINT_SPRITES && (
+        {!RETRO && HAS_WAYPOINT_SPRITES && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             {actualWaypoints.map((waypoint, index) => {
               const x = waypoint.x * tileSize;
@@ -281,7 +288,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         )}
         
         {/* Construction spot sprites */}
-        {HAS_CONSTRUCTION_SPOT_SPRITE && (
+        {!RETRO && HAS_CONSTRUCTION_SPOT_SPRITE && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             {actualSpots.map((spot) => {
               const isOccupied = occupiedSpotIds.has(spot.id);
@@ -377,7 +384,12 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
 
   return (
     <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>
-      {HAS_MAP_GRAPHICS && MAP_IMAGES.background ? (
+      {RETRO ? (
+        <>
+          <RetroTileLayer waypoints={actualWaypoints} />
+          {mapContent}
+        </>
+      ) : HAS_MAP_GRAPHICS && MAP_IMAGES.background ? (
         <ImageBackground
           source={MAP_IMAGES.background}
           style={[styles.mapBackground, { width: mapWidth, height: mapHeight, pointerEvents: "box-none" as const }]}
