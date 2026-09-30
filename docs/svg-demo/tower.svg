@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="256" height="256">
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a87445"/>
+      <stop offset="1" stop-color="#5a3a1e"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7a4a2a"/>
+      <stop offset="1" stop-color="#3a2212"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9aa3ad"/>
+      <stop offset="1" stop-color="#3b434c"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- base platform (isometric-ish) -->
+    <path d="M18 92 L64 70 L110 92 L64 114 Z" fill="#4a4a52" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M18 92 L64 114 L64 122 L18 100 Z" fill="#2a2a30" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M110 92 L64 114 L64 122 L110 100 Z" fill="#1c1c22" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- sandbags -->
+    <g fill="#b7a26b" stroke="#4a3f25" stroke-width="2">
+      <ellipse cx="34" cy="94" rx="9" ry="5"/>
+      <ellipse cx="46" cy="102" rx="9" ry="5"/>
+      <ellipse cx="94" cy="94" rx="9" ry="5"/>
+      <ellipse cx="82" cy="102" rx="9" ry="5"/>
+    </g>
+    <!-- legs of watchtower -->
+    <path d="M40 90 L46 40 M88 90 L82 40 M52 96 L54 44 M76 96 L74 44" stroke="url(#wood)" stroke-width="5" stroke-linecap="round"/>
+    <path d="M46 62 L82 62 M48 76 L80 76" stroke="#6b4626" stroke-width="3"/>
+    <!-- cabin -->
+    <rect x="40" y="34" width="48" height="26" rx="2" fill="url(#wood)" stroke="#2a1a0c" stroke-width="2.5"/>
+    <path d="M46 34 v26 M58 34 v26 M70 34 v26 M82 34 v26" stroke="#3e2712" stroke-width="1.5" opacity="0.8"/>
+    <!-- window glow -->
+    <rect x="56" y="40" width="16" height="10" rx="1.5" fill="#ffd36a" stroke="#2a1a0c" stroke-width="2"/>
+    <!-- roof -->
+    <path d="M32 36 L64 14 L96 36 Z" fill="url(#roof)" stroke="#1a0f06" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M40 34 L64 18 L88 34" fill="none" stroke="#a0673a" stroke-width="1.5" opacity="0.7"/>
+    <!-- gun barrel -->
+    <path d="M64 30 L64 6" stroke="url(#metal)" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="64" cy="30" r="6" fill="url(#metal)" stroke="#111" stroke-width="2"/>
+    <!-- flag -->
+    <path d="M96 36 v-22" stroke="#222" stroke-width="2"/>
+    <path d="M96 14 l14 4 l-14 5 z" fill="#c62828" stroke="#4a0d0d" stroke-width="1.5"/>
+  </g>
+</svg>

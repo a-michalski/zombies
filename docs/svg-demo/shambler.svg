@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="256" height="256">
+  <defs>
+    <radialGradient id="skin" cx="45%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#9fd16a"/>
+      <stop offset="0.6" stop-color="#5f8f3a"/>
+      <stop offset="1" stop-color="#2f4d1c"/>
+    </radialGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b5a8e"/>
+      <stop offset="1" stop-color="#2d2440"/>
+    </linearGradient>
+    <linearGradient id="pants" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b3b4a"/>
+      <stop offset="1" stop-color="#15151c"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+  <!-- top-down / 3/4 view, facing UP -->
+  <g filter="url(#shadow)">
+    <!-- legs -->
+    <path d="M48 78 l-6 30 q0 6 7 6 l6 -32 z" fill="url(#pants)" stroke="#0d0d12" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M80 78 l6 30 q0 6 -7 6 l-6 -32 z" fill="url(#pants)" stroke="#0d0d12" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- arms stretched forward -->
+    <path d="M40 58 q-18 -14 -20 -42 q0 -5 5 -5 q5 0 6 5 q4 22 18 32 z" fill="url(#skin)" stroke="#1c2e12" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M88 58 q18 -14 20 -42 q0 -5 -5 -5 q-5 0 -6 5 q-4 22 -18 32 z" fill="url(#skin)" stroke="#1c2e12" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- hands -->
+    <g fill="#8fc35a" stroke="#1c2e12" stroke-width="2">
+      <ellipse cx="26" cy="12" rx="7" ry="6"/>
+      <ellipse cx="102" cy="12" rx="7" ry="6"/>
+      <path d="M20 9 l-4 -6 M25 7 l-1 -7 M31 8 l3 -6" stroke-linecap="round"/>
+      <path d="M108 9 l4 -6 M103 7 l1 -7 M97 8 l-3 -6" stroke-linecap="round"/>
+    </g>
+    <!-- torso / shirt -->
+    <path d="M42 48 q22 -14 44 0 l6 34 q-28 10 -56 0 z" fill="url(#shirt)" stroke="#161022" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- torn shirt & blood -->
+    <path d="M52 82 l4 -8 l4 8 l4 -9 l4 9 l5 -8 l4 8" fill="none" stroke="#161022" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M60 56 q6 8 2 18 q6 -4 9 -14 z" fill="#8a1a1a" opacity="0.85"/>
+    <circle cx="74" cy="66" r="2.5" fill="#8a1a1a"/>
+    <!-- head -->
+    <ellipse cx="64" cy="40" rx="19" ry="20" fill="url(#skin)" stroke="#1c2e12" stroke-width="2.5"/>
+    <!-- hair patches -->
+    <path d="M50 26 q6 -10 14 -8 q8 -3 14 8 q-6 -3 -14 -2 q-8 -1 -14 2z" fill="#1e3312"/>
+    <!-- eyes (glowing) -->
+    <ellipse cx="56" cy="42" rx="4.5" ry="3.5" fill="#fff6a8"/>
+    <ellipse cx="72" cy="41" rx="3.5" ry="3" fill="#fff6a8"/>
+    <circle cx="56" cy="42" r="1.6" fill="#1a1a1a"/>
+    <circle cx="72" cy="41" r="1.3" fill="#1a1a1a"/>
+    <!-- mouth -->
+    <path d="M55 52 q9 5 18 0" fill="#3a0d0d" stroke="#1c2e12" stroke-width="1.5"/>
+    <path d="M58 52.5 l0 3 M63 54 l0 3 M68 53 l0 3" stroke="#e8e6d8" stroke-width="1.5"/>
+    <!-- wound on head -->
+    <path d="M76 30 q4 4 2 9" fill="none" stroke="#8a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>
