@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable, Animated } from 'react-native';
 import { Trophy, ChevronRight, RotateCcw, ArrowLeft, Skull, CheckCircle, Clock } from 'lucide-react-native';
 import { THEME } from '@/constants/ui/theme';
-import { StarRating } from './StarRating';
+import StarRating from './StarRating';
 
 export interface VictoryScreenStats {
   zombiesKilled: number;

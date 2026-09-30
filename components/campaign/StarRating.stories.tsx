@@ -201,6 +201,7 @@ export const VictoryDisplay: Story = {
  * All star counts displayed together
  */
 export const AllStarCounts: Story = {
+  args: { stars: 0 },
   render: () => (
     <View style={styles.showcaseContainer}>
       <View style={styles.column}>
@@ -234,6 +235,7 @@ export const AllStarCounts: Story = {
  * All sizes comparison
  */
 export const AllSizes: Story = {
+  args: { stars: 0 },
   render: () => (
     <View style={styles.showcaseContainer}>
       <View style={styles.column}>

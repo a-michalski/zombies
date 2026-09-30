@@ -7,6 +7,7 @@
     "start-web": "bunx rork start -p l0l6xy3ojee6badby8zpj --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p l0l6xy3ojee6badby8zpj --web --tunnel",
     "lint": "expo lint",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "optimize-images": "node scripts/optimize-png-images.js",
     "validate-assets": "node scripts/validate-assets.js",
     "asset-report": "node scripts/generate-asset-sizes-report.js",

@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { MAP_CONFIG } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
 
 export function VisualEffects() {
-  const { gameState } = useGame();
-  const tileSize = MAP_CONFIG.TILE_SIZE;
+  const { gameState, mapData } = useGame();
+  const tileSize = mapData.grid.tileSize;
   const [currentTime, setCurrentTime] = useState(Date.now());
   const animationFrameRef = useRef<number | null>(null);
 
@@ -31,8 +30,8 @@ export function VisualEffects() {
       style={[
         StyleSheet.absoluteFill,
         {
-          width: MAP_CONFIG.WIDTH * tileSize,
-          height: MAP_CONFIG.HEIGHT * tileSize,
+          width: mapData.grid.width * tileSize,
+          height: mapData.grid.height * tileSize,
         },
       ]}
       pointerEvents="none"

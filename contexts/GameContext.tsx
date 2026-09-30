@@ -1,7 +1,7 @@
 import createContextHook from "@nkzw/create-context-hook";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { CONSTRUCTION_SPOTS, GAME_CONFIG } from "@/constants/gameConfig";
+import { GAME_CONFIG } from "@/constants/gameConfig";
 import { LOOKOUT_POST, CANNON_TOWER } from "@/constants/towers";
 import { POWER_UP_CONFIGS, TIME_FREEZE_DURATION, REPAIR_PERCENTAGE } from "@/constants/powerups";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/types/game";
 import { LevelConfig } from "@/types/levels";
 import { PowerUpType } from "@/types/powerups";
+import { getMapData } from "@/utils/mapData";
 
 const INITIAL_STATE: GameState = {
   phase: "between_waves",
@@ -47,14 +48,44 @@ const INITIAL_STATE: GameState = {
   activeEffects: [],
 };
 
+/**
+ * Build a fresh GameState for a campaign level.
+ * Every field of GameState is set here so the game loops never see
+ * a partially initialised state.
+ */
+const createLevelState = (level: LevelConfig): GameState => ({
+  ...INITIAL_STATE,
+  scrap: level.mapConfig.startingResources.scrap,
+  hullIntegrity: level.mapConfig.startingResources.hullIntegrity,
+  powerUps: POWER_UP_CONFIGS.map(config => ({
+    type: config.id,
+    lastUsedAt: 0,
+    isOnCooldown: false,
+    remainingCooldown: 0,
+  })),
+  activeEffects: [],
+  sessionConfig: {
+    currentLevel: level,
+    mode: 'campaign',
+  },
+});
+
 export const [GameProvider, useGame] = createContextHook(() => {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);
   const [currentLevel, setCurrentLevel] = useState<LevelConfig | null>(null);
   const gameLoopRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastUpdateRef = useRef<number>(Date.now());
 
+  /**
+   * Restart the current session.
+   * In campaign mode this restarts the current level with its own
+   * resources and waves; in classic mode it restores INITIAL_STATE.
+   */
   const resetGame = useCallback(() => {
-    setGameState(INITIAL_STATE);
+    setGameState((prev) => {
+      const level = prev.sessionConfig?.currentLevel;
+      return level ? createLevelState(level) : INITIAL_STATE;
+    });
     lastUpdateRef.current = Date.now();
   }, []);
 
@@ -64,32 +95,7 @@ export const [GameProvider, useGame] = createContextHook(() => {
    */
   const startCampaignLevel = useCallback((level: LevelConfig) => {
     setCurrentLevel(level);
-
-    // Initialize game with level's config
-    setGameState({
-      phase: 'between_waves',
-      currentWave: 1,
-      scrap: level.mapConfig.startingResources.scrap,
-      hullIntegrity: level.mapConfig.startingResources.hullIntegrity,
-      isPaused: false,
-      gameSpeed: 1,
-      waveCountdown: GAME_CONFIG.AUTO_START_DELAY,
-      enemies: [],
-      towers: [],
-      projectiles: [],
-      floatingTexts: [],
-      particles: [],
-      selectedSpotId: null,
-      selectedTowerId: null,
-      stats: {
-        zombiesKilled: 0,
-        totalDamageDealt: 0,
-      },
-      sessionConfig: {
-        currentLevel: level,
-        mode: 'campaign',
-      },
-    });
+    setGameState(createLevelState(level));
     lastUpdateRef.current = Date.now();
   }, []);
 
@@ -99,7 +105,7 @@ export const [GameProvider, useGame] = createContextHook(() => {
 
       if (prev.scrap < towerConfig.buildCost) return prev;
 
-      const spot = CONSTRUCTION_SPOTS.find((s) => s.id === spotId);
+      const spot = getMapData(prev).constructionSpots.find((s) => s.id === spotId);
       if (!spot) return prev;
 
       const existingTower = prev.towers.find((t) => t.spotId === spotId);
@@ -109,7 +115,7 @@ export const [GameProvider, useGame] = createContextHook(() => {
         id: `tower_${Date.now()}`,
         type: towerType,
         spotId,
-        position: { x: spot.x, y: spot.y },
+        position: { x: spot.position.x, y: spot.position.y },
         level: 1,
         lastFireTime: 0,
         targetEnemyId: null,
@@ -402,10 +408,14 @@ export const [GameProvider, useGame] = createContextHook(() => {
     };
   }, []);
 
+  const sessionConfig = gameState.sessionConfig;
+  const mapData = useMemo(() => getMapData({ sessionConfig }), [sessionConfig]);
+
   return {
     gameState,
     setGameState,
     currentLevel,
+    mapData,
     resetGame,
     startCampaignLevel,
     buildTower,

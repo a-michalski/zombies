@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 
 import { ENEMY_CONFIGS } from "@/constants/enemies";
-import { GAME_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
+import { GAME_CONFIG } from "@/constants/gameConfig";
 import { LOOKOUT_POST, CANNON_TOWER, PROJECTILE_CONFIG } from "@/constants/towers";
 import { WAVE_CONFIGS } from "@/constants/waves";
 import { useGame } from "@/contexts/GameContext";
-import { Enemy, Position, Projectile } from "@/types/game";
+import { Enemy, GameState, Position, Projectile } from "@/types/game";
+import { getMapData } from "@/utils/mapData";
 import { calculatePathProgress, getDistance, moveAlongPath } from "@/utils/pathfinding";
 
 export function useGameEngine() {
@@ -13,6 +14,8 @@ export function useGameEngine() {
 
   const spawnTimerRef = useRef<number>(0);
   const enemyQueueRef = useRef<{ type: string; spawnTime: number }[]>([]);
+  /** Wave number whose spawn queue has been built; null while between waves */
+  const queuedWaveRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(Date.now());
 
   /**
@@ -94,7 +97,7 @@ export function useGameEngine() {
    * Get wave configuration based on current game mode
    * Campaign mode uses level's waves, classic mode uses hardcoded waves, endless mode generates procedurally
    */
-  const getWaveConfig = (waveNumber: number, gameState: any) => {
+  const getWaveConfig = (waveNumber: number, gameState: GameState) => {
     // If campaign mode with a level
     if (gameState.sessionConfig?.mode === 'campaign' && gameState.sessionConfig?.currentLevel) {
       const currentLevel = gameState.sessionConfig.currentLevel;
@@ -104,18 +107,22 @@ export function useGameEngine() {
         return generateEndlessWave(waveNumber);
       }
 
-      // Regular campaign level
-      return currentLevel.mapConfig.waves.find((w: any) => w.wave === waveNumber);
+      // Regular campaign level.
+      // Level data stores spawnDelay in milliseconds (see types/map.ts);
+      // the engine works in seconds, so convert here.
+      const wave = currentLevel.mapConfig.waves.find((w) => w.wave === waveNumber);
+      if (!wave) return undefined;
+      return { ...wave, spawnDelay: wave.spawnDelay / 1000 };
     }
 
-    // Otherwise use classic mode (hardcoded waves)
+    // Otherwise use classic mode (hardcoded waves, spawnDelay in seconds)
     return WAVE_CONFIGS.find(w => w.wave === waveNumber);
   };
 
   /**
    * Get total number of waves based on current game mode
    */
-  const getTotalWaves = (gameState: any) => {
+  const getTotalWaves = (gameState: GameState) => {
     if (gameState.sessionConfig?.mode === 'campaign' && gameState.sessionConfig?.currentLevel) {
       const currentLevel = gameState.sessionConfig.currentLevel;
 
@@ -132,11 +139,8 @@ export function useGameEngine() {
   /**
    * Get waypoints based on current game mode
    */
-  const getWaypoints = (gameState: any): readonly Position[] => {
-    if (gameState.sessionConfig?.mode === 'campaign' && gameState.sessionConfig?.currentLevel) {
-      return gameState.sessionConfig.currentLevel.mapConfig.waypoints;
-    }
-    return WAYPOINTS; // Classic mode: hardcoded waypoints
+  const getWaypoints = (gameState: GameState): readonly Position[] => {
+    return getMapData(gameState).waypoints;
   };
 
   useEffect(() => {
@@ -153,6 +157,13 @@ export function useGameEngine() {
         const dt = deltaTime * prev.gameSpeed;
         let newState = { ...prev };
 
+        if (newState.phase === "between_waves") {
+          // A new wave (or a restarted level) always begins from between_waves,
+          // so this is where the spawn queue is re-armed.
+          enemyQueueRef.current = [];
+          queuedWaveRef.current = null;
+        }
+
         if (newState.phase === "playing") {
           const waveConfig = getWaveConfig(newState.currentWave, newState);
 
@@ -162,11 +173,15 @@ export function useGameEngine() {
             return newState;
           }
 
-          if (enemyQueueRef.current.length === 0 && newState.enemies.length === 0) {
+          // Build the spawn queue exactly once per wave. Checking "no enemies
+          // left" here would restart the wave whenever the last enemy was
+          // killed by a projectile (enemies are removed after this block).
+          if (queuedWaveRef.current !== newState.currentWave) {
+            queuedWaveRef.current = newState.currentWave;
             const allEnemies: { type: string; spawnTime: number }[] = [];
             let spawnTime = 0;
 
-            waveConfig.enemies.forEach((enemyGroup) => {
+            waveConfig.enemies.forEach((enemyGroup: { type: string; count: number }) => {
               for (let i = 0; i < enemyGroup.count; i++) {
                 allEnemies.push({
                   type: enemyGroup.type,
@@ -466,7 +481,6 @@ export function useGameEngine() {
 
               // Remove all dead enemies
               newState.enemies = newState.enemies.filter((e) => e.health > 0);
-              }
 
               return null;
             }

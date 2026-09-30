@@ -226,6 +226,7 @@ export const WithInteractions: Story = {
  * All level states side by side
  */
 export const AllStates: Story = {
+  args: { level: MOCK_LEVEL_01, progress: null, locked: false },
   render: () => (
     <View style={styles.grid}>
       <LevelCard
@@ -274,6 +275,7 @@ export const AllStates: Story = {
  * All difficulty levels
  */
 export const AllDifficulties: Story = {
+  args: { level: MOCK_LEVEL_01, progress: null, locked: false },
   render: () => (
     <View style={styles.grid}>
       <LevelCard
