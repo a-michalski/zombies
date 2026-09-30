@@ -7,11 +7,8 @@ import { ProjectileRenderer } from "./ProjectileRenderer";
 import { TowerRenderer } from "./TowerRenderer";
 import { VisualEffects } from "./VisualEffects";
 
-import { CONSTRUCTION_SPOTS, MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { LOOKOUT_POST } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
-import { Position } from "@/types/game";
-import { ConstructionSpotConfig } from "@/types/map";
 import {
   MAP_IMAGES,
   getPathTexture,
@@ -28,34 +25,19 @@ const HAS_SPECIALIZED_PATH_TEXTURES = hasPathTextures();
 const HAS_WAYPOINT_SPRITES = hasWaypointImages();
 const HAS_CONSTRUCTION_SPOT_SPRITE = hasConstructionSpotImage();
 
-interface GameMapProps {
-  /** Optional waypoints array - falls back to WAYPOINTS constant if not provided */
-  waypoints?: Position[];
-  /** Optional construction spots - falls back to CONSTRUCTION_SPOTS constant if not provided */
-  constructionSpots?: ConstructionSpotConfig[];
-}
+export function GameMap() {
+  const { gameState, selectSpot, mapData } = useGame();
+  const tileSize = mapData.grid.tileSize;
+  const mapWidth = mapData.grid.width * tileSize;
+  const mapHeight = mapData.grid.height * tileSize;
 
-export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
-  const { gameState, selectSpot } = useGame();
-  const tileSize = MAP_CONFIG.TILE_SIZE;
-  const mapWidth = MAP_CONFIG.WIDTH * tileSize;
-  const mapHeight = MAP_CONFIG.HEIGHT * tileSize;
+  const actualWaypoints = mapData.waypoints;
 
-  // Use provided waypoints or fall back to constants
-  const actualWaypoints = waypoints || WAYPOINTS;
-
-  // Use provided construction spots or fall back to constants
-  // Convert ConstructionSpotConfig to old format if needed
-  const actualSpots = useMemo(() => {
-    if (constructionSpots) {
-      return constructionSpots.map(spot => ({
-        id: spot.id,
-        x: spot.position.x,
-        y: spot.position.y,
-      }));
-    }
-    return CONSTRUCTION_SPOTS as any;
-  }, [constructionSpots]);
+  // Flatten spot positions for rendering
+  const actualSpots = useMemo(
+    () => mapData.constructionSpots.map((spot) => ({ id: spot.id, x: spot.position.x, y: spot.position.y })),
+    [mapData.constructionSpots]
+  );
 
   // Memoize occupied spots to avoid recalculating on every render
   const occupiedSpotIds = useMemo(() => {
@@ -79,8 +61,8 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
   const mapContent = useMemo(() => (
     <View style={styles.layerContainer} pointerEvents="box-none">
         <Svg
-          width={MAP_CONFIG.WIDTH * tileSize}
-          height={MAP_CONFIG.HEIGHT * tileSize}
+          width={mapWidth}
+          height={mapHeight}
           style={styles.svg}
           pointerEvents="none"
         >
@@ -373,7 +355,7 @@ export function GameMap({ waypoints, constructionSpots }: GameMapProps = {}) {
         );
       })}
       </View>
-  ), [tileSize, gameState.selectedSpotId, gameState.selectedTowerId, occupiedSpotIds, actualWaypoints, actualSpots, selectSpot, selectedTower, selectedTowerRange]);
+  ), [tileSize, mapWidth, mapHeight, gameState.selectedSpotId, occupiedSpotIds, actualWaypoints, actualSpots, selectSpot, selectedTower, selectedTowerRange]);
 
   return (
     <View style={[styles.container, { width: mapWidth, height: mapHeight }]}>

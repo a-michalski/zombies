@@ -1,32 +1,35 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import Svg, { Circle, Rect } from "react-native-svg";
 
 import { ENEMY_CONFIGS } from "@/constants/enemies";
-import { MAP_CONFIG, WAYPOINTS } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
+import { Position } from "@/types/game";
 import { getEnemyImage, hasEnemyImages } from "@/utils/imageAssets";
 
 // Calculate once outside component
 const HAS_ENEMY_IMAGES = hasEnemyImages();
 
-// Pre-calculate rotations for waypoints to avoid recalculating on every render
-const WAYPOINT_ROTATIONS: number[] = (() => {
+// Pre-calculate the sprite rotation for each path segment
+function computeWaypointRotations(waypoints: readonly Position[]): number[] {
   const rotations: number[] = [];
-  for (let i = 0; i < WAYPOINTS.length - 1; i++) {
-    const currentWaypoint = WAYPOINTS[i];
-    const nextWaypoint = WAYPOINTS[i + 1];
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const currentWaypoint = waypoints[i];
+    const nextWaypoint = waypoints[i + 1];
     const dx = nextWaypoint.x - currentWaypoint.x;
     const dy = nextWaypoint.y - currentWaypoint.y;
     const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-    rotations.push(angle - 90); // Rotate left by 90 degrees
+    rotations.push(angle - 90); // Sprites face up by default
   }
   return rotations;
-})();
+}
 
 export function EnemyRenderer() {
-  const { gameState } = useGame();
-  const tileSize = MAP_CONFIG.TILE_SIZE;
+  const { gameState, mapData } = useGame();
+  const tileSize = mapData.grid.tileSize;
+  const mapWidth = mapData.grid.width * tileSize;
+  const mapHeight = mapData.grid.height * tileSize;
+  const waypointRotations = useMemo(() => computeWaypointRotations(mapData.waypoints), [mapData.waypoints]);
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -40,8 +43,8 @@ export function EnemyRenderer() {
             const healthPercent = enemy.health / enemy.maxHealth;
 
             // Use pre-calculated rotation or default
-            const rotation = enemy.waypointIndex < WAYPOINT_ROTATIONS.length
-              ? WAYPOINT_ROTATIONS[enemy.waypointIndex]
+            const rotation = enemy.waypointIndex < waypointRotations.length
+              ? waypointRotations[enemy.waypointIndex]
               : -90; // Default: rotate 90 degrees left (facing right)
 
             return (
@@ -104,8 +107,8 @@ export function EnemyRenderer() {
         </>
       ) : (
         <Svg
-          width={MAP_CONFIG.WIDTH * tileSize}
-          height={MAP_CONFIG.HEIGHT * tileSize}
+          width={mapWidth}
+          height={mapHeight}
           style={StyleSheet.absoluteFill}
           pointerEvents="none"
         >

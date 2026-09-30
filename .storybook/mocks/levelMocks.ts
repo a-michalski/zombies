@@ -11,6 +11,7 @@ import { MapConfig } from '@/types/map';
  * Mock MapConfig for testing
  */
 export const MOCK_MAP_CONFIG: MapConfig = {
+  grid: { width: 20, height: 12, tileSize: 32 },
   waypoints: [
     { x: 50, y: 50 },
     { x: 150, y: 50 },
@@ -18,15 +19,16 @@ export const MOCK_MAP_CONFIG: MapConfig = {
     { x: 250, y: 150 },
   ],
   constructionSpots: [
-    { id: 'spot-1', x: 100, y: 75 },
-    { id: 'spot-2', x: 200, y: 100 },
+    { id: 'spot-1', position: { x: 100, y: 75 } },
+    { id: 'spot-2', position: { x: 200, y: 100 } },
   ],
   waves: [
     {
-      waveNumber: 1,
+      wave: 1,
       enemies: [
-        { type: 'shambler', count: 5, delay: 0 },
+        { type: 'shambler', count: 5 },
       ],
+      spawnDelay: 1000,
     },
   ],
   startingResources: {

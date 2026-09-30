@@ -42,6 +42,12 @@ export const ENDLESS_MODE: LevelConfig = {
   },
 
   mapConfig: {
+    grid: {
+      width: 20,
+      height: 12,
+      tileSize: 32,
+    },
+
     // Use default waypoints (classic S-curve path)
     waypoints: [
       { x: 0, y: 6 },
@@ -56,14 +62,14 @@ export const ENDLESS_MODE: LevelConfig = {
 
     // All 8 construction spots available
     constructionSpots: [
-      { id: "CS-01", x: 2, y: 8 },
-      { id: "CS-02", x: 6, y: 5 },
-      { id: "CS-03", x: 6, y: 1 },
-      { id: "CS-04", x: 10, y: 5 },
-      { id: "CS-05", x: 10, y: 11 },
-      { id: "CS-06", x: 16, y: 11 },
-      { id: "CS-07", x: 16, y: 6 },
-      { id: "CS-08", x: 18, y: 2 },
+      { id: "CS-01", position: { x: 2, y: 8 } },
+      { id: "CS-02", position: { x: 6, y: 5 } },
+      { id: "CS-03", position: { x: 6, y: 1 } },
+      { id: "CS-04", position: { x: 10, y: 5 } },
+      { id: "CS-05", position: { x: 10, y: 11 } },
+      { id: "CS-06", position: { x: 16, y: 11 } },
+      { id: "CS-07", position: { x: 16, y: 6 } },
+      { id: "CS-08", position: { x: 18, y: 2 } },
     ],
 
     startingResources: {

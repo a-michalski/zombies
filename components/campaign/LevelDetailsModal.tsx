@@ -122,7 +122,7 @@ export const LevelDetailsModal: React.FC<LevelDetailsModalProps> = ({
               <View style={styles.statsContainer}>
                 <Text style={styles.statText}>• Waves: {level.mapConfig.waves.length}</Text>
                 <Text style={styles.statText}>
-                  • Starting Scrap: {level.mapConfig.startingScrap} 🔩
+                  • Starting Scrap: {level.mapConfig.startingResources.scrap} 🔩
                 </Text>
                 <Text style={styles.statText}>
                   • Construction Spots: {level.mapConfig.constructionSpots.length}

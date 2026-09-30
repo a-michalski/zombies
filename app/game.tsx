@@ -1,9 +1,8 @@
 import { router } from "expo-router";
 import { ArrowLeft, FastForward, Heart, Pause, Play } from "lucide-react-native";
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import {
-  Dimensions,
-  ScrollView,
+  LayoutChangeEvent,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -18,73 +17,41 @@ import { PauseMenu } from "@/components/game/PauseMenu";
 import { UpgradeMenu } from "@/components/game/UpgradeMenu";
 import { PowerUpBar } from "@/components/game/PowerUpBar";
 import { EffectsOverlay } from "@/components/game/EffectsOverlay";
-import { MAP_CONFIG, WAYPOINTS, CONSTRUCTION_SPOTS } from "@/constants/gameConfig";
 import { useGame } from "@/contexts/GameContext";
-import { useCampaignContext } from "@/contexts/CampaignContext";
 import { useGameEngine } from "@/hooks/useGameEngine";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const SCREEN_HEIGHT = Dimensions.get("window").height;
+const MAP_AREA_PADDING = 16;
 
 export default function GameScreen() {
   const insets = useSafeAreaInsets();
-  const { gameState, currentLevel, resetGame, startWave, togglePause, toggleSpeed } = useGame();
-  const { completeLevel } = useCampaignContext();
+  const { gameState, mapData, startWave, togglePause, toggleSpeed } = useGame();
 
   useGameEngine();
 
-  useEffect(() => {
-    resetGame();
-  }, [resetGame]);
+  const mapWidth = mapData.grid.width * mapData.grid.tileSize;
+  const mapHeight = mapData.grid.height * mapData.grid.tileSize;
 
-  /**
-   * Handle victory - complete level in campaign context and calculate stars
-   */
-  useEffect(() => {
-    if (gameState.phase === 'victory' && currentLevel) {
-      // Calculate stars based on hull integrity
-      const hullPercent = (gameState.hullIntegrity / currentLevel.mapConfig.startingResources.hullIntegrity) * 100;
+  // Measure the area between header and footer, then fit the whole map into it.
+  const [mapArea, setMapArea] = useState<{ width: number; height: number } | null>(null);
+  const onMapAreaLayout = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setMapArea({ width, height });
+  };
 
-      let stars = 1; // Default: completed
+  const scale = mapArea
+    ? Math.min(
+        (mapArea.width - MAP_AREA_PADDING * 2) / mapWidth,
+        (mapArea.height - MAP_AREA_PADDING * 2) / mapHeight
+      )
+    : 0;
+  const scaledWidth = mapWidth * scale;
+  const scaledHeight = mapHeight * scale;
 
-      // Check 2-star requirement
-      const twoStarReq = currentLevel.starRequirements.twoStars;
-      if (twoStarReq.type === 'hull_remaining' && hullPercent >= twoStarReq.minHullPercent) {
-        stars = 2;
-      }
-
-      // Check 3-star requirement
-      const threeStarReq = currentLevel.starRequirements.threeStars;
-      if (threeStarReq.type === 'hull_remaining' && hullPercent >= threeStarReq.minHullPercent) {
-        stars = 3;
-      } else if (threeStarReq.type === 'perfect' && gameState.hullIntegrity === currentLevel.mapConfig.startingResources.hullIntegrity) {
-        stars = 3;
-      }
-
-      // Complete level in campaign context
-      completeLevel(currentLevel.id, stars, {
-        zombiesKilled: gameState.stats.zombiesKilled,
-        wavesCompleted: gameState.currentWave,
-        finalHullIntegrity: gameState.hullIntegrity,
-        timeTaken: 0, // TODO: Add timer
-        scrapEarned: gameState.scrap,
-      });
-    }
-  }, [gameState.phase, currentLevel, gameState.hullIntegrity, gameState.stats.zombiesKilled, gameState.currentWave, gameState.scrap, completeLevel]);
-
-  const mapWidth = MAP_CONFIG.WIDTH * MAP_CONFIG.TILE_SIZE;
-  const mapHeight = MAP_CONFIG.HEIGHT * MAP_CONFIG.TILE_SIZE;
-
-  const scale = Math.min(
-    (SCREEN_WIDTH - 32) / mapWidth,
-    (SCREEN_HEIGHT - 200 - insets.top - insets.bottom) / mapHeight
-  );
-
-  // Get dynamic data from level or use defaults
-  const waypoints = currentLevel?.mapConfig.waypoints || WAYPOINTS;
-  const constructionSpots = currentLevel?.mapConfig.constructionSpots;
-  const maxHullIntegrity = currentLevel?.mapConfig.startingResources.hullIntegrity || 20;
-  const totalWaves = currentLevel?.mapConfig.waves.length || 10;
+  // Get dynamic data from the active session (campaign level or classic map)
+  const activeLevel = gameState.sessionConfig?.currentLevel ?? null;
+  const maxHullIntegrity = activeLevel?.mapConfig.startingResources.hullIntegrity ?? 20;
+  const isEndless = activeLevel?.id === "endless";
+  const totalWaves = activeLevel ? activeLevel.mapConfig.waves.length : 10;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -98,8 +65,8 @@ export default function GameScreen() {
         </TouchableOpacity>
 
         <View style={styles.statsContainer}>
-          {currentLevel && (
-            <Text style={styles.levelName}>{currentLevel.name}</Text>
+          {activeLevel && (
+            <Text style={styles.levelName}>{activeLevel.name}</Text>
           )}
 
           <View style={styles.stat}>
@@ -111,7 +78,7 @@ export default function GameScreen() {
 
           <View style={styles.stat}>
             <Text style={styles.waveText}>
-              Wave {gameState.currentWave}/{totalWaves}
+              {isEndless ? `Wave ${gameState.currentWave}` : `Wave ${gameState.currentWave}/${totalWaves}`}
             </Text>
           </View>
 
@@ -144,25 +111,25 @@ export default function GameScreen() {
         </View>
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View
-          style={[
-            styles.mapContainer,
-            {
-              transform: [{ scale }],
-            },
-          ]}
-        >
-          <GameMap
-            waypoints={waypoints}
-            constructionSpots={constructionSpots}
-          />
-        </View>
-      </ScrollView>
+      <View style={styles.mapArea} onLayout={onMapAreaLayout}>
+        {mapArea && (
+          <View style={{ width: scaledWidth, height: scaledHeight }}>
+            <View
+              style={{
+                width: mapWidth,
+                height: mapHeight,
+                transform: [
+                  { translateX: -(mapWidth - scaledWidth) / 2 },
+                  { translateY: -(mapHeight - scaledHeight) / 2 },
+                  { scale },
+                ],
+              }}
+            >
+              <GameMap />
+            </View>
+          </View>
+        )}
+      </View>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         {/* Power-Ups Bar - always visible during gameplay */}
@@ -263,18 +230,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700" as const,
   },
-  scrollView: {
+  mapArea: {
     flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 16,
-  },
-  mapContainer: {
-    alignItems: "center",
-    justifyContent: "center",
+    overflow: "hidden",
   },
   footer: {
     backgroundColor: "#222222",

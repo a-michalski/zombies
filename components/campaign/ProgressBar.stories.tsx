@@ -230,6 +230,7 @@ export const CampaignProgress: Story = {
  * All progress states showcase
  */
 export const AllStates: Story = {
+  args: { current: 0, total: 1 },
   render: () => (
     <View style={styles.showcaseContainer}>
       <View style={styles.progressItem}>
@@ -262,6 +263,7 @@ export const AllStates: Story = {
  * All height variants showcase
  */
 export const AllHeights: Story = {
+  args: { current: 0, total: 1 },
   render: () => (
     <View style={styles.showcaseContainer}>
       <View style={styles.progressItem}>

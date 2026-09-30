@@ -2,7 +2,6 @@ import React from "react";
 import { Image, StyleSheet, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
-import { MAP_CONFIG } from "@/constants/gameConfig";
 import { PROJECTILE_CONFIG } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
 import { getProjectileImage, hasProjectileImage } from "@/utils/imageAssets";
@@ -11,8 +10,10 @@ import { getProjectileImage, hasProjectileImage } from "@/utils/imageAssets";
 const HAS_PROJECTILE_IMAGE = hasProjectileImage();
 
 export function ProjectileRenderer() {
-  const { gameState } = useGame();
-  const tileSize = MAP_CONFIG.TILE_SIZE;
+  const { gameState, mapData } = useGame();
+  const tileSize = mapData.grid.tileSize;
+  const mapWidth = mapData.grid.width * tileSize;
+  const mapHeight = mapData.grid.height * tileSize;
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -49,8 +50,8 @@ export function ProjectileRenderer() {
               </View>
             ) : (
               <Svg
-                width={MAP_CONFIG.WIDTH * tileSize}
-                height={MAP_CONFIG.HEIGHT * tileSize}
+                width={mapWidth}
+                height={mapHeight}
                 style={StyleSheet.absoluteFill}
                 pointerEvents="none"
               >

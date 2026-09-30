@@ -26,7 +26,7 @@ const DEFAULT_SETTINGS: GameSettings = {
   defaultGameSpeed: 1,
 };
 
-const DEFAULT_STATS: GameStats = {
+export const DEFAULT_STATS: GameStats = {
   bestWave: 0,
   totalZombiesKilled: 0,
   totalWavesSurvived: 0,

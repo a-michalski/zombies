@@ -4,6 +4,8 @@ import React, { useEffect, useRef } from "react";
 import { Animated, Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useGame } from "@/contexts/GameContext";
+import { ENDLESS_MODE } from "@/data/maps/endless";
 import { hasMainMenuBackground, UI_IMAGES } from "@/utils/imageAssets";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -12,6 +14,7 @@ const IS_LANDSCAPE = SCREEN_WIDTH > SCREEN_HEIGHT;
 
 export default function MainMenu() {
   const insets = useSafeAreaInsets();
+  const { startCampaignLevel } = useGame();
   const fadeAnim = useRef(new Animated.Value(0.7)).current;
   const hasBackground = hasMainMenuBackground();
 
@@ -62,8 +65,14 @@ export default function MainMenu() {
         <View style={styles.menuButtons}>
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push("/game" as any)}
+            onPress={() => {
+              startCampaignLevel(ENDLESS_MODE);
+              router.push("/game" as any);
+            }}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Endless Mode"
+            accessibilityHint="Start endless survival mode"
           >
             <Infinity size={20} color="#FFFFFF" />
             <Text style={styles.menuButtonText}>Endless Mode</Text>
@@ -151,11 +160,9 @@ const styles = StyleSheet.create({
     marginTop: 24,
     letterSpacing: 4,
     textAlign: "center",
-    // Use textShadow string format instead of deprecated props
-    textShadow: Platform.select({
-      web: "3px 3px 8px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.5)", // Strong black shadow for readability
-      default: "3px 3px 8px #000000",
-    }),
+    textShadowColor: "rgba(0, 0, 0, 0.9)",
+    textShadowOffset: { width: 3, height: 3 },
+    textShadowRadius: 8,
   },
   subtitle: {
     fontSize: 18,
@@ -163,11 +170,9 @@ const styles = StyleSheet.create({
     color: "#CCCCCC", // Lighter gray for better visibility
     marginTop: 8,
     letterSpacing: 4,
-    // Use textShadow string format instead of deprecated props
-    textShadow: Platform.select({
-      web: "2px 2px 6px rgba(0, 0, 0, 0.9)",
-      default: "2px 2px 6px #000000",
-    }),
+    textShadowColor: "rgba(0, 0, 0, 0.9)",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 6,
   },
   campaignButton: {
     marginTop: IS_LANDSCAPE ? 24 : 40,
@@ -184,11 +189,9 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     letterSpacing: 3,
     textAlign: "center",
-    // Use textShadow string format instead of deprecated props
-    textShadow: Platform.select({
-      web: "2px 2px 8px rgba(0, 0, 0, 0.9), 0 0 15px rgba(76, 175, 80, 0.6)",
-      default: "2px 2px 8px #000000",
-    }),
+    textShadowColor: "rgba(0, 0, 0, 0.9)",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 8,
     textTransform: "uppercase" as const,
   },
   menuButtons: {

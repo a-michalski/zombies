@@ -15,9 +15,16 @@ import { updateStatsFromGame } from "@/utils/storage";
 import { ALL_LEVELS } from "@/data/maps";
 
 export function GameOverScreen() {
-  const { gameState, resetGame } = useGame();
+  const { gameState, resetGame, startCampaignLevel } = useGame();
   const { completeLevel } = useCampaignContext();
   const statsSavedRef = useRef(false);
+
+  // A new run (playing / between_waves) re-arms the one-time save below
+  useEffect(() => {
+    if (gameState.phase === "playing" || gameState.phase === "between_waves") {
+      statsSavedRef.current = false;
+    }
+  }, [gameState.phase]);
 
   useEffect(() => {
     if (
@@ -120,7 +127,9 @@ export function GameOverScreen() {
           <Text style={styles.subtitle}>
             {isVictory
               ? "All waves survived!"
-              : `Survived ${gameState.currentWave - 1}/10 waves`}
+              : currentLevel?.id === "endless"
+                ? `Survived ${gameState.currentWave - 1} waves`
+                : `Survived ${gameState.currentWave - 1}/${currentLevel?.mapConfig.waves.length ?? 10} waves`}
           </Text>
 
           {isVictory && starsEarned > 0 && (
@@ -161,8 +170,7 @@ export function GameOverScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.nextLevelButton]}
                 onPress={() => {
-                  statsSavedRef.current = false;
-                  router.push(`/game?levelId=${nextLevel.id}` as any);
+                  startCampaignLevel(nextLevel);
                 }}
                 activeOpacity={0.8}
                 accessibilityRole="button"
@@ -177,7 +185,6 @@ export function GameOverScreen() {
             <TouchableOpacity
               style={[styles.button, styles.playAgainButton]}
               onPress={() => {
-                statsSavedRef.current = false;
                 resetGame();
               }}
               activeOpacity={0.8}

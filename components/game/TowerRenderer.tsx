@@ -2,7 +2,6 @@ import React from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import Svg, { Circle, Line, Polygon, Text as SvgText } from "react-native-svg";
 
-import { MAP_CONFIG } from "@/constants/gameConfig";
 import { LOOKOUT_POST } from "@/constants/towers";
 import { useGame } from "@/contexts/GameContext";
 import { getTowerImage, hasTowerImages } from "@/utils/imageAssets";
@@ -11,8 +10,10 @@ import { getTowerImage, hasTowerImages } from "@/utils/imageAssets";
 const HAS_TOWER_IMAGES = hasTowerImages();
 
 export function TowerRenderer() {
-  const { gameState, selectTower } = useGame();
-  const tileSize = MAP_CONFIG.TILE_SIZE;
+  const { gameState, selectTower, mapData } = useGame();
+  const tileSize = mapData.grid.tileSize;
+  const mapWidth = mapData.grid.width * tileSize;
+  const mapHeight = mapData.grid.height * tileSize;
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
@@ -40,8 +41,8 @@ export function TowerRenderer() {
             />
             {isSelected && (
               <Svg
-                width={MAP_CONFIG.WIDTH * tileSize}
-                height={MAP_CONFIG.HEIGHT * tileSize}
+                width={mapWidth}
+                height={mapHeight}
                 style={StyleSheet.absoluteFill}
                 pointerEvents="none"
               >
@@ -85,7 +86,7 @@ export function TowerRenderer() {
                     }
                   }}
                 />
-                <View style={[styles.levelBadge, { left: x, top: y + size / 2 + 8 }]}>
+                <View style={[styles.levelBadge, { left: size / 2 - 8, top: size - 4 }]}>
                   <Svg width={16} height={16} style={styles.levelBadgeSvg}>
                     <Circle cx={8} cy={8} r={8} fill="#333333" stroke="#FFD700" strokeWidth={2} />
                     <SvgText
@@ -103,8 +104,8 @@ export function TowerRenderer() {
               </View>
             ) : (
               <Svg
-                width={MAP_CONFIG.WIDTH * tileSize}
-                height={MAP_CONFIG.HEIGHT * tileSize}
+                width={mapWidth}
+                height={mapHeight}
                 style={StyleSheet.absoluteFill}
                 pointerEvents="none"
               >

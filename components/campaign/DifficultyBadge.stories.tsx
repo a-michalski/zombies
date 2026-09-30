@@ -118,6 +118,7 @@ export const SmallSize: Story = {
  * All difficulties displayed together for comparison
  */
 export const AllDifficulties: Story = {
+  args: { difficulty: 'easy' },
   render: () => (
     <View style={styles.showcaseContainer}>
       <View style={styles.row}>
@@ -144,6 +145,7 @@ export const AllDifficulties: Story = {
  * All sizes displayed together for comparison
  */
 export const AllSizes: Story = {
+  args: { difficulty: 'easy' },
   render: () => (
     <View style={styles.showcaseContainer}>
       <View style={styles.row}>
@@ -167,6 +169,7 @@ export const AllSizes: Story = {
  * With icons - shows difficulty icons
  */
 export const WithIcons: Story = {
+  args: { difficulty: 'easy' },
   render: () => (
     <View style={styles.showcaseContainer}>
       <View style={styles.row}>
@@ -193,6 +196,7 @@ export const WithIcons: Story = {
  * All variants - with and without icons
  */
 export const AllVariants: Story = {
+  args: { difficulty: 'easy' },
   render: () => (
     <View style={styles.showcaseContainer}>
       <View style={styles.row}>
